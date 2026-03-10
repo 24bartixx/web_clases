@@ -1,0 +1,76 @@
+.main-content .coffee-info {
+  padding: 40px;
+  text-align: center;
+}
+
+body {
+  font-family: "Arial, sans-serif";
+  margin: 0;
+  background-color: #6f4e37;
+  color: #6f4e37;
+}
+
+.header {
+  background-color: #6f4e37;
+  color: #f5deb3;
+  padding: 20px;
+}
+.header h1 {
+  margin: 0;
+}
+.header .nav {
+  margin-top: 10px;
+}
+.header .nav ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.header .nav ul li {
+  margin: 0 15px;
+}
+.header .nav ul li a {
+  color: #f5deb3;
+  text-decoration: none;
+  font-weight: bold;
+}
+.header .nav ul li a:hover {
+  color: #d2b48c;
+}
+
+.main-content .coffee-info {
+  background-color: #d2b48c;
+  border-radius: 8px;
+}
+.main-content .coffee-info h2 {
+  margin-top: 0;
+}
+.main-content .coffee-info p {
+  font-size: 1.1rem;
+}
+.main-content .coffee-info .btn-primary {
+  background-color: #6f4e37;
+  color: #f5deb3;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.main-content .coffee-info .btn-primary:hover {
+  background-color: rgb(145.1024096386, 101.9638554217, 71.8975903614);
+}
+.main-content .coffee-info .btn-primary {
+  margin-top: 20px;
+}
+
+.footer {
+  background-color: #6f4e37;
+  color: #f5deb3;
+  padding: 20px;
+  text-align: center;
+}
+
+/*# sourceMappingURL=styles.css.map */
