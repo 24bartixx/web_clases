@@ -1,4 +1,11 @@
+### Download sass 
 ```
 npm install -g sass
 sass --version
 ```
+
+### Enable live scss compiling
+```
+sass --watch scss/styles.scss:css/styles.css
+```
+All commands are also available via vscode tasks: hit ctrl+shift+b to run them
