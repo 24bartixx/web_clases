@@ -1,0 +1,32 @@
+@use "variables" as *;
+
+@mixin flex-center-x($dir: row) {
+  @if not index((row, column), $dir) {
+    @error "flex-center-x($dir): allowed values are 'row' or 'column'.";
+  }
+  display: flex;
+  justify-content: center;
+  flex-direction: $dir;
+}
+
+@mixin flex-center-y($dir: row) {
+  @if not index((row, column), $dir) {
+    @error "flex-center-y($dir): allowed values are 'row' or 'column'.";
+  }
+  display: flex;
+  align-items: center;
+  flex-direction: $dir;
+}
+
+@mixin flex-center($dir: row) {
+  @if not index((row, column), $dir) {
+    @error "flex-center($dir): allowed values are 'row' or 'column'.";
+  }
+
+  @include flex-center-x;
+  @include flex-center-y;
+}
+
+@mixin scaled-padding($multiplier: 2) {
+  padding: $spacing-unit * $multiplier;
+}

@@ -1,0 +1,29 @@
+@use '../abstracts/variables' as *;
+
+h1,
+h2,
+h3 {
+  line-height: $line-height-heading;
+  letter-spacing: $letter-spacing-heading;
+}
+
+h1 {
+  font-size: $font-size-h1;
+}
+
+h2 {
+  font-size: $font-size-h2;
+}
+
+h3 {
+  font-size: $font-size-h3;
+}
+
+p {
+  font-size: $font-size-base;
+  line-height: $line-height-reading;
+}
+
+a {
+  color: inherit;
+}

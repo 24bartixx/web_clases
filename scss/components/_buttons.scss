@@ -1,0 +1,37 @@
+@use '../abstracts/variables' as *;
+
+%btn-base {
+  padding: 12px 24px;
+  border-radius: $spacing-unit / 2; 
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: bold;
+  border: none;
+  text-transform: uppercase;
+}
+
+.btn-primary {
+  @extend %btn-base;
+  background-color: $color-coffee-dark;
+  color: $color-cream;
+
+  &:hover {
+    background-color: lighten($color-coffee-dark, 15%); 
+    transform: translateY(-2px);
+  }
+}
+
+.btn-secondary, .btn-outline {
+  @extend %btn-base;
+  background-color: darken($color-coffee-dark, 8%);
+  color: $color-cream;
+  margin: 5px;
+  
+  &:hover {
+    background-color: lighten($color-coffee-dark, 4%);
+  }
+}
+
+.btn-outline {
+  border: 1px solid $color-cream;
+}

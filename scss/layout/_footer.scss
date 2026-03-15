@@ -1,0 +1,17 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+.footer {
+  background-color: $color-coffee-dark;
+  color: $color-cream;
+  @include scaled-padding(4);
+
+  p {
+    text-align: center;
+    margin-bottom: $spacing-unit;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}

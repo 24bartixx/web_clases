@@ -1,0 +1,47 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+.main-content {
+  width: 100% - 10%; 
+  max-width: $layout-max-width;
+  margin: ($spacing-unit * 5) auto;
+  flex: 1;
+
+  .coffee-info,
+  .coffee-actions-panel {
+    width: 100%;
+    @include scaled-padding(4);
+    border-radius: $spacing-unit;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  }
+  
+  .coffee-info {
+    background-color: $color-white;
+    margin-bottom: $spacing-unit * 3;
+
+    h2 {
+      color: $color-coffee-dark;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      margin-bottom: 2rem;
+    }
+  }
+
+  .coffee-actions-panel {
+    background-color: $color-coffee-dark;
+    color: $color-cream;
+
+    h3 {
+      margin-bottom: $spacing-unit * 2;
+    }
+
+    .coffee-actions {
+      @include flex-center;
+      flex-wrap: wrap;
+      gap: $spacing-unit;
+    }
+  }
+}
