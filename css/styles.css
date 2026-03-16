@@ -118,7 +118,8 @@ a {
   flex: 1;
 }
 .main-content .coffee-info,
-.main-content .coffee-actions-panel {
+.main-content .coffee-actions-panel,
+.main-content .senergy-chart {
   width: 100%;
   padding: 32px;
   border-radius: 8px;
@@ -132,6 +133,48 @@ a {
 .main-content .coffee-info h2 {
   color: #6f4e37;
   margin-bottom: 1rem;
+}
+.main-content .coffee-info .chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 16px;
+  height: 220px;
+  margin: 16px 0;
+}
+.main-content .coffee-info .bar {
+  width: 36px;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(111, 78, 55, 0.12);
+  transition: height 0.3s, background 0.3s;
+  position: relative;
+}
+.main-content .coffee-info .bar:nth-child(1) {
+  height: 72px;
+  background: linear-gradient(180deg, rgb(138.2819277108, 97.1710843373, 68.5180722892), #d2b48c);
+}
+.main-content .coffee-info .bar:nth-child(2) {
+  height: 104px;
+  background: linear-gradient(180deg, rgb(165.5638554217, 116.3421686747, 82.0361445783), #d2b48c);
+}
+.main-content .coffee-info .bar:nth-child(3) {
+  height: 136px;
+  background: linear-gradient(180deg, rgb(181.578313253, 137.5253012048, 106.821686747), #d2b48c);
+}
+.main-content .coffee-info .bar:nth-child(4) {
+  height: 168px;
+  background: linear-gradient(180deg, rgb(195.0963855422, 159.1542168675, 134.1036144578), #d2b48c);
+}
+.main-content .coffee-info .bar:nth-child(5) {
+  height: 200px;
+  background: linear-gradient(180deg, rgb(208.6144578313, 180.7831325301, 161.3855421687), #d2b48c);
+}
+.main-content .coffee-info h3 {
+  margin-top: 24px;
+  margin-bottom: 16px;
+}
+.main-content .coffee-info .btn-primary {
+  margin-top: 24px;
 }
 .main-content .coffee-info p {
   margin-bottom: 2rem;
@@ -165,6 +208,26 @@ a {
 }
 .footer p:last-child {
   margin-bottom: 0;
+}
+
+.price-card:nth-child(1) {
+  animation-delay: 0.2s;
+}
+
+.price-card:nth-child(2) {
+  animation-delay: 0.4s;
+}
+
+.price-card:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+.price-card:nth-child(4) {
+  animation-delay: 0.8s;
+}
+
+.price-card:nth-child(5) {
+  animation-delay: 1s;
 }
 
 /*# sourceMappingURL=styles.css.map */

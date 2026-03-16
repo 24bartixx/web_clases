@@ -1,21 +1,22 @@
-@use '../abstracts/variables' as *;
-@use '../abstracts/mixins' as *;
+@use "../abstracts/variables" as *;
+@use "../abstracts/mixins" as *;
 
 .main-content {
-  width: 100% - 10%; 
+  width: 100% - 10%;
   max-width: $layout-max-width;
   margin: ($spacing-unit * 5) auto;
   flex: 1;
 
   .coffee-info,
-  .coffee-actions-panel {
+  .coffee-actions-panel,
+  .senergy-chart {
     width: 100%;
     @include scaled-padding(4);
     border-radius: $spacing-unit;
     text-align: center;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   }
-  
+
   .coffee-info {
     background-color: $color-white;
     margin-bottom: $spacing-unit * 3;
@@ -23,6 +24,45 @@
     h2 {
       color: $color-coffee-dark;
       margin-bottom: 1rem;
+    }
+
+    .chart {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: $spacing-unit * 2;
+      height: 220px;
+      margin: ($spacing-unit * 2) 0;
+    }
+
+    .bar {
+      width: 36px;
+      border-radius: ($spacing-unit / 2);
+      box-shadow: 0 2px 8px rgba($color-coffee-dark, 0.12);
+      transition:
+        height 0.3s,
+        background 0.3s;
+      position: relative;
+
+      @for $i from 1 through 5 {
+        &:nth-child(#{$i}) {
+          height: ($i * 32px) + 40px;
+          background: linear-gradient(
+            180deg,
+            lighten($color-coffee-dark, $i * 8%),
+            $color-coffee-light
+          );
+        }
+      }
+    }
+
+    h3 {
+      margin-top: $spacing-unit * 3;
+      margin-bottom: $spacing-unit * 2;
+    }
+
+    .btn-primary {
+      margin-top: $spacing-unit * 3;
     }
 
     p {

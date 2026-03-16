@@ -1,10 +1,17 @@
-@use 'abstracts/variables' as *;
-@use 'abstracts/mixins' as *;
+@use "abstracts/variables" as *;
+@use "abstracts/mixins" as *;
 
-@use 'base/global';
-@use 'base/typography';
+@use "base/global";
+@use "base/typography";
 
-@use 'components/buttons';
-@use 'layout/header';
-@use 'layout/main-info';
-@use 'layout/footer';
+@use "components/buttons";
+@use "layout/header";
+@use "layout/main-info";
+@use "layout/footer";
+
+@for $i from 1 through 5 {
+  .price-card:nth-child(#{$i}) {
+    animation-delay: $i * 0.2s;
+    // Możesz też użyć pętli do zmiany natężenia cienia (box-shadow)
+  }
+}
