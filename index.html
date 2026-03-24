@@ -484,6 +484,66 @@
     </div>
 
   </main>
+  
+  <!-- Kontakt (Contact Form) -->
+  <section class="container my-5 py-5" id="KONTAKT" data-aos="zoom-in">
+    <h2 class="text-center mb-4">Skontaktuj się z nami</h2>
+    <div class="row justify-content-center">
+      <div class="col-lg-7">
+        <form class="bg-white rounded-material shadow-sm p-4 needs-validation" autocomplete="off" novalidate id="contactForm">
+          
+          <div class="mb-4 position-relative">
+            <label for="contactName" class="form-label">Imię i nazwisko</label>
+            <input type="text" class="form-control" id="contactName" placeholder="Wpisz swoje imię i nazwisko" required />
+            <div class="invalid-feedback position-absolute">Proszę podać imię i nazwisko.</div>
+          </div>
+
+          <div class="mb-4 position-relative">
+            <label for="contactEmail" class="form-label">Adres e-mail</label>
+            <input type="email" class="form-control" id="contactEmail" placeholder="Wpisz swój e-mail" required />
+            <div class="invalid-feedback position-absolute">Proszę podać poprawny adres e-mail.</div>
+          </div>
+
+          <div class="mb-4 position-relative">
+            <label for="contactTopic" class="form-label">Temat</label>
+            <select class="form-select" id="contactTopic" required>
+              <option value="" disabled selected>Wybierz temat</option>
+              <option value="oferta">Zapytanie o ofertę</option>
+              <option value="rezerwacja">Rezerwacja wycieczki</option>
+              <option value="wspolpraca">Współpraca</option>
+              <option value="inne">Inne</option>
+            </select>
+            <div class="invalid-feedback position-absolute">Proszę wybrać temat wiadomości.</div>
+          </div>
+
+          <div class="mb-5 position-relative">
+            <label for="contactMessage" class="form-label">Wiadomość</label>
+            <textarea class="form-control" id="contactMessage" rows="4" placeholder="Napisz swoją wiadomość..." required></textarea>
+            <div class="invalid-feedback position-absolute">Proszę wpisać treść wiadomości.</div>
+          </div>
+
+          <div class="d-grid mt-4">
+            <button type="submit" class="btn btn-primary btn-rounded shadow-0">Wyślij wiadomość</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Lokalizacja biura (Google Maps) -->
+  <section class="container my-5" id="MAPA" data-aos="zoom-in">
+    <h2 class="text-center mb-4">Nasze biuro we Wrocławiu</h2>
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <div class="bg-white rounded-material shadow-sm overflow-hidden" style="height: 400px;">
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2443.180964857624!2d17.03658031580019!3d51.10788577956709!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x470fc27e8c2c6e2b%3A0x7e6b7b7b7b7b7b7b!2sWroc%C5%82aw!5e0!3m2!1spl!2spl!4v1647871234567!5m2!1spl!2spl"
+            width="100%" height="400" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+            title="Mapa biura Wrocław"></iframe>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- Offcanvas offer panel  -->
   <div class="offcanvas offcanvas-end" tabindex="-1" id="offerPanel" aria-labelledby="offerPanelLabel">
@@ -525,6 +585,63 @@
   </script>
   <!-- Custom scripts -->
   <script src="src/js/main.js"></script>
+  <script>
+    // Custom form validation
+    (() => {
+      'use strict';
+      const form = document.getElementById('contactForm');
+      form.addEventListener('submit', function(event) {
+        // Remove previous validation state
+        form.classList.remove('was-validated');
+        let valid = true;
+
+        // Name validation
+        const name = document.getElementById('contactName');
+        if (!name.value.trim()) {
+          name.classList.add('is-invalid');
+          valid = false;
+        } else {
+          name.classList.remove('is-invalid');
+        }
+
+        // Email validation
+        const email = document.getElementById('contactEmail');
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email.value.trim() || !emailPattern.test(email.value.trim())) {
+          email.classList.add('is-invalid');
+          valid = false;
+        } else {
+          email.classList.remove('is-invalid');
+        }
+
+        // Topic validation
+        const topic = document.getElementById('contactTopic');
+        if (!topic.value) {
+          topic.classList.add('is-invalid');
+          valid = false;
+        } else {
+          topic.classList.remove('is-invalid');
+        }
+
+        // Message validation
+        const message = document.getElementById('contactMessage');
+        if (!message.value.trim()) {
+          message.classList.add('is-invalid');
+          valid = false;
+        } else {
+          message.classList.remove('is-invalid');
+        }
+
+        if (!valid) {
+          event.preventDefault();
+          event.stopPropagation();
+          form.classList.add('was-validated');
+        } else {
+          // Optionally, show a success message or handle the form submission
+        }
+      }, false);
+    })();
+  </script>
 </body>
 
 </html>
