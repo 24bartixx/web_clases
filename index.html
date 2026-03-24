@@ -210,6 +210,9 @@
             <li class="nav-item">
               <a class="nav-link" href="#QUOTES">Cytaty</a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#KONTAKT">Kontakt</a>
+            </li>
           </ul>
           <!-- Left links -->
         </div>
@@ -561,24 +564,32 @@
   </section>
 
 
-  <!-- Floating Action Button for Map (now opens offcanvas) -->
+
+  <!-- Floating Action Button for Map (now opens modal) -->
   <button id="fabMap" class="btn btn-primary btn-lg rounded-circle shadow position-fixed" style="bottom: 32px; right: 32px; z-index: 1050; background: #1976d2; color: #fff; width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; transition: background 0.2s;"
-    data-mdb-offcanvas-init data-mdb-target="#mapPanel" aria-controls="mapPanel" aria-expanded="false">
+    data-mdb-modal-init data-mdb-target="#mapModal" aria-controls="mapModal" aria-expanded="false">
     <span class="material-icons" style="font-size: 32px;">map</span>
   </button>
 
-  <!-- Offcanvas Map Panel -->
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="mapPanel" aria-labelledby="mapPanelLabel">
-    <div class="offcanvas-header">
-      <h5 class="offcanvas-title" id="mapPanelLabel">Nasze biuro we Wrocławiu</h5>
-      <button type="button" class="btn-close text-reset" data-mdb-dismiss="offcanvas" aria-label="Zamknij"></button>
-    </div>
-    <div class="offcanvas-body">
-      <div class="bg-white rounded-material shadow-sm overflow-hidden" style="height: 400px;">
-        <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2443.180964857624!2d17.03658031580019!3d51.10788577956709!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x470fc27e8c2c6e2b%3A0x7e6b7b7b7b7b7b7b!2sWroc%C5%82aw!5e0!3m2!1spl!2spl!4v1647871234567!5m2!1spl!2spl"
-          width="100%" height="400" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
-          title="Mapa biura Wrocław"></iframe>
+  <!-- Modal Map Dialog -->
+  <div class="modal fade" id="mapModal" tabindex="-1" aria-labelledby="mapModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content fab-zoom-modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="mapModalLabel">Nasze biuro we Wrocławiu</h5>
+          <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Zamknij"></button>
+        </div>
+        <div class="modal-body p-0">
+          <div class="ratio ratio-16x9">
+            <iframe 
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d16587.828583608814!2d17.044539314602876!3d51.11095365223743!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x470fe956dacfed6f%3A0x1339e7187a8701a9!2sMoon%20Kebab%20Szczytnicka!5e0!3m2!1spl!2spl!4v1774370010674!5m2!1spl!2spl" 
+              style="border:0;" 
+              allowfullscreen="" 
+              loading="lazy" 
+              referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+          </div>
+        </div>
       </div>
     </div>
   </div>
