@@ -563,26 +563,31 @@
     </div>
   </section>
 
-
-
-  <!-- Floating Action Button for Map (now opens modal) -->
-  <button id="fabMap" class="btn btn-primary btn-lg rounded-circle shadow position-fixed" style="bottom: 32px; right: 32px; z-index: 1050; background: #1976d2; color: #fff; width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; transition: background 0.2s;"
-    data-mdb-modal-init data-mdb-target="#mapModal" aria-controls="mapModal" aria-expanded="false">
-    <span class="material-icons" style="font-size: 32px;">map</span>
+  <button 
+    id="fabMap" 
+    class="btn btn-primary rounded-circle shadow-4-strong position-fixed" 
+    style="bottom: 30px; right: 30px; z-index: 1050; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;"
+    data-mdb-ripple-init
+    data-mdb-modal-init 
+    data-mdb-target="#mapModal">
+    <span class="material-icons">map</span>
   </button>
 
-  <!-- Modal Map Dialog -->
   <div class="modal fade" id="mapModal" tabindex="-1" aria-labelledby="mapModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-      <div class="modal-content fab-zoom-modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="mapModalLabel">Nasze biuro we Wrocławiu</h5>
-          <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Zamknij"></button>
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+      <div class="modal-content overflow-hidden" style="border-radius: 15px;">
+        
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="mapModalLabel">
+            <i class="fas fa-location-dot me-2"></i> Nasze biuro we Wrocławiu
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-mdb-dismiss="modal" aria-label="Zamknij"></button>
         </div>
+
         <div class="modal-body p-0">
-          <div class="ratio ratio-16x9">
+          <div class="ratio ratio-21x9" style="min-height: 450px;">
             <iframe 
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d16587.828583608814!2d17.044539314602876!3d51.11095365223743!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x470fe956dacfed6f%3A0x1339e7187a8701a9!2sMoon%20Kebab%20Szczytnicka!5e0!3m2!1spl!2spl!4v1774370010674!5m2!1spl!2spl" 
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d80153.28481232742!2d16.95041530364375!3d51.107885236683835!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x470fe9c2dccd588d%3A0x2707324302484724!2zV3JvY8WYXc!5e0!3m2!1spl!2spl!4v1710000000000!5m2!1spl!2spl" 
               style="border:0;" 
               allowfullscreen="" 
               loading="lazy" 
@@ -590,6 +595,12 @@
             </iframe>
           </div>
         </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-primary" data-mdb-dismiss="modal">Zamknij</button>
+          <a href="https://maps.google.com" target="_blank" class="btn btn-primary">Otwórz w Mapach</a>
+        </div>
+
       </div>
     </div>
   </div>
