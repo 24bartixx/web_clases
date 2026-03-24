@@ -127,7 +127,37 @@
     .offcanvas-backdrop {
       transition: opacity 220ms ease;
     }
-    /* Custom Effect */
+
+    .fab-zoom-modal-content {
+      transform-origin: var(--fab-origin-x, 50%) var(--fab-origin-y, 90%);
+      animation: none;
+    }
+    .fab-zoom-animate-in {
+      animation: fabZoomIn 0.45s cubic-bezier(.4,0,.2,1);
+    }
+    .fab-zoom-animate-out {
+      animation: fabZoomOut 0.35s cubic-bezier(.4,0,.2,1);
+    }
+    @keyframes fabZoomIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.2);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    @keyframes fabZoomOut {
+      0% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0.2);
+      }
+    }
 
     @media (prefers-reduced-motion: reduce) {
       html {
@@ -530,20 +560,28 @@
     </div>
   </section>
 
-  <!-- Lokalizacja biura (Google Maps) -->
-  <section class="container my-5" id="MAPA" data-aos="zoom-in">
-    <h2 class="text-center mb-4">Nasze biuro we Wrocławiu</h2>
-    <div class="row justify-content-center">
-      <div class="col-lg-10">
-        <div class="bg-white rounded-material shadow-sm overflow-hidden" style="height: 400px;">
-          <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2443.180964857624!2d17.03658031580019!3d51.10788577956709!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x470fc27e8c2c6e2b%3A0x7e6b7b7b7b7b7b7b!2sWroc%C5%82aw!5e0!3m2!1spl!2spl!4v1647871234567!5m2!1spl!2spl"
-            width="100%" height="400" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
-            title="Mapa biura Wrocław"></iframe>
-        </div>
+
+  <!-- Floating Action Button for Map (now opens offcanvas) -->
+  <button id="fabMap" class="btn btn-primary btn-lg rounded-circle shadow position-fixed" style="bottom: 32px; right: 32px; z-index: 1050; background: #1976d2; color: #fff; width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; transition: background 0.2s;"
+    data-mdb-offcanvas-init data-mdb-target="#mapPanel" aria-controls="mapPanel" aria-expanded="false">
+    <span class="material-icons" style="font-size: 32px;">map</span>
+  </button>
+
+  <!-- Offcanvas Map Panel -->
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="mapPanel" aria-labelledby="mapPanelLabel">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title" id="mapPanelLabel">Nasze biuro we Wrocławiu</h5>
+      <button type="button" class="btn-close text-reset" data-mdb-dismiss="offcanvas" aria-label="Zamknij"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="bg-white rounded-material shadow-sm overflow-hidden" style="height: 400px;">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2443.180964857624!2d17.03658031580019!3d51.10788577956709!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x470fc27e8c2c6e2b%3A0x7e6b7b7b7b7b7b7b!2sWroc%C5%82aw!5e0!3m2!1spl!2spl!4v1647871234567!5m2!1spl!2spl"
+          width="100%" height="400" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+          title="Mapa biura Wrocław"></iframe>
       </div>
     </div>
-  </section>
+  </div>
 
   <!-- Offcanvas offer panel  -->
   <div class="offcanvas offcanvas-end" tabindex="-1" id="offerPanel" aria-labelledby="offerPanelLabel">
@@ -574,6 +612,10 @@
   <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
   <!-- MDB -->
   <script type="text/javascript" src="js/mdb.umd.min.js"></script>
+  <!-- Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <!-- Animate.css for modal animation -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
   <script>
     AOS.init({
       once: true,
@@ -591,11 +633,8 @@
       'use strict';
       const form = document.getElementById('contactForm');
       form.addEventListener('submit', function(event) {
-        // Remove previous validation state
         form.classList.remove('was-validated');
         let valid = true;
-
-        // Name validation
         const name = document.getElementById('contactName');
         if (!name.value.trim()) {
           name.classList.add('is-invalid');
@@ -603,8 +642,6 @@
         } else {
           name.classList.remove('is-invalid');
         }
-
-        // Email validation
         const email = document.getElementById('contactEmail');
         const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!email.value.trim() || !emailPattern.test(email.value.trim())) {
@@ -613,8 +650,6 @@
         } else {
           email.classList.remove('is-invalid');
         }
-
-        // Topic validation
         const topic = document.getElementById('contactTopic');
         if (!topic.value) {
           topic.classList.add('is-invalid');
@@ -622,8 +657,6 @@
         } else {
           topic.classList.remove('is-invalid');
         }
-
-        // Message validation
         const message = document.getElementById('contactMessage');
         if (!message.value.trim()) {
           message.classList.add('is-invalid');
@@ -631,13 +664,10 @@
         } else {
           message.classList.remove('is-invalid');
         }
-
         if (!valid) {
           event.preventDefault();
           event.stopPropagation();
           form.classList.add('was-validated');
-        } else {
-          // Optionally, show a success message or handle the form submission
         }
       }, false);
     })();
