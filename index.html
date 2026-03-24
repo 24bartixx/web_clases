@@ -1,88 +1,184 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <meta http-equiv="x-ua-compatible" content="ie=edge" />
-    <title>Material Design for Bootstrap</title>
-    <!-- MDB icon -->
-    <link rel="icon" href="img/mdb-favicon.ico" type="image/x-icon" />
-    <!-- Font Awesome -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-    />
-    <!-- Google Fonts Roboto -->
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap"
-    />
-    <!-- MDB -->
-    <link rel="stylesheet" href="css/mdb.min.css" />
+<html lang="pl">
 
-    <style>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta http-equiv="x-ua-compatible" content="ie=edge" />
+  <title>Biuro Podrozy</title>
+  <!-- MDB icon -->
+  <link rel="icon" href="img/mdb-favicon.ico" type="image/x-icon" />
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <!-- Google Fonts Roboto -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" />
+  <!-- AOS (Animate On Scroll) -->
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css" />
+  <!-- MDB -->
+  <link rel="stylesheet" href="css/mdb.min.css" />
+
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    section {
+      min-height: 60vh;
+      padding: 5vh;
+    }
+
+    .carousel-indicators {
+      top: 0;
+    }
+
+    .rounded-material {
+      border-radius: 2rem !important;
+    }
+
+    .blockquote {
+      border-left: 4px solid #1266f1;
+      padding-left: 1.5rem;
+    }
+
+    .hero-container {
+      position: relative;
+    }
+
+    .team-card {
+      border-radius: 1rem;
+      overflow: hidden;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, .12);
+    }
+
+    .team-card .card-title {
+      margin-bottom: .35rem;
+    }
+
+    /* Custom Effect */
+    #offerPanel.offcanvas {
+      transform: translate3d(100%, 0, 0);
+      opacity: 0;
+      transition: transform 360ms cubic-bezier(.22, .61, .36, 1), opacity 220ms ease;
+      will-change: transform, opacity;
+      backface-visibility: hidden;
+      contain: paint;
+      box-shadow: -14px 0 30px rgba(2, 12, 27, .2);
+    }
+
+    #offerPanel.offcanvas.showing,
+    #offerPanel.offcanvas.hiding,
+    #offerPanel.offcanvas.show {
+      transform: translate3d(0, 0, 0);
+      opacity: 1;
+    }
+
+    #offerPanel.offcanvas.hiding {
+      transform: translate3d(100%, 0, 0);
+      opacity: 0;
+      transition-duration: 440ms;
+      transition-timing-function: cubic-bezier(.4, 0, .2, 1);
+    }
+
+    #offerPanel .offcanvas-header,
+    #offerPanel .offcanvas-body>* {
+      opacity: 0;
+      transform: translate3d(0, 10px, 0);
+      transition: transform 280ms cubic-bezier(.22, 1, .36, 1), opacity 220ms ease;
+      will-change: transform, opacity;
+    }
+
+    #offerPanel.show .offcanvas-header {
+      opacity: 1;
+      transform: none;
+      transition-delay: 70ms;
+    }
+
+    #offerPanel.show .offcanvas-body>* {
+      opacity: 1;
+      transform: none;
+    }
+
+    #offerPanel.show .offcanvas-body>*:nth-child(1) {
+      transition-delay: 100ms;
+    }
+
+    #offerPanel.show .offcanvas-body>*:nth-child(2) {
+      transition-delay: 140ms;
+    }
+
+    #offerPanel.show .offcanvas-body>*:nth-child(3) {
+      transition-delay: 180ms;
+    }
+
+    #offerPanel.hiding .offcanvas-header,
+    #offerPanel.hiding .offcanvas-body>* {
+      opacity: 0;
+      transform: translate3d(0, 6px, 0);
+      transition-delay: 0ms !important;
+      transition-duration: 140ms;
+    }
+
+    .offcanvas-backdrop {
+      transition: opacity 220ms ease;
+    }
+    /* Custom Effect */
+
+    @media (prefers-reduced-motion: reduce) {
       html {
-        scroll-snap-type: y mandatory;
+        scroll-behavior: auto;
       }
 
-      header {
-        scroll-snap-align: start;
-        position: sticky;
-        top: 0;
-        z-index: 1000;
+      #offerPanel.offcanvas,
+      #offerPanel .offcanvas-header,
+      #offerPanel .offcanvas-body>*,
+      .offcanvas-backdrop {
+        transition: none !important;
       }
+    }
+  </style>
+</head>
 
-      section {
-        scroll-snap-align: center;
-        min-height: 60vh;
-        padding: 5vh;
-      }
-
-      .carousel-indicators {
-        bottom: auto;
-        top: 0;
-      }
-    </style>
-  </head>
-  <body>
-    <!-- Start your project here-->
-    
-    <!--Main Navigation-->
-    <header>
-    
+<body>
+  <!--Main Navigation-->
+  <header>
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
-    <!-- Container wrapper -->
-    <div class="container-fluid">
+      <!-- Container wrapper -->
+      <div class="container-fluid">
 
-      <!-- Toggle button -->
-      <button
-        data-mdb-collapse-init
-        class="navbar-toggler"
-        type="button"
-        data-mdb-target="#navbarLeftAlignExample"
-        aria-controls="navbarLeftAlignExample"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
-        <i class="fas fa-bars"></i>
-      </button>
+        <!-- Toggle button -->
+        <button data-mdb-collapse-init class="navbar-toggler" type="button" data-mdb-target="#navbarLeftAlignExample"
+          aria-controls="navbarLeftAlignExample" aria-expanded="false" aria-label="Przelacz nawigacje">
+          <i class="fas fa-bars"></i>
+        </button>
 
-      <!-- Collapsible wrapper -->
-      <div class="collapse navbar-collapse" id="navbarLeftAlignExample">
+        <!-- Collapsible wrapper -->
+        <div class="collapse navbar-collapse" id="navbarLeftAlignExample">
           <!-- Left links -->
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            
+
             <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="#">Home</a>
+              <a class="nav-link active" aria-current="page" href="#">Strona glowna</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="#CHART">Najpopularniejsze cele podróży</a>
             </li>
             <li class="nav-item">
+              <a class="nav-link" href="#OFERTA">Oferta</a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link" href="#FAQ">FAQ</a>
             </li>
-                        <li class="nav-item">
+            <li class="nav-item">
               <a class="nav-link" href="#TEAM">Nasz zespół</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#QUOTES">Cytaty</a>
             </li>
           </ul>
           <!-- Left links -->
@@ -92,25 +188,145 @@
       <!-- Container wrapper -->
     </nav>
 
-      
-    </header>
-    <!--Main Navigation-->
 
-    <!--Main layout-->
-    <main class="p-4">
+  </header>
+  <!--Main Navigation-->
 
-      <!-- Wykres -->
-      <section class="container my-5 col-8" id="CHART">
-        <h2 class="text-center mb-4">Najpopularniejsze kierunki wbierane przez naszych klientów</h2>
-        <canvas id="travelChart"></canvas>
-      </section>
-      
+  <main class="p-4">
 
-      <!-- FAQ -->
-       <div class="row justify-content-center">
-      <section class="col-8" id="FAQ" >
+    <!-- Wykres -->
+    <section class="container my-5 col-8" id="CHART" data-aos="zoom-in">
+      <h2 class="text-center mb-4">Najpopularniejsze kierunki wybierane przez naszych klientow</h2>
+      <canvas id="travelChart"></canvas>
+    </section>
+
+    <!-- Oferta -->
+    <section class="container my-5" id="OFERTA" data-aos="zoom-in">
+      <div class="row align-items-center g-0 shadow-4 rounded-material overflow-hidden bg-white">
+        <div class="col-lg-3 p-5">
+          <h6 class="text-primary fw-bold text-uppercase small mb-3">Oferta</h6>
+          <h2 class="fw-bold mb-4">Swiat czeka na Ciebie</h2>
+          <p class="text-muted">
+            Tworzymy podroze, ktore zmieniaja zycie. Od spokojnych plaz po osniezone szczyty.
+          </p>
+          <button id="offerOpenBtn" class="btn btn-primary btn-rounded shadow-0 mt-3" data-mdb-offcanvas-init
+            data-mdb-target="#offerPanel" data-mdb-ripple-init aria-controls="offerPanel" aria-expanded="false">Dowiedz
+            sie wiecej</button>
+        </div>
+        <div class="col-lg-9">
+          <div class="hero-container">
+            <div id="aboutTravelCarousel" class="carousel slide carousel-fade" data-mdb-carousel-init
+              data-mdb-ride="carousel" data-mdb-interval="2500">
+              <div class="carousel-indicators">
+                <button type="button" data-mdb-target="#aboutTravelCarousel" data-mdb-slide-to="0" class="active"
+                  aria-current="true" aria-label="Slajd 1"></button>
+                <button type="button" data-mdb-target="#aboutTravelCarousel" data-mdb-slide-to="1"
+                  aria-label="Slajd 2"></button>
+                <button type="button" data-mdb-target="#aboutTravelCarousel" data-mdb-slide-to="2"
+                  aria-label="Slajd 3"></button>
+                <button type="button" data-mdb-target="#aboutTravelCarousel" data-mdb-slide-to="3"
+                  aria-label="Slajd 4"></button>
+                <button type="button" data-mdb-target="#aboutTravelCarousel" data-mdb-slide-to="4"
+                  aria-label="Slajd 5"></button>
+                <button type="button" data-mdb-target="#aboutTravelCarousel" data-mdb-slide-to="5"
+                  aria-label="Slajd 6"></button>
+                <button type="button" data-mdb-target="#aboutTravelCarousel" data-mdb-slide-to="6"
+                  aria-label="Slajd 7"></button>
+              </div>
+
+              <div class="carousel-inner">
+                <div class="carousel-item active">
+                  <img src="img/travel/wlochy.webp" class="d-block w-100" style="height: 450px; object-fit: cover;"
+                    alt="Wlochy" />
+                </div>
+                <div class="carousel-item">
+                  <img src="img/travel/hiszpania.webp" class="d-block w-100" style="height: 450px; object-fit: cover;"
+                    alt="Hiszpania" />
+                </div>
+                <div class="carousel-item">
+                  <img src="img/travel/francja.jpg" class="d-block w-100" style="height: 450px; object-fit: cover;"
+                    alt="Francja" />
+                </div>
+                <div class="carousel-item">
+                  <img src="img/travel/grecja.jpg" class="d-block w-100" style="height: 450px; object-fit: cover;"
+                    alt="Grecja" />
+                </div>
+                <div class="carousel-item">
+                  <img src="img/travel/chotwacja.jpeg" class="d-block w-100" style="height: 450px; object-fit: cover;"
+                    alt="Chorwacja" />
+                </div>
+                <div class="carousel-item">
+                  <img src="img/travel/portugalia.webp" class="d-block w-100" style="height: 450px; object-fit: cover;"
+                    alt="Portugalia" />
+                </div>
+                <div class="carousel-item">
+                  <img src="img/travel/turcja.jpg" class="d-block w-100" style="height: 450px; object-fit: cover;"
+                    alt="Turcja" />
+                </div>
+              </div>
+
+              <button class="carousel-control-prev" type="button" data-mdb-target="#aboutTravelCarousel"
+                data-mdb-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Poprzedni</span>
+              </button>
+              <button class="carousel-control-next" type="button" data-mdb-target="#aboutTravelCarousel"
+                data-mdb-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Nastepny</span>
+              </button>
+              <div class="mask" style="background-color: rgba(0, 0, 0, 0.2);"></div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Сytat - -->
+    <section class="container my-5 py-5" id="QUOTES" data-aos="zoom-in">
+      <h2 class="text-center mb-4">Cytaty o podróżach</h2>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="p-4 h-100 bg-white rounded-material shadow-sm">
+            <i class="fas fa-quote-left fa-2x mb-3 text-primary opacity-25"></i>
+            <blockquote class="blockquote">
+              <p class="fst-italic mb-2">"Podróże to jedyna rzecz, na którą, wydając pieniądze, stajesz się bogatszy."
+              </p>
+            </blockquote>
+            <figcaption class="blockquote-footer">Anonimowy <cite title="Źródło">podróżnik</cite></figcaption>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="p-4 h-100 bg-white rounded-material shadow-sm">
+            <i class="fas fa-quote-left fa-2x mb-3 text-primary opacity-25"></i>
+            <blockquote class="blockquote">
+              <p class="fst-italic mb-2">"Świat jest książką, a ci, którzy nie podróżują, czytają tylko jedną stronę."
+              </p>
+            </blockquote>
+            <figcaption class="blockquote-footer">Św. Augustyn <cite title="Źródło">Listy</cite></figcaption>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="p-4 h-100 bg-white rounded-material shadow-sm">
+            <i class="fas fa-quote-left fa-2x mb-3 text-primary opacity-25"></i>
+            <blockquote class="blockquote">
+              <p class="fst-italic mb-2">"Nie podróżuje się, żeby uciec od życia, ale po to, by życie nam nie uciekło."
+              </p>
+            </blockquote>
+            <figcaption class="blockquote-footer">Anonimowy <cite title="Źródło">mędrcy</cite></figcaption>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <div class="row justify-content-center">
+      <section class="col-8" id="FAQ" data-aos="zoom-in">
         <h2 class="text-center mb-4">Najczęstsze pytania zadawane przez naszych klientów</h2>
-       <div class="accordion accordion-borderless" id="parent">
+        <div class="accordion accordion-borderless" id="parent">
           <div class="accordion-item">
             <h2 class="accordion-header" id="flush-headingOneX">
               <button data-mdb-collapse-init class="accordion-button" type="button"
@@ -118,8 +334,8 @@
                 Jakie dokumenty są wymagane podczas podróży?
               </button>
             </h2>
-            <div id="flush-collapseOneX" class="accordion-collapse collapse show"
-              aria-labelledby="flush-headingOneX" data-mdb-parent="#parent">
+            <div id="flush-collapseOneX" class="accordion-collapse collapse show" aria-labelledby="flush-headingOneX"
+              data-mdb-parent="#parent">
               <div class="accordion-body">
                 Jakie dokumenty?
               </div>
@@ -136,7 +352,8 @@
             <div id="flush-collapseTwoX" class="accordion-collapse collapse" aria-labelledby="flush-headingTwoX"
               data-mdb-parent="#parent">
               <div class="accordion-body">
-                Oczywiście że nie i odradzamy. Sami też nie korzystamy z żadnego ubepzieczenia bo to oszustwo i strata kasy.
+                Oczywiście że nie i odradzamy. Sami też nie korzystamy z żadnego ubepzieczenia bo to oszustwo i strata
+                kasy.
               </div>
             </div>
           </div>
@@ -145,7 +362,7 @@
             <h2 class="accordion-header" id="flush-headingThreeX">
               <button data-mdb-collapse-init class="accordion-button collapsed" type="button"
                 data-mdb-target="#flush-collapseThreeX" aria-expanded="false" aria-controls="flush-collapseThreeX">
-                  Czy muszę płacić za nadbagaż?
+                Czy muszę płacić za nadbagaż?
               </button>
             </h2>
             <div id="flush-collapseThreeX" class="accordion-collapse collapse" aria-labelledby="flush-headingThreeX"
@@ -160,117 +377,154 @@
       </section>
     </div>
 
+    <!-- Zespol (Multi-item carousel + cards) -->
     <div class="row justify-content-center">
-      <section class="col-8 " id="TEAM">
+      <section class="col-10 col-xl-9" id="TEAM" data-aos="zoom-in" data-aos-delay="120">
         <h2 class="text-center mb-4">Poznaj nasz zespół</h2>
-        <div id="carouselDarkVariant" class="carousel slide carousel-fade carousel-dark shadow" style="border-radius: 20px; overflow: hidden;" data-mdb-ride="carousel" data-mdb-carousel-init data-mdb-interval="500">
-          <div class="carousel-indicators carousel-indicators-top">
-            <button
-              data-mdb-target="#carouselDarkVariant"
-              data-mdb-slide-to="0"
-              class="active"
-            ></button>
-            <button
-              data-mdb-target="#carouselDarkVariant"
-              data-mdb-slide-to="1"
-            ></button>
-            <button
-              data-mdb-target="#carouselDarkVariant"
-              data-mdb-slide-to="2"
-            ></button>
+
+        <div id="carouselDarkVariant" class="carousel slide carousel-dark" data-mdb-ride="carousel" data-mdb-carousel-init
+          data-mdb-interval="2600">
+          <div class="carousel-indicators">
+            <button data-mdb-target="#carouselDarkVariant" data-mdb-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+            <button data-mdb-target="#carouselDarkVariant" data-mdb-slide-to="1" aria-label="Slide 2"></button>
           </div>
 
-          <div class="carousel-inner">
+          <div class="carousel-inner py-2">
             <div class="carousel-item active">
-              <div class="card mx-auto">
-                <div class="ratio ratio-21x9">
-                  <img src="/img/1.avif" class="card-img-top object-cover" alt="Zdjecie szefa"/>  
+              <div class="row g-3 g-lg-4">
+                <div class="col-12 col-md-4">
+                  <article class="card team-card h-100">
+                    <div class="ratio ratio-4x3">
+                      <img src="/img/1.avif" class="card-img-top object-cover" alt="Zdjecie szefa" />
+                    </div>
+                    <div class="card-body text-center">
+                      <h5 class="card-title">Jan Kowalski</h5>
+                      <p class="card-text text-muted mb-0">CEO i opiekun strategiczny</p>
+                    </div>
+                  </article>
                 </div>
-                <div class="card-body text-center">
-                  <h5 class="card-title">Jan Kowalski</h5>
-                  <p class="card-text">Nasz szef</p>
+
+                <div class="col-12 col-md-4 d-none d-md-block">
+                  <article class="card team-card h-100">
+                    <div class="ratio ratio-4x3">
+                      <img src="/img/2.avif" class="card-img-top object-cover" alt="Zdjecie programisty" />
+                    </div>
+                    <div class="card-body text-center">
+                      <h5 class="card-title">Anna Nowak</h5>
+                      <p class="card-text text-muted mb-0">Programistka i automatyzacja</p>
+                    </div>
+                  </article>
+                </div>
+
+                <div class="col-12 col-md-4 d-none d-md-block">
+                  <article class="card team-card h-100">
+                    <div class="ratio ratio-4x3">
+                      <img src="/img/3.avif" class="card-img-top object-cover" alt="Zdjecie analityka" />
+                    </div>
+                    <div class="card-body text-center">
+                      <h5 class="card-title">Marek Zielinski</h5>
+                      <p class="card-text text-muted mb-0">Analityk kierunków i trendów</p>
+                    </div>
+                  </article>
                 </div>
               </div>
             </div>
 
             <div class="carousel-item">
-              <div class="card mx-auto">
-                <div class="ratio ratio-21x9">
-                  <img src="/img/2.avif" class="card-img-top object-cover" alt="Motorbike Smoke"/>
+              <div class="row g-3 g-lg-4">
+                <div class="col-12 col-md-4">
+                  <article class="card team-card h-100">
+                    <div class="ratio ratio-4x3">
+                      <img src="/img/2.avif" class="card-img-top object-cover" alt="Zdjecie doradcy" />
+                    </div>
+                    <div class="card-body text-center">
+                      <h5 class="card-title">Katarzyna Lis</h5>
+                      <p class="card-text text-muted mb-0">Doradczyni podróży premium</p>
+                    </div>
+                  </article>
                 </div>
-                <div class="card-body text-center">
-                  <h5 class="card-title">Jan Kowalski</h5>
-                  <p class="card-text">Nasz programista</p>
-                </div>
-              </div>
-            </div>
 
-            <div class="carousel-item">
-              <div class="card mx-auto">
-                <div class="ratio ratio-21x9">
-                  <img src="/img/3.avif" class="card-img-top object-cover" alt="Motorbike Smoke"/>
+                <div class="col-12 col-md-4 d-none d-md-block">
+                  <article class="card team-card h-100">
+                    <div class="ratio ratio-4x3">
+                      <img src="/img/3.avif" class="card-img-top object-cover" alt="Zdjecie logistyka" />
+                    </div>
+                    <div class="card-body text-center">
+                      <h5 class="card-title">Piotr Wrona</h5>
+                      <p class="card-text text-muted mb-0">Logistyka i koordynacja lotow</p>
+                    </div>
+                  </article>
                 </div>
-                <div class="card-body text-center">
-                  <h5 class="card-title">Jan Kowalski</h5>
-                  <p class="card-text">Nasz analityk</p>
+
+                <div class="col-12 col-md-4 d-none d-md-block">
+                  <article class="card team-card h-100">
+                    <div class="ratio ratio-4x3">
+                      <img src="/img/1.avif" class="card-img-top object-cover" alt="Zdjecie opiekunki klienta" />
+                    </div>
+                    <div class="card-body text-center">
+                      <h5 class="card-title">Ewa Wisniewska</h5>
+                      <p class="card-text text-muted mb-0">Opiekunka klienta VIP</p>
+                    </div>
+                  </article>
                 </div>
               </div>
             </div>
+          </div>
+
           <button class="carousel-control-prev" type="button" data-mdb-target="#carouselDarkVariant" data-mdb-slide="prev">
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
+            <span class="visually-hidden">Poprzedni</span>
           </button>
           <button class="carousel-control-next" type="button" data-mdb-target="#carouselDarkVariant" data-mdb-slide="next">
             <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
+            <span class="visually-hidden">Nastepny</span>
           </button>
         </div>
       </section>
-      </div>
+    </div>
 
-    </main>
+  </main>
 
-    <!--Main layout-->
-    
-    <!--Footer-->
-    <footer>
-    
-    </footer>
-    <!--Footer-->
-    <!-- End your project here-->
+  <!-- Offcanvas offer panel  -->
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="offerPanel" aria-labelledby="offerPanelLabel">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title" id="offerPanelLabel">Swiat czeka na Ciebie</h5>
+      <button type="button" class="btn-close text-reset" data-mdb-dismiss="offcanvas" aria-label="Zamknij"></button>
+    </div>
+    <div class="offcanvas-body">
+      <p class="fw-bold text-primary mb-1">Cena od <span class="fs-4">$499</span></p>
+      <p class="text-muted">Wycieczki 7-dniowe, komfortowe noclegi, przewodnik po miejscach historycznych,
+        oraz transfery lotniskowe. Rezerwuj z wyprzedzeniem, aby skorzystać z promocji.</p>
+      <!-- <a href="#" class="btn btn-outline-primary btn-sm mt-2">Zobacz szczegóły</a> -->
+    </div>
+  </div>
 
-    <!-- Chart js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- MDB -->
-    <script type="text/javascript" src="js/mdb.umd.min.js"></script>
-    <!-- Custom scripts -->
-    <script type="text/javascript">
+  <!--Main layout-->
 
-        const ctx = document.getElementById('travelChart').getContext('2d');
-        new Chart(ctx, {
-          type: 'bar',
-          data: {
-            labels: ['Włochy', 'Hiszpania', 'Francja', 'Grecja', 'Chorwacja', 'Portugalia', 'Turcja'],
-            datasets: [{
-              label: 'Liczba klientów',
-              data: [57, 71, 89, 32, 18, 22, 45],
-              backgroundColor: [
-                '#F09EA7', '#F6CA94', '#FAFABE', '#C1EBC0', '#C7CAFF', '#CDABEB', '#F6C2F3'
-              ],
-              borderRadius: 6
-            }]
-          },
-          options: {
-            responsive: true,
-            plugins: {
-              legend: { position: 'top' }
-            },
-            scales: {
-              y: { beginAtZero: true }
-            }
-          }
-        });
+  <!--Footer-->
+  <footer>
 
-    </script>
-  </body>
+  </footer>
+  <!--Footer-->
+  <!-- End your project here-->
+
+  <!-- Chart js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- AOS (Animate On Scroll) -->
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <!-- MDB -->
+  <script type="text/javascript" src="js/mdb.umd.min.js"></script>
+  <script>
+    AOS.init({
+      once: true,
+      offset: 220,
+      anchorPlacement: 'top-center',
+      duration: 1050,
+      easing: 'ease-out-back'
+    });
+  </script>
+  <!-- Custom scripts -->
+  <script src="src/js/main.js"></script>
+</body>
+
 </html>
