@@ -1,33 +1,43 @@
 package pl.pwr.edu.student.chess_bros.books.services;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.pwr.edu.student.chess_bros.books.models.Book;
+import pl.pwr.edu.student.chess_bros.books.repositories.BookRepository;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-
 
 @Service
 public class BooksService implements IBooksService {
-    private static List<Book> booksRepo = new ArrayList<>();
-
-    static {
-        booksRepo.add(new Book(1,"Potop", "Henryk Sienkiewicz", 936));
-        booksRepo.add(new Book(2,"Wesele", "Stanisław Reymont", 150));
-        booksRepo.add(new Book(3,"Dziady", "Adam Mickiewicz", 292));
-    }
+    @Autowired
+    private BookRepository bookRepository;
 
     @Override
     public Collection<Book> getBooks() {
-        return booksRepo;
+        return bookRepository.findAll();
     }
 
     @Override
     public Book getBook(int id) {
-        return booksRepo.stream()
-                .filter(b -> b.getId() == id)
-                .findAny()
-                .orElse(null);
+        return bookRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public Book addBook(Book book) {
+        return bookRepository.save(book);
+    }
+
+    @Override
+    public Book updateBook(int id, Book book) {
+        if (bookRepository.existsById(id)) {
+            book.setId(id); // Ustawiamy ID z URL do obiektu, żeby JPA zrobiło UPDATE zamiast INSERT
+            return bookRepository.save(book);
+        }
+        return null;
+    }
+
+    @Override
+    public void deleteBook(int id) {
+        bookRepository.deleteById(id);
     }
 }
