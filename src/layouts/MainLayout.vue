@@ -1,8 +1,10 @@
 <template>
   <app-menu />
-  <main style="margin-top: 90px">
-    <slot />
-  </main>
+  <div class="container">
+    <main style="margin-top: 90px">
+      <slot />
+    </main>
+  </div>
 </template>
 
 <script>
@@ -14,6 +16,12 @@ export default {
 </script>
 
 <style scoped>
+.container {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 1000px;
+  width: 100%;
+}
 main {
   padding: 2rem 0;
 }
