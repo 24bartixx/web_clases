@@ -1,17 +1,34 @@
+<script setup>
+import { ref, computed } from "vue";
+import BooksPage from "./components/books/BooksPage.vue";
+import NotFoundPage from "./components/common/NotFoundPage.vue";
+import AppMenu from "./components/common/Menu.vue";
+
+const routes = {
+  "/books": BooksPage,
+  "/not-found": NotFoundPage,
+};
+
+const currentPath = ref(window.location.hash);
+
+window.addEventListener("hashchange", () => {
+  currentPath.value = window.location.hash;
+});
+
+const currentView = computed(() => {
+  return routes[currentPath.value.slice(1) || "/"] || NotFoundPage;
+});
+</script>
+
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <app-menu />
+  <component :is="currentView" />
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
 export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
-}
+  name: "App",
+};
 </script>
 
 <style>
@@ -21,6 +38,6 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  margin-top: 90px; /* Space for fixed menu */
 }
 </style>
