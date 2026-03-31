@@ -1,28 +1,21 @@
 <script setup>
-import { ref, computed } from "vue";
-import BooksPage from "./components/books/BooksPage.vue";
-import NotFoundPage from "./components/common/NotFoundPage.vue";
-import AppMenu from "./components/common/Menu.vue";
+import { computed } from "vue";
+import { useRoute } from "vue-router";
+import MainLayout from "./layouts/MainLayout.vue";
 
-const routes = {
-  "/books": BooksPage,
-  "/not-found": NotFoundPage,
+const layouts = {
+  MainLayout,
 };
 
-const currentPath = ref(window.location.hash);
-
-window.addEventListener("hashchange", () => {
-  currentPath.value = window.location.hash;
-});
-
-const currentView = computed(() => {
-  return routes[currentPath.value.slice(1) || "/"] || NotFoundPage;
-});
+const route = useRoute();
+const layoutName = computed(() => route.meta.layout || "MainLayout");
+const layoutComponent = computed(() => layouts[layoutName.value] || MainLayout);
 </script>
 
 <template>
-  <app-menu />
-  <component :is="currentView" />
+  <component :is="layoutComponent">
+    <router-view />
+  </component>
 </template>
 
 <script>
@@ -38,6 +31,6 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 90px; /* Space for fixed menu */
+  margin-top: 90px;
 }
 </style>
