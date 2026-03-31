@@ -2,8 +2,13 @@ package pl.pwr.edu.student.chess_bros.books.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import pl.pwr.edu.student.chess_bros.authors.services.IAuthorsService;
+import pl.pwr.edu.student.chess_bros.books.dto.BookRequest;
 import pl.pwr.edu.student.chess_bros.books.models.Book;
 import pl.pwr.edu.student.chess_bros.books.repositories.BookRepository;
+import pl.pwr.edu.student.chess_bros.authors.models.Author;
+import pl.pwr.edu.student.chess_bros.authors.repositories.AuthorsRepository;
 
 import java.util.Collection;
 
@@ -11,6 +16,9 @@ import java.util.Collection;
 public class BooksService implements IBooksService {
     @Autowired
     private BookRepository bookRepository;
+
+    @Autowired
+    private AuthorsRepository authorsRepository;
 
     @Override
     public Collection<Book> getBooks() {
@@ -23,15 +31,28 @@ public class BooksService implements IBooksService {
     }
 
     @Override
-    public Book addBook(Book book) {
+    public Book addBook(BookRequest request) {
+        Author author = authorsRepository.findById(request.authorId)
+                .orElseThrow(
+                        () -> new IllegalArgumentException("Author with ID " + request.authorId + " not found"));
+
+        Book book = new Book(request.title, author, request.pages);
         return bookRepository.save(book);
     }
 
     @Override
-    public Book updateBook(int id, Book book) {
-        if (bookRepository.existsById(id)) {
-            book.setId(id); // Ustawiamy ID z URL do obiektu, żeby JPA zrobiło UPDATE zamiast INSERT
-            return bookRepository.save(book);
+    public Book updateBook(int id, BookRequest request) {
+        Book existing = bookRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Book with ID " + id + " not found"));
+        if (existing != null) {
+            Author author = authorsRepository.findById(request.authorId)
+                    .orElseThrow(
+                            () -> new IllegalArgumentException("Author with ID " + request.authorId + " not found"));
+
+            existing.setTitle(request.title);
+            existing.setAuthor(author);
+            existing.setPages(request.pages);
+            return bookRepository.save(existing);
         }
         return null;
     }

@@ -1,4 +1,4 @@
-package pl.pwr.edu.student.chess_bros.books;
+package pl.pwr.edu.student.chess_bros;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
