@@ -24,6 +24,8 @@ public class Book {
 
     int pages;
 
+    private boolean isRented = false;
+
     public Book() {
     }
 
@@ -64,4 +66,7 @@ public class Book {
     public void setPages(int pages) {
         this.pages = pages;
     }
+
+    public boolean isRented() { return isRented; }
+    public void setRented(boolean rented) { isRented = rented; }
 }
