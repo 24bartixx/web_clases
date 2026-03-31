@@ -7,7 +7,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class BooksApplication {
 
     public static void main(String[] args) {
+        io.github.cdimascio.dotenv.Dotenv dotenv = io.github.cdimascio.dotenv.Dotenv.configure()
+                .ignoreIfMissing()
+                .load();
+        dotenv.entries().forEach(e -> System.setProperty(e.getKey(), e.getValue()));
+
         SpringApplication.run(BooksApplication.class, args);
     }
-
 }
