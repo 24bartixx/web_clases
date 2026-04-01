@@ -3,7 +3,6 @@ package pl.pwr.edu.student.chess_bros.books.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import pl.pwr.edu.student.chess_bros.authors.services.IAuthorsService;
 import pl.pwr.edu.student.chess_bros.books.dto.BookRequest;
 import pl.pwr.edu.student.chess_bros.books.models.Book;
 import pl.pwr.edu.student.chess_bros.books.repositories.BookRepository;

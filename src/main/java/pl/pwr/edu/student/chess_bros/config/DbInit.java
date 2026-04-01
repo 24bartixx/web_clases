@@ -10,6 +10,10 @@ import pl.pwr.edu.student.chess_bros.books.repositories.BookRepository;
 import pl.pwr.edu.student.chess_bros.readers.models.Reader;
 import pl.pwr.edu.student.chess_bros.readers.repositories.ReaderRepository;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 @Configuration
 public class DbInit {
     @Bean
@@ -19,11 +23,28 @@ public class DbInit {
             ReaderRepository readersRepo) {
         return args -> {
 
-            Author a1 = authorsRepo.save(new Author("Henryk", "Sienkiewicz"));
-            Author a2 = authorsRepo.save(new Author("Adam", "Mickiewicz"));
+            Random random = new Random();
+            List<Author> savedAuthors = new ArrayList<>();
 
-            booksRepo.save(new Book("Quo Vadis", a1, 500));
-            booksRepo.save(new Book("Pan Tadeusz", a2, 300));
+            String[] firstNames = {"Jan", "Maria", "Stanisław", "Anna", "Krzysztof", "Elena", "Victor", "Julia"};
+            String[] lastNames = {"Kowalski", "Nowak", "Wiśniewski", "Wójcik", "Szymański", "Zając", "Dąbrowski"};
+
+            for (int i = 1; i <= 50; i++) {
+                String fName = firstNames[random.nextInt(firstNames.length)] + i;
+                String lName = lastNames[random.nextInt(lastNames.length)];
+
+                Author author = authorsRepo.save(new Author(fName, lName));
+                savedAuthors.add(author);
+            }
+
+            for (int i = 1; i <= 100; i++) {
+                String title = "Book Title #" + i;
+                int pages = 2 + random.nextInt(1000);
+
+                Author randomAuthor = savedAuthors.get(random.nextInt(savedAuthors.size()));
+
+                booksRepo.save(new Book(title, randomAuthor, pages));
+            }
 
             readersRepo.save(new Reader("Jan", "Kowalski", "jan.kowalski@pwr.edu.pl"));
             readersRepo.save(new Reader("Anna", "Nowak", "anna.nowak@pwr.edu.pl"));
