@@ -9,7 +9,7 @@
       "
     >
       <h2 style="margin: 0">Books</h2>
-      <button class="primary">Add book</button>
+      <button class="primary" @click="showAddModal = true">Add book</button>
     </div>
     <table>
       <thead>
@@ -34,17 +34,26 @@
         </tr>
       </tbody>
     </table>
+    <AddBook
+      v-if="showAddModal"
+      :show="showAddModal"
+      @close="showAddModal = false"
+      @added="fetchBooks"
+    />
   </div>
 </template>
 
 <script>
 import { API_URL } from "@/config";
+import AddBook from "./AddBook.vue";
 
 export default {
   name: "BooksPage",
+  components: { AddBook },
   data() {
     return {
       books: [],
+      showAddModal: false,
     };
   },
   methods: {
@@ -53,7 +62,6 @@ export default {
         const response = await fetch(`${API_URL}/books/`);
         const data = await response.json();
         this.books = data;
-        console.log(this.books);
       } catch (error) {
         console.error("Error fetching books:", error);
       }

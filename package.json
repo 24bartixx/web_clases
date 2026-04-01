@@ -10,7 +10,8 @@
   "dependencies": {
     "core-js": "^3.8.3",
     "vue": "^3.2.13",
-    "vue-router": "^5.0.4"
+    "vue-router": "^5.0.4",
+    "vue3-select": "^0.1.2"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",
