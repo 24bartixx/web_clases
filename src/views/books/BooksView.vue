@@ -84,16 +84,36 @@ export default {
       showUpdateModal: false,
       showDeleteModal: false,
       selectedBook: null,
+      page: 0,
+      size: 20,
+      loading: false,
+      allLoaded: false,
     };
   },
   methods: {
-    async fetchBooks() {
+    async fetchBooks(reset = false) {
+      if (this.loading || this.allLoaded) return;
+      this.loading = true;
       try {
-        const response = await fetch(`${API_URL}/books/`);
+        const response = await fetch(
+          `${API_URL}/books/?page=${this.page}&size=${this.size}`,
+        );
         const data = await response.json();
-        this.books = data;
+        const booksPage = data.content || [];
+        if (reset) {
+          this.books = booksPage;
+        } else {
+          this.books = this.books.concat(booksPage);
+        }
+        if (data.last || booksPage.length === 0) {
+          this.allLoaded = true;
+        } else {
+          this.page = data.number + 1;
+        }
       } catch (error) {
         console.error("Error fetching books:", error);
+      } finally {
+        this.loading = false;
       }
     },
     openUpdateModal(book) {
@@ -101,7 +121,7 @@ export default {
       this.showUpdateModal = true;
     },
     handleBookUpdated() {
-      this.fetchBooks();
+      this.resetAndFetch();
       this.showUpdateModal = false;
       this.selectedBook = null;
     },
@@ -110,13 +130,31 @@ export default {
       this.showDeleteModal = true;
     },
     handleBookDeleted() {
-      this.fetchBooks();
+      this.resetAndFetch();
       this.showDeleteModal = false;
       this.selectedBook = null;
+    },
+    resetAndFetch() {
+      this.page = 0;
+      this.allLoaded = false;
+      this.books = [];
+      this.fetchBooks(true);
+    },
+    handleScroll() {
+      const scrollY = window.scrollY || window.pageYOffset;
+      const visible = window.innerHeight;
+      const pageHeight = document.documentElement.scrollHeight;
+      if (scrollY + visible >= pageHeight - 200) {
+        this.fetchBooks();
+      }
     },
   },
   mounted() {
     this.fetchBooks();
+    window.addEventListener("scroll", this.handleScroll);
+  },
+  beforeUnmount() {
+    window.removeEventListener("scroll", this.handleScroll);
   },
 };
 </script>
