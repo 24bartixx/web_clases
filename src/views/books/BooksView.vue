@@ -11,39 +11,70 @@
       <h2 style="margin: 0">Books</h2>
       <button class="primary" @click="showAddModal = true">Add book</button>
     </div>
-    <table>
-      <thead>
-        <tr>
-          <th>Title</th>
-          <th>Author</th>
-          <th>Pages</th>
-          <th>Rented</th>
-          <th class="manage-col manage-col-header">Manage</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="book in books" :key="book.id">
-          <td>{{ book.title }}</td>
-          <td>{{ book.author.name }} {{ book.author.surname }}</td>
-          <td>{{ book.pages }}</td>
-          <td>{{ book.rented ? "Yes" : "No" }}</td>
-          <td class="manage-col manage-col-cell">
-            <button
-              class="primary action update"
-              @click="openUpdateModal(book)"
-            >
-              Update
-            </button>
-            <button
-              class="primary action delete"
-              @click="openDeleteModal(book)"
-            >
-              Delete
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-responsive book-table-desktop">
+      <table>
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Pages</th>
+            <th>Rented</th>
+            <th class="manage-col manage-col-header">Manage</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="book in books" :key="book.id">
+            <td>{{ book.title }}</td>
+            <td>{{ book.author.name }} {{ book.author.surname }}</td>
+            <td>{{ book.pages }}</td>
+            <td>{{ book.rented ? "Yes" : "No" }}</td>
+            <td class="manage-col manage-col-cell">
+              <button
+                class="primary action update"
+                @click="openUpdateModal(book)"
+              >
+                Update
+              </button>
+              <button
+                class="primary action delete"
+                @click="openDeleteModal(book)"
+              >
+                Delete
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- Card layout for mobile -->
+    <div class="book-cards-mobile">
+      <div class="book-card" v-for="book in books" :key="book.id">
+        <div class="book-card-row">
+          <span class="book-card-label">Title:</span>
+          <span>{{ book.title }}</span>
+        </div>
+        <div class="book-card-row">
+          <span class="book-card-label">Author:</span>
+          <span>{{ book.author.name }} {{ book.author.surname }}</span>
+        </div>
+        <div class="book-card-row">
+          <span class="book-card-label">Pages:</span>
+          <span>{{ book.pages }}</span>
+        </div>
+        <div class="book-card-row">
+          <span class="book-card-label">Rented:</span>
+          <span>{{ book.rented ? "Yes" : "No" }}</span>
+        </div>
+        <div class="book-card-actions">
+          <button class="primary action update" @click="openUpdateModal(book)">
+            Update
+          </button>
+          <button class="primary action delete" @click="openDeleteModal(book)">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
     <AddBook
       v-if="showAddModal"
       :show="showAddModal"
@@ -160,6 +191,15 @@ export default {
 </script>
 
 <style scoped>
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+}
 .manage-col {
   border-left: 2px solid #e0e0e0;
   min-width: 1px;
@@ -206,5 +246,59 @@ button.primary.action.delete {
 }
 button.primary.action.delete:hover {
   background: #900;
+}
+
+/* Card layout for mobile */
+.book-cards-mobile {
+  display: none;
+}
+.book-card {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+}
+.book-card-row {
+  display: flex;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+.book-card-label {
+  font-weight: bold;
+  min-width: 70px;
+  margin-right: 0.5rem;
+}
+.book-card-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 700px) {
+  .table-responsive.book-table-desktop {
+    display: none;
+  }
+  .book-cards-mobile {
+    display: block;
+  }
+  .book-card {
+    font-size: 0.97rem;
+    padding: 0.8rem;
+  }
+  h2 {
+    font-size: 1.2rem;
+  }
+  button.primary {
+    font-size: 0.95rem;
+    padding: 0.4rem 1rem;
+  }
+}
+
+@media (min-width: 701px) {
+  .book-cards-mobile {
+    display: none;
+  }
 }
 </style>
