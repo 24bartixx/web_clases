@@ -8,14 +8,13 @@ const routes = [
   {
     path: "/books",
     name: "Books",
-    component: () => import("../components/books/BooksPage.vue"),
+    component: () => import("../views/books/BooksView.vue"),
     meta: { layout: "MainLayout" },
   },
-  // login route removed
   {
     path: "/:pathMatch(.*)*",
     name: "NotFound",
-    component: () => import("../components/common/NotFoundPage.vue"),
+    component: () => import("../views/NotFoundView.vue"),
     meta: { layout: "MainLayout" },
   },
 ];

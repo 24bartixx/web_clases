@@ -1,7 +1,7 @@
 <template>
   <div class="modal-overlay" @click.self="onCancel">
     <div class="modal">
-      <h3>Add Book</h3>
+      <h3>Update Book</h3>
       <form @submit.prevent="onSubmit" novalidate>
         <div class="form-group">
           <label for="title">Title</label>
@@ -42,7 +42,7 @@
           <div v-if="errors.pages" class="input-error">{{ errors.pages }}</div>
         </div>
         <div class="modal-actions">
-          <button type="submit" class="primary action update">Add</button>
+          <button type="submit" class="primary action update">Update</button>
           <button type="button" class="primary action delete" @click="onCancel">
             Cancel
           </button>
@@ -59,12 +59,13 @@ import vSelect from "vue3-select";
 import "vue3-select/dist/vue3-select.css";
 
 export default {
-  name: "AddBook",
+  name: "UpdateBook",
   components: { vSelect },
   props: {
     show: Boolean,
+    book: Object,
   },
-  emits: ["close", "added"],
+  emits: ["close", "updated"],
   data() {
     return {
       authors: [],
@@ -87,10 +88,23 @@ export default {
   },
   watch: {
     show(val) {
-      if (val) {
+      if (val && this.book) {
         this.resetForm();
         this.fetchAuthors();
       }
+    },
+    book: {
+      handler(newBook) {
+        if (this.show && newBook) {
+          this.form = {
+            title: newBook.title,
+            authorId: newBook.author.id,
+            pages: newBook.pages,
+          };
+        }
+      },
+      immediate: true,
+      deep: true,
     },
   },
   methods: {
@@ -122,29 +136,40 @@ export default {
         return;
       }
       try {
-        const res = await fetch(`${API_URL}/books/`, {
-          method: "POST",
+        const res = await fetch(`${API_URL}/books/${this.book.id}`, {
+          method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(this.form),
         });
-        if (!res.ok) throw new Error("Failed to add book");
-        this.$emit("added");
+        if (!res.ok) throw new Error("Failed to update book");
+        this.$emit("updated");
         this.$emit("close");
       } catch (e) {
-        this.error = "Failed to add book";
+        this.error = "Failed to update book";
       }
     },
     onCancel() {
       this.$emit("close");
     },
     resetForm() {
-      this.form = { title: "", authorId: null, pages: 1 };
+      if (this.book) {
+        this.form = {
+          title: this.book.title,
+          authorId: this.book.author.id,
+          pages: this.book.pages,
+        };
+      } else {
+        this.form = { title: "", authorId: null, pages: 1 };
+      }
       this.errors = {};
       this.error = null;
     },
   },
   mounted() {
     this.fetchAuthors();
+    if (this.book) {
+      this.resetForm();
+    }
   },
 };
 </script>

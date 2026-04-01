@@ -28,8 +28,18 @@
           <td>{{ book.pages }}</td>
           <td>{{ book.rented ? "Yes" : "No" }}</td>
           <td class="manage-col manage-col-cell">
-            <button class="primary action update">Update</button>
-            <button class="primary action delete">Delete</button>
+            <button
+              class="primary action update"
+              @click="openUpdateModal(book)"
+            >
+              Update
+            </button>
+            <button
+              class="primary action delete"
+              @click="openDeleteModal(book)"
+            >
+              Delete
+            </button>
           </td>
         </tr>
       </tbody>
@@ -40,20 +50,40 @@
       @close="showAddModal = false"
       @added="fetchBooks"
     />
+    <UpdateBook
+      v-if="showUpdateModal"
+      :show="showUpdateModal"
+      :book="selectedBook"
+      @close="showUpdateModal = false"
+      @updated="handleBookUpdated"
+    />
+    <DeleteBook
+      v-if="showDeleteModal"
+      :show="showDeleteModal"
+      :book="selectedBook"
+      @close="showDeleteModal = false"
+      @deleted="handleBookDeleted"
+    />
   </div>
 </template>
 
 <script>
 import { API_URL } from "@/config";
-import AddBook from "./AddBook.vue";
+
+import AddBook from "../../components/books/AddBook.vue";
+import UpdateBook from "../../components/books/UpdateBook.vue";
+import DeleteBook from "../../components/books/DeleteBook.vue";
 
 export default {
-  name: "BooksPage",
-  components: { AddBook },
+  name: "BooksView",
+  components: { AddBook, UpdateBook, DeleteBook },
   data() {
     return {
       books: [],
       showAddModal: false,
+      showUpdateModal: false,
+      showDeleteModal: false,
+      selectedBook: null,
     };
   },
   methods: {
@@ -66,6 +96,24 @@ export default {
         console.error("Error fetching books:", error);
       }
     },
+    openUpdateModal(book) {
+      this.selectedBook = { ...book };
+      this.showUpdateModal = true;
+    },
+    handleBookUpdated() {
+      this.fetchBooks();
+      this.showUpdateModal = false;
+      this.selectedBook = null;
+    },
+    openDeleteModal(book) {
+      this.selectedBook = { ...book };
+      this.showDeleteModal = true;
+    },
+    handleBookDeleted() {
+      this.fetchBooks();
+      this.showDeleteModal = false;
+      this.selectedBook = null;
+    },
   },
   mounted() {
     this.fetchBooks();
@@ -74,7 +122,6 @@ export default {
 </script>
 
 <style scoped>
-/* Shared manage column styles */
 .manage-col {
   border-left: 2px solid #e0e0e0;
   min-width: 1px;
