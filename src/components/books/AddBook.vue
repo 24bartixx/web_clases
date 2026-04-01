@@ -2,10 +2,16 @@
   <div class="modal-overlay" @click.self="onCancel">
     <div class="modal">
       <h3>Add Book</h3>
-      <form @submit.prevent="onSubmit">
+      <form @submit.prevent="onSubmit" novalidate>
         <div class="form-group">
           <label for="title">Title</label>
-          <input id="title" v-model="form.title" required />
+          <input
+            id="title"
+            v-model="form.title"
+            :class="{ invalid: errors.title }"
+            autocomplete="off"
+          />
+          <div v-if="errors.title" class="input-error">{{ errors.title }}</div>
         </div>
         <div class="form-group">
           <label for="author">Author</label>
@@ -17,8 +23,11 @@
             placeholder="Select author"
             :clearable="false"
             :searchable="false"
-            required
+            :class="{ invalid: errors.authorId }"
           />
+          <div v-if="errors.authorId" class="input-error">
+            {{ errors.authorId }}
+          </div>
         </div>
         <div class="form-group">
           <label for="pages">Pages</label>
@@ -27,8 +36,10 @@
             type="number"
             min="1"
             v-model.number="form.pages"
-            required
+            :class="{ invalid: errors.pages }"
+            autocomplete="off"
           />
+          <div v-if="errors.pages" class="input-error">{{ errors.pages }}</div>
         </div>
         <div class="modal-actions">
           <button type="submit" class="primary action update">Add</button>
@@ -62,6 +73,7 @@ export default {
         authorId: null,
         pages: 1,
       },
+      errors: {},
       error: null,
     };
   },
@@ -90,10 +102,23 @@ export default {
         this.error = "Failed to load authors.";
       }
     },
+    validateForm() {
+      const errors = {};
+      if (!this.form.title || this.form.title.trim().length === 0) {
+        errors.title = "Title is required";
+      }
+      if (!this.form.authorId) {
+        errors.authorId = "Please select an author";
+      }
+      if (!this.form.pages || this.form.pages < 1) {
+        errors.pages = "Pages must be at least 1";
+      }
+      this.errors = errors;
+      return Object.keys(errors).length === 0;
+    },
     async onSubmit() {
       this.error = null;
-      if (!this.form.authorId) {
-        this.error = "Please select a valid author.";
+      if (!this.validateForm()) {
         return;
       }
       try {
@@ -106,7 +131,7 @@ export default {
         this.$emit("added");
         this.$emit("close");
       } catch (e) {
-        this.error = "Failed to add book.";
+        this.error = "Failed to add book";
       }
     },
     onCancel() {
@@ -114,6 +139,7 @@ export default {
     },
     resetForm() {
       this.form = { title: "", authorId: null, pages: 1 };
+      this.errors = {};
       this.error = null;
     },
   },
@@ -165,7 +191,15 @@ export default {
   cursor: pointer;
   transition: border 0.2s;
 }
-.form-group select:focus {
+.form-group .v-select {
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+.form-group select:focus,
+.form-group input:focus,
+.form-group .v-select:focus-within {
   border-color: #222;
   outline: none;
 }
@@ -174,6 +208,21 @@ export default {
   padding: 0.5rem;
   border: 1px solid #ccc;
   border-radius: 4px;
+}
+.form-group input.invalid,
+.form-group select.invalid {
+  border-color: #b00 !important;
+  box-shadow: 0 0 0 1px #b00;
+}
+
+.form-group .v-select.invalid :deep(.vs__dropdown-toggle) {
+  border-color: #b00 !important;
+  box-shadow: 0 0 0 1px #b00;
+}
+.input-error {
+  color: #b00;
+  font-size: 0.95em;
+  margin-top: 0.25rem;
 }
 .modal-actions {
   display: flex;
