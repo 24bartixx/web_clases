@@ -1,6 +1,8 @@
 package pl.pwr.edu.student.chess_bros.books.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import pl.pwr.edu.student.chess_bros.books.dto.BookRequest;
@@ -20,8 +22,8 @@ public class BooksService implements IBooksService {
     private AuthorsRepository authorsRepository;
 
     @Override
-    public Collection<Book> getBooks() {
-        return bookRepository.findAll();
+    public Page<Book> getBooks(Pageable pageable) {
+        return bookRepository.findAll(pageable);
     }
 
     @Override

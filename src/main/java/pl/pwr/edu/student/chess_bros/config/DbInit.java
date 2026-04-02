@@ -26,11 +26,11 @@ public class DbInit {
             Random random = new Random();
             List<Author> savedAuthors = new ArrayList<>();
 
-            String[] firstNames = {"Jan", "Maria", "Stanisław", "Anna", "Krzysztof", "Elena", "Victor", "Julia"};
-            String[] lastNames = {"Kowalski", "Nowak", "Wiśniewski", "Wójcik", "Szymański", "Zając", "Dąbrowski"};
+            String[] firstNames = {"Jan", "Józef", "Rafał", "Piotr", "Kamil", "Stanisław", "Piotr", "Krzysztof", "Bartosz", "Zbignew", "Henryk"};
+            String[] lastNames = {"Kowalski", "Nowak", "Wiśniewski", "Wójcik", "Szymański", "Zając", "Dąbrowski", "Kowalczuk", "Bilik", "Ranczewski"};
 
             for (int i = 1; i <= 50; i++) {
-                String fName = firstNames[random.nextInt(firstNames.length)] + i;
+                String fName = firstNames[random.nextInt(firstNames.length)];
                 String lName = lastNames[random.nextInt(lastNames.length)];
 
                 Author author = authorsRepo.save(new Author(fName, lName));
