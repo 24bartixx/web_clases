@@ -2,9 +2,9 @@
   <nav class="menu">
     <a :class="{ active: isActive('/') }" href="#/">Home</a>
     <a :class="{ active: isActive('/books') }" href="#/books">Books</a>
-    <a :class="{ active: isActive('/not-found') }" href="#/not-found"
-      >Not Found</a
-    >
+    <a :class="{ active: isActive('/authors') }" href="#/authors">Authors</a>
+    <a :class="{ active: isActive('/readers') }" href="#/readers">Readers</a>
+    <a :class="{ active: isActive('/rentals') }" href="#/rentals">Rentals</a>
   </nav>
 </template>
 
@@ -49,20 +49,23 @@ export default {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 .menu a {
-  color: #fff;
+  color: #bbb;
   text-decoration: none;
-  font-weight: bold;
+  font-weight: 500;
+  font-size: 1rem;
+  line-height: 1.5;
   padding: 0.5rem 1rem;
   border-radius: 4px;
-  transition: background 0.2s, color 0.2s;
+  transition: background 0.2s, color 0.2s, font-weight 0.2s;
+  display: flex;
+  align-items: center;
+  height: 2.5rem;
 }
-.menu a.active {
-  color: #ffc107;
+.menu a.active,
+.menu a:hover,
+.menu a:focus {
+  color: #fff;
   font-weight: 900;
   background: transparent !important;
-}
-.menu a:hover:not(.active),
-.menu a:focus:not(.active) {
-  color: #ffc107;
 }
 </style>
