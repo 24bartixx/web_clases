@@ -12,6 +12,12 @@ const routes = [
     meta: { layout: "MainLayout" },
   },
   {
+    path: "/authors",
+    name: "Authors",
+    component: () => import("../views/authors/AuthorsView.vue"),
+    meta: { layout: "MainLayout" },
+  },
+  {
     path: "/:pathMatch(.*)*",
     name: "NotFound",
     component: () => import("../views/NotFoundView.vue"),
