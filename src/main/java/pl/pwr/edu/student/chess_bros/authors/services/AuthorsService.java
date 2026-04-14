@@ -1,6 +1,8 @@
 package pl.pwr.edu.student.chess_bros.authors.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import jakarta.persistence.CascadeType;
@@ -8,16 +10,14 @@ import jakarta.persistence.OneToMany;
 import pl.pwr.edu.student.chess_bros.authors.models.Author;
 import pl.pwr.edu.student.chess_bros.authors.repositories.AuthorsRepository;
 
-import java.util.Collection;
-
 @Service
 public class AuthorsService implements IAuthorsService {
     @Autowired
     private AuthorsRepository authorsRepository;
 
     @Override
-    public Collection<Author> getAuthors() {
-        return authorsRepository.findAll();
+    public Page<Author> getAuthors(Pageable pageable) {
+        return authorsRepository.findAll(pageable);
     }
 
     @Override

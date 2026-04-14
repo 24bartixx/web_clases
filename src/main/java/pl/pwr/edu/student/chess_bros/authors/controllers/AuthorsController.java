@@ -1,6 +1,7 @@
 package pl.pwr.edu.student.chess_bros.authors.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,8 +15,8 @@ public class AuthorsController {
     IAuthorsService authorsService;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
-    public ResponseEntity<Object> getAuthors(){
-        return new ResponseEntity<>(authorsService.getAuthors(), HttpStatus.OK);
+    public ResponseEntity<Object> getAuthors(Pageable pageable){
+        return new ResponseEntity<>(authorsService.getAuthors(pageable), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
