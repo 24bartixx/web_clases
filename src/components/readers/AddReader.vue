@@ -21,7 +21,7 @@
             :class="{ invalid: errors.surname }"
             autocomplete="off"
           />
-          <div v-if="errors.surname" class="input-error">{{ ьerrors.surname }}</div>
+          <div v-if="errors.surname" class="input-error">{{ errors.surname }}</div>
         </div>
         <div class="form-group">
           <label for="email">Email</label>
@@ -64,20 +64,51 @@ export default {
       },
       errors: {},
       error: null,
+      readerConstraints: {
+        minNameLength: 1,
+        maxNameLength: 50,
+        minSurnameLength: 1,
+        maxSurnameLength: 50,
+        minEmailLength: 3,
+        maxEmailLength: 120,
+      },
     };
   },
   methods: {
+    async fetchValidationRules() {
+      try {
+        const res = await fetch(`${API_URL}/validationRules/reader`);
+        if (!res.ok) throw new Error("Failed to fetch rules");
+        this.readerConstraints = {
+          ...this.readerConstraints,
+          ...(await res.json()),
+        };
+      } catch (e) {
+        // Keep defaults so form still validates even when rules endpoint is unavailable.
+      }
+    },
     validateForm() {
       const errors = {};
-      if (!this.form.name || this.form.name.trim().length === 0) {
-        errors.name = "Name is required";
+      const { name, surname, email } = this.form;
+      const c = this.readerConstraints;
+
+      if (
+        !name ||
+        name.length < c.minNameLength ||
+        name.length > c.maxNameLength
+      ) {
+        errors.name = `Name must be between ${c.minNameLength} and ${c.maxNameLength} characters`;
       }
-      if (!this.form.surname || this.form.surname.trim().length === 0) {
-        errors.surname = "Surname is required";
+      if (
+        !surname ||
+        surname.length < c.minSurnameLength ||
+        surname.length > c.maxSurnameLength
+      ) {
+        errors.surname = `Surname must be between ${c.minSurnameLength} and ${c.maxSurnameLength} characters`;
       }
-      if (!this.form.email || this.form.email.trim().length === 0) {
-        errors.email = "Email is required";
-      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.form.email)) {
+      if (!email || email.length < c.minEmailLength || email.length > c.maxEmailLength) {
+        errors.email = `Email must be between ${c.minEmailLength} and ${c.maxEmailLength} characters`;
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         errors.email = "Email format is invalid";
       }
       this.errors = errors;
@@ -112,6 +143,9 @@ export default {
     onCancel() {
       this.$emit("close");
     },
+  },
+  mounted() {
+    this.fetchValidationRules();
   },
 };
 </script>
