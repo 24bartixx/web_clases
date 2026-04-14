@@ -30,7 +30,6 @@
             <th>Book</th>
             <th>Reader</th>
             <th>Rented at</th>
-            <th>Returned at</th>
             <th class="manage-col manage-col-header">Manage</th>
           </tr>
         </thead>
@@ -39,7 +38,6 @@
             <td>{{ rental.book?.title }}</td>
             <td>{{ rental.reader?.name }} {{ rental.reader?.surname }}</td>
             <td>{{ formatDate(rental.rentalDate) }}</td>
-            <td>{{ formatDate(rental.returnDate) }}</td>
             <td class="manage-col manage-col-cell">
               <button
                 class="primary action delete"
@@ -66,10 +64,6 @@
         <div class="rental-card-row">
           <span class="rental-card-label">Rented:</span>
           <span>{{ formatDate(rental.rentalDate) }}</span>
-        </div>
-        <div class="rental-card-row">
-          <span class="rental-card-label">Returned:</span>
-          <span>{{ formatDate(rental.returnDate) }}</span>
         </div>
         <div class="rental-card-actions">
           <button class="primary action delete" @click="openDeleteModal(rental)">
