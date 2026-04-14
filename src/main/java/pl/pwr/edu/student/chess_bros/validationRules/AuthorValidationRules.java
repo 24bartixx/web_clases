@@ -1,7 +1,10 @@
 package pl.pwr.edu.student.chess_bros.validationRules;
 
+import org.springframework.stereotype.Component;
+
 import pl.pwr.edu.student.chess_bros.authors.models.*;;
 
+@Component
 public class AuthorValidationRules {
 
     public Integer getMinNameLength() {
