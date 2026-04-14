@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import pl.pwr.edu.student.chess_bros.readers.models.Reader;
 import pl.pwr.edu.student.chess_bros.readers.services.IReadersService;
 
+import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -31,13 +32,13 @@ public class ReadersController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<Object> createReader(@RequestBody Reader reader) {
+    public ResponseEntity<Object> createReader(@Valid @RequestBody Reader reader) {
         readersService.addReader(reader);
         return new ResponseEntity<>("Reader created successfully", HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Object> updateReader(@PathVariable int id, @RequestBody Reader reader) {
+    public ResponseEntity<Object> updateReader(@PathVariable int id, @Valid @RequestBody Reader reader) {
         Reader updated = readersService.updateReader(id, reader);
         if (updated == null) {
             return new ResponseEntity<>("Reader not found", HttpStatus.NOT_FOUND);

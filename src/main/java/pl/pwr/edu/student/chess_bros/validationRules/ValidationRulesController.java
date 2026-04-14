@@ -15,6 +15,9 @@ public class ValidationRulesController {
     @Autowired
     private BookValidationRules bookValidationRules;
 
+    @Autowired
+    private ReaderValidationRules readerValidationRules;
+
     @GetMapping("/author")
     public ResponseEntity<AuthorValidationRules> getValidationRules() {
         return new ResponseEntity<>(authorValidationRules, HttpStatus.OK);
@@ -23,5 +26,10 @@ public class ValidationRulesController {
     @GetMapping("/book")
     public ResponseEntity<BookValidationRules> getBookValidationRules() {
         return new ResponseEntity<>(bookValidationRules, HttpStatus.OK);
+    }
+
+    @GetMapping("/reader")
+    public ResponseEntity<ReaderValidationRules> getReaderValidationRules() {
+        return new ResponseEntity<>(readerValidationRules, HttpStatus.OK);
     }
 }
