@@ -97,7 +97,8 @@ export default {
     async fetchAuthors() {
       try {
         const res = await fetch(`${API_URL}/authors/`);
-        this.authors = await res.json();
+        const data = await res.json();
+        this.authors = data.content || [];
       } catch (e) {
         this.error = "Failed to load authors.";
       }
