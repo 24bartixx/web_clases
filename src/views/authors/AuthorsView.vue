@@ -110,12 +110,30 @@ export default {
     };
   },
   methods: {
-    async fetchAuthors() {
+    async fetchAuthors(reset = false) {
+      if (this.loading || this.allLoaded) return;
+      this.loading = true;
       try {
-        const res = await fetch(`${API_URL}/authors/`);
-        this.authors = await res.json();
+        const res = await fetch(
+          `${API_URL}/authors/?page=${this.page}&size=${this.size}`
+        );
+        const data = await res.json();
+        const authorsPage = data.content || [];
+
+        if (reset) {
+          this.authors = authorsPage;
+        } else {
+          this.authors = this.authors.concat(authorsPage);
+        }
+        if (data.last || authorsPage.length === 0) {
+          this.allLoaded = true;
+        } else {
+          this.page = data.number + 1;
+        }
       } catch (e) {
         this.error = "Failed to load authors.";
+      } finally {
+        this.loading = false;
       }
     },
     openUpdateModal(author) {
