@@ -27,8 +27,15 @@ export default {
       this.currentPath = window.location.hash;
     },
     isActive(path) {
-      const hash = this.currentPath.replace("#", "") || "/";
-      return hash === path;
+      if (this.$route && this.$route.path) {
+        return this.$route.path === path;
+      }
+
+      const hash = (this.currentPath || "").replace(/^#/, "") || "/";
+      const [pathname] = hash.split("?");
+      const normalizedCurrent = pathname.replace(/\/+$/, "") || "/";
+      const normalizedTarget = path.replace(/\/+$/, "") || "/";
+      return normalizedCurrent === normalizedTarget;
     },
   },
 };

@@ -18,6 +18,18 @@ const routes = [
     meta: { layout: "MainLayout" },
   },
   {
+    path: "/readers",
+    name: "Readers",
+    component: () => import("../views/readers/ReadersView.vue"),
+    meta: { layout: "MainLayout" },
+  },
+  {
+    path: "/rentals",
+    name: "Rentals",
+    component: () => import("../views/rentals/RentalsView.vue"),
+    meta: { layout: "MainLayout" },
+  },
+  {
     path: "/:pathMatch(.*)*",
     name: "NotFound",
     component: () => import("../views/NotFoundView.vue"),
