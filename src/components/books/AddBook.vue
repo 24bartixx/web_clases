@@ -73,6 +73,12 @@ export default {
         authorId: null,
         pages: 1,
       },
+      bookConstraints: {
+        minPages: 1,
+        maxPages: 10000,
+        minTitleLength: 1,
+        maxTitleLength: 10,
+      },
       errors: {},
       error: null,
     };
@@ -90,10 +96,19 @@ export default {
       if (val) {
         this.resetForm();
         this.fetchAuthors();
+        this.fetchValidationRules();
       }
     },
   },
   methods: {
+    async fetchValidationRules() {
+      try {
+        const res = await fetch(`${API_URL}/validationRules/book`);
+        this.bookConstraints = await res.json();
+      } catch (e) {
+        console.error("Failed to load validation rules:", e);
+      }
+    },
     async fetchAuthors() {
       try {
         const res = await fetch(`${API_URL}/authors/`);
@@ -105,15 +120,40 @@ export default {
     },
     validateForm() {
       const errors = {};
-      if (!this.form.title || this.form.title.trim().length === 0) {
+      const { title, authorId, pages } = this.form;
+
+      if (!title || title.trim().length === 0) {
         errors.title = "Title is required";
+      } else if (
+        this.bookConstraints.minTitleLength &&
+        title.length < this.bookConstraints.minTitleLength
+      ) {
+        errors.title = `Title must be at least ${this.bookConstraints.minTitleLength} characters long`;
+      } else if (
+        this.bookConstraints.maxTitleLength &&
+        title.length > this.bookConstraints.maxTitleLength
+      ) {
+        errors.title = `Title must be at most ${this.bookConstraints.maxTitleLength} characters long`;
       }
-      if (!this.form.authorId) {
+
+      if (!authorId) {
         errors.authorId = "Please select an author";
       }
-      if (!this.form.pages || this.form.pages < 1) {
-        errors.pages = "Pages must be at least 1";
+
+      if (pages === null || pages === undefined) {
+        errors.pages = "Pages is required";
+      } else if (
+        this.bookConstraints.minPages &&
+        pages < this.bookConstraints.minPages
+      ) {
+        errors.pages = `Pages must be at least ${this.bookConstraints.minPages}`;
+      } else if (
+        this.bookConstraints.maxPages &&
+        pages > this.bookConstraints.maxPages
+      ) {
+        errors.pages = `Pages must be at most ${this.bookConstraints.maxPages}`;
       }
+
       this.errors = errors;
       return Object.keys(errors).length === 0;
     },
@@ -146,6 +186,7 @@ export default {
   },
   mounted() {
     this.fetchAuthors();
+    this.fetchValidationRules();
   },
 };
 </script>
