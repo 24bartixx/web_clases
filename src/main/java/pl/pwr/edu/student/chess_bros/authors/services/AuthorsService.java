@@ -36,7 +36,7 @@ public class AuthorsService implements IAuthorsService {
         if (existing != null) {
             existing.setName(author.getName());
             existing.setSurname(author.getSurname());
-            return authorsRepository.save(existing); // książki pozostają nietknięte
+            return authorsRepository.save(existing);
         }
         return null;
     }

@@ -7,22 +7,34 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import pl.pwr.edu.student.chess_bros.authors.models.Author;
 
 @Entity
 public class Book {
+    public static final int MIN_TITLE_LENGTH = 2;
+    public static final int MAX_TITLE_LENGTH = 20;
+    public static final int MIN_PAGES = 1;
+    public static final int MAX_PAGES = 10000;
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private int id;
+
+    @Size(min = MIN_TITLE_LENGTH, max = MAX_TITLE_LENGTH)
     private String title;
 
     @ManyToOne
     @JoinColumn(name = "author_id")
     private Author author;
 
-    int pages;
+    @Min(MIN_PAGES)
+    @Max(MAX_PAGES)
+    private int pages;
 
     private boolean isRented = false;
 
