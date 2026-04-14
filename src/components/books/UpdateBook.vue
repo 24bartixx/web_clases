@@ -18,15 +18,14 @@
           <v-select
             id="author"
             :options="authorOptions"
-            v-model="form.authorId"
-            :reduce="(author) => author.value"
+            v-model="form.author"
             placeholder="Select author"
             :clearable="false"
             :searchable="false"
-            :class="{ invalid: errors.authorId }"
+            :class="{ invalid: errors.author }"
           />
-          <div v-if="errors.authorId" class="input-error">
-            {{ errors.authorId }}
+          <div v-if="errors.author" class="input-error">
+            {{ errors.author }}
           </div>
         </div>
         <div class="form-group">
@@ -71,7 +70,7 @@ export default {
       authors: [],
       form: {
         title: "",
-        authorId: null,
+        author: null,
         pages: 1,
       },
       errors: {},
@@ -98,7 +97,10 @@ export default {
         if (this.show && newBook) {
           this.form = {
             title: newBook.title,
-            authorId: newBook.author.id,
+            author: {
+              label: `${newBook.author.name} ${newBook.author.surname}`,
+              value: newBook.author.id,
+            },
             pages: newBook.pages,
           };
         }
@@ -111,7 +113,8 @@ export default {
     async fetchAuthors() {
       try {
         const res = await fetch(`${API_URL}/authors/`);
-        this.authors = await res.json();
+        const data = await res.json();
+        this.authors = data.content || data || [];
       } catch (e) {
         this.error = "Failed to load authors.";
       }
@@ -121,8 +124,8 @@ export default {
       if (!this.form.title || this.form.title.trim().length === 0) {
         errors.title = "Title is required";
       }
-      if (!this.form.authorId) {
-        errors.authorId = "Please select an author";
+      if (!this.form.author) {
+        errors.author = "Please select an author";
       }
       if (!this.form.pages || this.form.pages < 1) {
         errors.pages = "Pages must be at least 1";
@@ -136,10 +139,15 @@ export default {
         return;
       }
       try {
+        const payload = {
+          title: this.form.title,
+          authorId: this.form.author.value,
+          pages: this.form.pages,
+        };
         const res = await fetch(`${API_URL}/books/${this.book.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(this.form),
+          body: JSON.stringify(payload),
         });
         if (!res.ok) throw new Error("Failed to update book");
         this.$emit("updated");
@@ -155,11 +163,14 @@ export default {
       if (this.book) {
         this.form = {
           title: this.book.title,
-          authorId: this.book.author.id,
+          author: {
+            label: `${this.book.author.name} ${this.book.author.surname}`,
+            value: this.book.author.id,
+          },
           pages: this.book.pages,
         };
       } else {
-        this.form = { title: "", authorId: null, pages: 1 };
+        this.form = { title: "", author: null, pages: 1 };
       }
       this.errors = {};
       this.error = null;
