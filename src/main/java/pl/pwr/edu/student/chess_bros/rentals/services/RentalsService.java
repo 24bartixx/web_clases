@@ -43,26 +43,44 @@ public class RentalsService implements IRentalsService {
         return rentalRepository.save(rental);
     }
 
+    // @Override
+    // public Rental returnBook(int bookId) {
+    //     Rental activeRental = rentalRepository.findAll().stream()
+    //             .filter(r -> r.getBook().getId() == bookId && r.getReturnDate() == null)
+    //             .findFirst()
+    //             .orElseThrow(() -> new IllegalArgumentException("No active rental found for book ID " + bookId));
+
+    //     activeRental.setReturnDate(java.time.LocalDate.now());
+
+    //     Book book = activeRental.getBook();
+    //     book.setRented(false);
+    //     bookRepository.save(book);
+
+    //     return rentalRepository.save(activeRental);
+    // }
+
     @Override
-    public Rental returnBook(int bookId) {
-        Rental activeRental = rentalRepository.findAll().stream()
-                .filter(r -> r.getBook().getId() == bookId && r.getReturnDate() == null)
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("No active rental found for book ID " + bookId));
-
-        activeRental.setReturnDate(java.time.LocalDate.now());
-
-        Book book = activeRental.getBook();
-        book.setRented(false);
-        bookRepository.save(book);
-
-        return rentalRepository.save(activeRental);
+    public Collection<Rental> getRents() {
+        return rentalRepository.findAll();
     }
 
     @Override
-    public Collection<Rental> getActiveRentals() {
-        return rentalRepository.findAll().stream()
-                .filter(r -> r.getReturnDate() == null)
-                .collect(Collectors.toList());
+    public Rental getRent(int id) {
+        return rentalRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Rental ID " + id + " not found"));
+    }
+
+    @Override
+    public void deleteRental(int id) {
+        Rental rental = rentalRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Rental ID " + id + " not found"));
+
+        Book book = rental.getBook();
+        if (book != null && rental.getReturnDate() == null) {
+            book.setRented(false);
+            bookRepository.save(book);
+        }
+
+        rentalRepository.delete(rental);
     }
 }
