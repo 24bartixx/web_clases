@@ -1,0 +1,8 @@
+query{
+ user(id: 2){
+ name
+ todos{ 
+    title
+ }
+ }
+} 

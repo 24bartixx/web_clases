@@ -1,0 +1,10 @@
+query{
+ users{
+ name
+ id
+ login
+ todos{
+ title
+ }
+ }
+} 

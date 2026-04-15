@@ -1,0 +1,12 @@
+query {
+  todos {
+    id
+    title
+    completed
+    user {
+      id
+      name
+      login
+    }
+  }
+}
