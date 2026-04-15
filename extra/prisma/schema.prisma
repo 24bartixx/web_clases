@@ -1,0 +1,33 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id    Int     @id @default(autoincrement())
+  name  String
+  login String  @unique
+  email String?
+  todos Todo[]
+
+  @@map("users")
+}
+
+model Todo {
+  id        Int     @id @default(autoincrement())
+  title     String
+  completed Boolean @default(false)
+  userId    Int     @map("user_id")
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("todos")
+}

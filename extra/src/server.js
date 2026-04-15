@@ -5,16 +5,6 @@ const { createResolvers } = require("./graphql/resolvers");
 const UserRepository = require("./repository/users");
 const TodoRepository = require("./repository/todo");
 
-function memoizePromise(fn) {
-  let promise;
-  return () => {
-    if (!promise) {
-      promise = fn();
-    }
-    return promise;
-  };
-}
-
 function createContext() {
   return {
     repositories: {

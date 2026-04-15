@@ -1,27 +1,30 @@
-const axios = require("axios");
+const prisma = require("../db/prisma");
 
-const api = axios.create({
-  baseURL: "https://jsonplaceholder.typicode.com",
-});
-
-function mapTodo({ id, title, completed, userId: user_id }) {
+function mapTodo({ id, title, completed, userId }) {
   return {
     id,
     title,
     completed,
-    user_id,
+    user_id: userId,
   };
 }
 
 const TodoRepository = {
   getAll: async () => {
-    const { data } = await api.get("/todos");
-    return data.map(mapTodo);
+    const todos = await prisma.todo.findMany();
+    return todos.map(mapTodo);
   },
 
   getById: async (id) => {
-    const { data } = await api.get(`/todos/${id}`);
-    return mapTodo(data);
+    const todo = await prisma.todo.findUnique({
+      where: { id },
+    });
+
+    if (!todo) {
+      return null;
+    }
+
+    return mapTodo(todo);
   },
 };
 

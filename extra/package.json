@@ -4,14 +4,22 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon -e js,graphql src/index.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:seed": "prisma db seed",
+    "seed": "npm run prisma:seed",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "description": "",
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  },
   "dependencies": {
-    "axios": "^1.15.0",
+    "@prisma/client": "^6.19.3",
     "graphql-yoga": "^5.21.0",
-    "nodemon": "^3.1.14"
+    "nodemon": "^3.1.14",
+    "prisma": "^6.19.3"
   }
 }

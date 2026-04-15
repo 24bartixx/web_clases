@@ -1,27 +1,17 @@
-const axios = require("axios");
-
-const api = axios.create({
-  baseURL: "https://jsonplaceholder.typicode.com",
-});
-
-function mapUser({ id, name, email, username: login }) {
-  return {
-    id,
-    name,
-    email,
-    login,
-  };
-}
+const prisma = require("../db/prisma");
 
 const UserRepository = {
   getAll: async () => {
-    const { data } = await api.get("/users");
-    return data.map(mapUser);
+    const users = await prisma.user.findMany();
+    return users;
   },
 
   getById: async (id) => {
-    const { data } = await api.get(`/users/${id}`);
-    return mapUser(data);
+    const user = await prisma.user.findUnique({
+      where: { id },
+    });
+
+    return user;
   },
 };
 
