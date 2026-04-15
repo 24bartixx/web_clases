@@ -1,0 +1,13 @@
+mutation {
+  updateTodo(
+    id: 1
+    input: {
+      title: "Prepare presentation v2"
+      completed: true
+    }
+  ) {
+    id
+    title
+    completed
+  }
+}

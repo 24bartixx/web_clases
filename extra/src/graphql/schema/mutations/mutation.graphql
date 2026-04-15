@@ -1,0 +1,9 @@
+type Mutation {
+  createUser(input: CreateUserInput!): User!
+  updateUser(id: ID!, input: UpdateUserInput!): User
+  deleteUser(id: ID!): Boolean!
+
+  createTodo(input: CreateTodoInput!): ToDoItem!
+  updateTodo(id: ID!, input: UpdateTodoInput!): ToDoItem
+  deleteTodo(id: ID!): Boolean!
+}

@@ -1,0 +1,17 @@
+mutation {
+  createTodo(
+    input: {
+      title: "Prepare presentation"
+      completed: false
+      userId: 1
+    }
+  ) {
+    id
+    title
+    completed
+    user {
+      id
+      login
+    }
+  }
+}

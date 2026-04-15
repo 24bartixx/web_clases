@@ -1,0 +1,11 @@
+input CreateTodoInput {
+  title: String!
+  completed: Boolean
+  userId: ID!
+}
+
+input UpdateTodoInput {
+  title: String
+  completed: Boolean
+  userId: ID
+}

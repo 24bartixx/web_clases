@@ -1,0 +1,14 @@
+mutation {
+  createUser(
+    input: {
+      name: "John Doe"
+      login: "john.doe"
+      email: "john.doe@example.com"
+    }
+  ) {
+    id
+    name
+    login
+    email
+  }
+}
