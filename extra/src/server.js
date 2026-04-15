@@ -2,7 +2,8 @@ const { createYoga } = require("graphql-yoga");
 const { makeExecutableSchema } = require("@graphql-tools/schema");
 const { loadTypeDefs } = require("./graphql/schema");
 const { createResolvers } = require("./graphql/resolvers");
-const { fetchUsers, fetchTodos } = require("./data/api");
+const UserRepository = require("./repository/users");
+const TodoRepository = require("./repository/todo");
 
 function memoizePromise(fn) {
   let promise;
@@ -16,9 +17,9 @@ function memoizePromise(fn) {
 
 function createContext() {
   return {
-    loaders: {
-      getUsers: memoizePromise(fetchUsers),
-      getTodos: memoizePromise(fetchTodos),
+    repositories: {
+      users: UserRepository,
+      todos: TodoRepository,
     },
   };
 }
@@ -34,7 +35,7 @@ function createGraphQLServer() {
 
   return createYoga({
     schema,
-    context: createContext,
+    context: () => createContext(),
   });
 }
 

@@ -1,16 +1,14 @@
 function buildQueryResolvers() {
   return {
-    users: (_, __, { loaders }) => loaders.getUsers(),
-    todos: (_, __, { loaders }) => loaders.getTodos(),
-    user: async (_, { id }, { loaders }) => {
+    users: (_, __, { repositories }) => repositories.users.getAll(),
+    todos: (_, __, { repositories }) => repositories.todos.getAll(),
+    user: async (_, { id }, { repositories }) => {
       const userId = Number(id);
-      const users = await loaders.getUsers();
-      return users.find((user) => user.id === userId) || null;
+      return repositories.users.getById(userId);
     },
-    todo: async (_, { id }, { loaders }) => {
+    todo: async (_, { id }, { repositories }) => {
       const todoId = Number(id);
-      const todos = await loaders.getTodos();
-      return todos.find((todo) => todo.id === todoId) || null;
+      return repositories.todos.getById(todoId);
     },
   };
 }

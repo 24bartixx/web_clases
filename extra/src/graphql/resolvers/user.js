@@ -1,6 +1,6 @@
 const User = {
-  todos: async (parent, _, { loaders }) => {
-    const todos = await loaders.getTodos();
+  todos: async (parent, _, { repositories }) => {
+    const todos = await repositories.todos.getAll();
     return todos.filter((todo) => todo.user_id === parent.id);
   },
 };
