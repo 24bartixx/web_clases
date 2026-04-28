@@ -118,6 +118,8 @@ io.on("connection", (socket) => {
 
     io.to(room.id).emit("receive-message", message.toJSON());
 
+    // room.removeTypingUser(user.socketId);
+    // io.to(room.id).emit("typing-users", room.getTypingUsers());
 
     console.log(
       `[MESSAGE] ${user.name} in "${room.name}": "${content.substring(0, 50)}${content.length > 50 ? "..." : ""}"`,

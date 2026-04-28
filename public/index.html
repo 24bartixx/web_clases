@@ -36,15 +36,17 @@
       <div class="chat-layout">
         <div class="sidebar">
           <div class="sidebar-top">
-            <div class="user-header">
-              <div class="user-avatar">👤</div>
-              <div class="user-info">
-                <span id="current-username" class="username-display"></span>
+            <div class="user-section">
+              <div class="user-header">
+                <div class="user-avatar">👤</div>
+                <div class="user-info">
+                  <span id="current-username" class="username-display"></span>
+                </div>
               </div>
             </div>
             <div class="sidebar-buttons">
+              <button class="btn-new-chat" id="new-chat-btn" onclick="createNewChat()" title="Nowy czat">+</button>
               <button class="btn-logout" id="logout-btn" onclick="logout()">Logout</button>
-              <button class="btn-new-chat" onclick="createNewChat()">+</button>
             </div>
           </div>
           

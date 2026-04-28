@@ -137,7 +137,7 @@ const MessageLogic = {
     typingTimeout = setTimeout(() => {
       isTyping = false;
       SocketLogic.sendStopTyping();
-    }, 1000);
+    }, 200);
   },
 
   handleImageUpload(file) {
