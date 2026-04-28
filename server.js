@@ -18,15 +18,14 @@ app.use(express.static(path.join(__dirname, "public")));
 const chatManager = new ChatManager();
 
 io.on("connection", (socket) => {
-  console.log(`[CONNECT] Nowy użytkownik połączył się (Socket: ${socket.id})`);
+  console.log(`[CONNECT] New user connected (Socket: ${socket.id})`);
 
   socket.on("register", (username) => {
     const existingUser = chatManager.getUser(socket.id);
-    if (existingUser)
-      return socket.emit("error", "Jesteś już zarejestrowany");
+    if (existingUser) return socket.emit("error", "Jesteś już zarejestrowany");
 
     const user = chatManager.createUser(socket.id, username);
-    console.log(`[REGISTER] ${username} zarejestrował się (Socket: ${socket.id})`);
+    console.log(`[REGISTER] ${username} registered (Socket: ${socket.id})`);
     socket.emit("registered", { id: user.socketId, username: user.name });
     io.emit("rooms-list", chatManager.getAllRooms());
   });
@@ -34,50 +33,68 @@ io.on("connection", (socket) => {
   socket.on("create-room", (roomName) => {
     const user = chatManager.getUser(socket.id);
     if (!user)
-      return socket.emit("error", "Musisz się zarejestrować przed tworzeniem pokoju");
+      return socket.emit(
+        "error",
+        "Musisz się zarejestrować przed tworzeniem pokoju",
+      );
 
     const room = chatManager.createRoom(roomName);
     const updatedRooms = chatManager.getAllRooms();
     io.emit("rooms-list", updatedRooms);
-    console.log(`[CREATE-ROOM] ${user.name} stworzył pokój: "${roomName}" (ID: ${room.id})`);
+    console.log(
+      `[CREATE-ROOM] ${user.name} created room: "${roomName}" (ID: ${room.id})`,
+    );
   });
 
   socket.on("join-room", (roomId) => {
     const user = chatManager.getUser(socket.id);
-    if (!user) return socket.emit("error", "Musisz się zarejestrować przed dołączeniem do pokoju");
-    
-    const room = chatManager.getRoom(roomId);
-    if (!room) return socket.emit("error", "Pokój nie istnieje");
+    if (!user)
+      return socket.emit(
+        "error",
+        "Musisz się zarejestrować przed dołączeniem do pokoju",
+      );
 
-    // Get old room before switching
+    const newRoom = chatManager.getRoom(roomId);
+    if (!newRoom) return socket.emit("error", "Pokój nie istnieje");
+
     const oldRoom = user.room ? chatManager.getRoom(user.room) : null;
 
-    chatManager.addUserToRoom(user.socketId, room.id);
-    socket.join(room.id);
+    chatManager.addUserToRoom(user.socketId, newRoom.id);
+    socket.join(newRoom.id);
 
-    // If user was in another room, notify that room about the user leaving
     if (oldRoom) {
       socket.leave(oldRoom.id);
       io.to(oldRoom.id).emit("users-list", oldRoom.getAllUsers());
-      console.log(`[JOIN-ROOM] ${user.name} opuścił pokój: "${oldRoom.name}"`);
+      console.log(`[JOIN-ROOM] ${user.name} left room: "${oldRoom.name}"`);
     }
 
-    io.to(room.id).emit("user-joined", {
+    io.to(newRoom.id).emit("user-joined", {
       username: user.name,
       message: `${user.name} dołączył do pokoju`,
       timestamp: new Date(),
     });
 
-    socket.emit("message-history", room.getMessageHistory());
-    io.to(room.id).emit("users-list", room.getAllUsers());
-    console.log(`[JOIN-ROOM] ${user.name} dołączył do pokoju: "${room.name}" (${room.getUserCount()} użytkowników)`);
+    socket.emit("message-history", newRoom.getMessageHistory());
+    io.to(newRoom.id).emit("users-list", newRoom.getAllUsers());
+
+    console.log(
+      `[JOIN-ROOM] ${user.name} joined room: "${newRoom.name}" (${newRoom.getUserCount()} users)`,
+    );
   });
 
   socket.on("send-message", (messageData) => {
     const user = chatManager.getUser(socket.id);
-    if (!user) return socket.emit("error", "Musisz się zarejestrować przed wysłaniem wiadomości");
+    if (!user)
+      return socket.emit(
+        "error",
+        "Musisz się zarejestrować przed wysłaniem wiadomości",
+      );
 
-    if (!messageData || !messageData.content || typeof messageData.content !== 'string') {
+    if (
+      !messageData ||
+      !messageData.content ||
+      typeof messageData.content !== "string"
+    ) {
       return socket.emit("error", "Niepoprawne dane wiadomości");
     }
 
@@ -85,7 +102,11 @@ io.on("connection", (socket) => {
     if (!content) return socket.emit("error", "Wiadomość nie może być pusta");
 
     const room = chatManager.getRoom(user.room);
-    if (!room) return socket.emit("error", "Musisz dołączyć do pokoju przed wysłaniem wiadomości");
+    if (!room)
+      return socket.emit(
+        "error",
+        "Musisz dołączyć do pokoju przed wysłaniem wiadomości",
+      );
 
     const message = new Message(
       user.name,
@@ -95,12 +116,12 @@ io.on("connection", (socket) => {
     );
     room.addMessage(message);
 
-    io.to(user.room).emit("receive-message", message.toJSON());
+    io.to(room.id).emit("receive-message", message.toJSON());
 
-    // room.removeTypingUser(user.name);
-    // io.to(user.room).emit("typing-users", room.getTypingUsers());
 
-    console.log(`[MESSAGE] ${user.name} w "${room.name}": "${content.substring(0, 50)}${content.length > 50 ? '...' : ''}"`);
+    console.log(
+      `[MESSAGE] ${user.name} in "${room.name}": "${content.substring(0, 50)}${content.length > 50 ? "..." : ""}"`,
+    );
   });
 
   socket.on("typing", () => {
@@ -110,8 +131,8 @@ io.on("connection", (socket) => {
     const room = chatManager.getRoom(user.room);
     if (room) {
       room.addTypingUser(socket.id);
-      io.to(user.room).emit("typing-users", room.getTypingUsers());
-      console.log(`[TYPING] ${user.name} pisze w "${room.name}"`);
+      io.to(room.id).emit("typing-users", room.getTypingUsers());
+      console.log(`[TYPING] ${user.name} is typing in "${room.name}"`);
     }
   });
 
@@ -122,40 +143,60 @@ io.on("connection", (socket) => {
     const room = chatManager.getRoom(user.room);
     if (room) {
       room.removeTypingUser(socket.id);
-      io.to(user.room).emit("typing-users", room.getTypingUsers());
-      console.log(`[STOP-TYPING] ${user.name} przestał pisać w "${room.name}"`);
+      io.to(room.id).emit("typing-users", room.getTypingUsers());
+      console.log(
+        `[STOP-TYPING] ${user.name} stopped typing in "${room.name}"`,
+      );
     }
   });
 
   socket.on("send-image", (imageData) => {
     const user = chatManager.getUser(socket.id);
-    if (!user) return socket.emit("error", "Musisz się zarejestrować przed wysłaniem zdjęcia");
+    if (!user)
+      return socket.emit(
+        "error",
+        "Musisz się zarejestrować przed wysłaniem zdjęcia",
+      );
 
     if (!imageData) {
       return socket.emit("error", "Niepoprawne dane zdjęcia");
     }
 
-    if (!user.room) return socket.emit("error", "Musisz dołączyć do pokoju przed wysłaniem zdjęcia");
+    if (!user.room)
+      return socket.emit(
+        "error",
+        "Musisz dołączyć do pokoju przed wysłaniem zdjęcia",
+      );
 
     const room = chatManager.getRoom(user.room);
-    if (!room) return socket.emit("error", "Musisz dołączyć do pokoju przed wysłaniem zdjęcia");
+    if (!room)
+      return socket.emit(
+        "error",
+        "Musisz dołączyć do pokoju przed wysłaniem zdjęcia",
+      );
 
     const message = new Message(user.name, imageData, "image", user.color);
     room.addMessage(message);
 
     io.to(user.room).emit("receive-message", message.toJSON());
 
-    console.log(`[IMAGE] ${user.name} wysłał zdjęcie w "${room.name}"`);
+    console.log(`[IMAGE] ${user.name} sent image in "${room.name}"`);
   });
 
   socket.on("leave-room", () => {
     const user = chatManager.getUser(socket.id);
-    if (!user) return socket.emit("error", "Musisz się zarejestrować przed opuszczeniem pokoju");
+    if (!user)
+      return socket.emit(
+        "error",
+        "Musisz się zarejestrować przed opuszczeniem pokoju",
+      );
 
-    if (!user.room) return socket.emit("error", "Nie jesteś w żadnym pokoju");
+    if (!user.room) 
+      return socket.emit("error", "Nie jesteś w żadnym pokoju");
 
     const room = chatManager.getRoom(user.room);
-    if (!room) return socket.emit("error", "Pokój nie istnieje");
+    if (!room) 
+      return socket.emit("error", "Pokój nie istnieje");
 
     socket.leave(room.id);
 
@@ -175,7 +216,7 @@ io.on("connection", (socket) => {
     const roomList = chatManager.getAllRooms();
     io.emit("rooms-list", roomList);
 
-    console.log(`[LEAVE-ROOM] ${user.name} opuścił pokój: "${room.name}"`);
+    console.log(`[LEAVE-ROOM] ${user.name} left room: "${room.name}"`);
   });
 
   socket.on("delete-room", (roomId) => {
@@ -193,7 +234,7 @@ io.on("connection", (socket) => {
 
     io.emit("rooms-list", chatManager.getAllRooms());
 
-    console.log(`[DELETE-ROOM] ${user.name} usunął pokój: "${room.name}"`);
+    console.log(`[DELETE-ROOM] ${user.name} deleted room: "${room.name}"`);
   });
 
   socket.on("disconnect", () => {
@@ -220,12 +261,14 @@ io.on("connection", (socket) => {
     const roomList = chatManager.getAllRooms();
     io.emit("rooms-list", roomList);
 
-    console.log(`[DISCONNECT] ${user.name} rozłączył się (Socket: ${socket.id})`);
+    console.log(
+      `[DISCONNECT] ${user.name} disconnected (Socket: ${socket.id})`,
+    );
   });
 });
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  console.log(`[SERVER] Serwer czatu słucha na porcie ${PORT}`);
-  console.log(`[SERVER] Otwórz przeglądarkę na http://localhost:${PORT}`);
+  console.log(`[SERVER] Chat server listening on port ${PORT}`);
+  console.log(`[SERVER] Open browser at http://localhost:${PORT}`);
 });
