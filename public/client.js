@@ -91,10 +91,9 @@ const RoomLogic = {
 
     currentRoomId = roomId;
     currentRoom = roomName;
-    SocketLogic.joinRoom(roomId);
-
     UIManager.updateRoomDisplay(roomId, roomName);
     UIManager.clearChatArea();
+    SocketLogic.joinRoom(roomId);
   },
 
   deleteRoom(roomId) {
@@ -116,7 +115,12 @@ const RoomLogic = {
 // ============================================================================
 const MessageLogic = {
   sendMessage(content) {
-    if (!content || !currentRoom) return;
+    if (!content) return;
+    
+    if (!currentRoomId) {
+      alert('Proszę najpierw wybrać czat!');
+      return;
+    }
 
     SocketLogic.sendMessage(content);
     messageInput.value = '';
@@ -306,8 +310,8 @@ const UIManager = {
 
   resetAfterLogin(username) {
     currentUsernameBadge.textContent = username;
-    roomTitle.textContent = 'General';
-    messagesContainer.innerHTML = '<div class="empty-state">Wybierz lub utwórz czat aby zacząć rozmowę</div>';
+    roomTitle.textContent = 'Ładowanie...';
+    messagesContainer.innerHTML = '<div class="empty-state">Ładowanie...</div>';
     usersOnline.innerHTML = '';
     messageInput.focus();
   },
@@ -443,6 +447,12 @@ function initializeEventListeners() {
 socket.on('registered', (data) => {
   UIManager.switchToChat();
   UIManager.resetAfterLogin(data.username);
+  
+  setTimeout(() => {
+    if (!currentRoomId && generalRoomId) {
+      RoomLogic.switchRoom(generalRoomId, 'General');
+    }
+  }, 100);
 });
 
 socket.on('receive-message', (message) => {
@@ -451,24 +461,26 @@ socket.on('receive-message', (message) => {
 
 socket.on('message-history', (messages) => {
   messagesContainer.innerHTML = '';
-  messages.forEach(msg => UIManager.displayMessage(msg));
+  
+  if (messages.length === 0) {
+    messagesContainer.innerHTML = '<div class="empty-state">Brak wiadomości. Bądź pierwszy!</div>';
+  } else {
+    messages.forEach(msg => UIManager.displayMessage(msg));
+  }
+  
   Utilities.scrollMessagesToBottom();
 });
 
 socket.on('rooms-list', (rooms) => {
   UIManager.updateRoomsList(rooms);
   
-  if (currentRoomId && !rooms.find(room => room.id === currentRoomId)) {
-    UIManager.handleRoomDeleted(currentRoom);
+  const generalRoom = rooms.find(room => room.isGeneral);
+  if (generalRoom) {
+    generalRoomId = generalRoom.id;
   }
   
-  if (!currentRoomId && rooms.length > 0) {
-    const generalRoom = rooms.find(room => room.isGeneral);
-    if (generalRoom) {
-      currentRoomId = generalRoom.id;
-      currentRoom = generalRoom.name;
-      SocketLogic.joinRoom(generalRoom.id);
-    }
+  if (currentRoomId && !rooms.find(room => room.id === currentRoomId)) {
+    UIManager.handleRoomDeleted(currentRoom);
   }
 });
 
@@ -489,7 +501,8 @@ socket.on('typing-users', (typingUsers) => {
 });
 
 socket.on('error', (errorMessage) => {
-  alert(errorMessage);
+  console.error('Socket Error:', errorMessage);
+  alert('Błąd: ' + errorMessage);
 });
 
 // ============================================================================
