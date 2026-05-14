@@ -1,0 +1,24 @@
+name: chess_bros_trading
+
+services:
+  api_test:
+    build:
+      context: ./api_test
+    env_file:
+      - ./api_test/.env
+
+  frontend:
+    build:
+      context: ./frontend
+    env_file:
+      - ./frontend/.env
+    environment:
+      HOST: "0.0.0.0"
+      PORT: "3000"
+      BROWSER: "none"
+      CHOKIDAR_USEPOLLING: "true"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"

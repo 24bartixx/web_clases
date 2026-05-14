@@ -1,0 +1,46 @@
+# Environment
+.env
+.env.local
+.env.*.local
+backend/.env
+frontend/.env
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+ENV/
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+*.egg-info/
+dist/
+build/
+
+# Node / React
+node_modules/
+.pnp/
+.pnp.js
+coverage/
+frontend/build/
+
+# Local data/output
+data/
+cache/
+logs/
+*.log
+*.csv
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db

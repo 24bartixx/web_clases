@@ -18,13 +18,15 @@ Integracja z Alpha Vantage API do pobierania danych giełdowych w Pythonie.
 ### Instalacja
 
 ```bash
-pip install requests
+cd api_test
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 ```
 
 ### Konfiguracja env:
 
 w pliku .env ustaw:
-
 
 ### Uruchomienie
 
