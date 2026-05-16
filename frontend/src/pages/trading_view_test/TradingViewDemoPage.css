@@ -1,4 +1,4 @@
-.App {
+.trading-view-demo {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 40px 20px;
@@ -7,25 +7,25 @@
     "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
 }
 
-.App-header {
+.trading-view-demo__header {
   text-align: center;
   color: white;
   margin-bottom: 50px;
 }
 
-.App-header h1 {
+.trading-view-demo__header h1 {
   margin: 0 0 10px 0;
   font-size: 2.5em;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.App-header p {
+.trading-view-demo__header p {
   margin: 0;
   font-size: 1.1em;
   opacity: 0.9;
 }
 
-.charts-grid {
+.trading-view-demo__charts-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
   gap: 30px;
@@ -33,7 +33,7 @@
   margin: 0 auto;
 }
 
-.chart-wrapper {
+.trading-view-demo__chart-wrapper {
   background: white;
   border-radius: 12px;
   padding: 20px;
@@ -43,19 +43,19 @@
     box-shadow 0.3s ease;
 }
 
-.chart-wrapper:hover {
+.trading-view-demo__chart-wrapper:hover {
   transform: translateY(-5px);
   box-shadow: 0 12px 48px rgba(0, 0, 0, 0.25);
 }
 
-.chart-wrapper h3 {
+.trading-view-demo__chart-wrapper h3 {
   margin: 0 0 15px 0;
   color: #333;
   font-size: 1.2em;
   font-weight: 600;
 }
 
-.chart-container {
+.trading-view-demo__chart-container {
   width: 100%;
   height: 300px;
   border-radius: 8px;
@@ -63,20 +63,20 @@
 }
 
 @media (max-width: 768px) {
-  .App {
+  .trading-view-demo {
     padding: 20px 10px;
   }
 
-  .App-header h1 {
+  .trading-view-demo__header h1 {
     font-size: 1.8em;
   }
 
-  .charts-grid {
+  .trading-view-demo__charts-grid {
     grid-template-columns: 1fr;
     gap: 20px;
   }
 
-  .chart-wrapper {
+  .trading-view-demo__chart-wrapper {
     padding: 15px;
   }
 }
