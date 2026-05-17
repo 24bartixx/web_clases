@@ -21,6 +21,9 @@ class StockPrice(Base):
     close: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
     volume: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
     dividend_amount: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
+    sma20: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
+    sma50: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
+    sma200: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
     price_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     stock_id: Mapped[int] = mapped_column(
         ForeignKey("stocks.stock_id", deferrable=True, initially="IMMEDIATE"),
