@@ -44,16 +44,16 @@ CREATE TABLE "simulations" (
   "finished_at" timestamp
 );
 
-CREATE TABLE "sectors" (
-  "sector_id" integer PRIMARY KEY,
-  "name" varchar(60)
-);
-
 CREATE TABLE "stocks" (
   "stock_id" integer PRIMARY KEY,
   "ticker" varchar(10) UNIQUE NOT NULL,
   "company_name" varchar(255),
-  "sector_id" integer NOT NULL
+  "description" text,
+  "sector" varchar(120),
+  "industry" varchar(120),
+  "country" varchar(80),
+  "currency" varchar(10),
+  "website" varchar(512)
 );
 
 CREATE TABLE "stock_prices" (
@@ -106,8 +106,6 @@ CREATE TABLE "summaries" (
 );
 
 ALTER TABLE "simulations" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id") DEFERRABLE INITIALLY IMMEDIATE;
-
-ALTER TABLE "stocks" ADD FOREIGN KEY ("sector_id") REFERENCES "sectors" ("sector_id") DEFERRABLE INITIALLY IMMEDIATE;
 
 ALTER TABLE "stock_prices" ADD FOREIGN KEY ("stock_id") REFERENCES "stocks" ("stock_id") DEFERRABLE INITIALLY IMMEDIATE;
 

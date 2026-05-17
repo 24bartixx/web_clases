@@ -1,5 +1,4 @@
 from models.position import Position
-from models.sector import Sector
 from models.simulation import Simulation
 from models.simulation_history import SimulationHistory
 from models.stock import Stock
@@ -10,7 +9,6 @@ from models.user import User
 
 __all__ = [
     "Position",
-    "Sector",
     "Simulation",
     "SimulationHistory",
     "Stock",
