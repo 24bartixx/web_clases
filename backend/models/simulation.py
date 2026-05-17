@@ -1,0 +1,42 @@
+from datetime import datetime
+from decimal import Decimal
+
+from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, Integer, Numeric, func
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from db.base import Base
+from models.enums import RoundType
+
+
+class Simulation(Base):
+    __tablename__ = "simulations"
+
+    simulation_id: Mapped[int] = mapped_column(primary_key=True)
+    initial_balance: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
+    current_balance: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
+    start_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    finish_date: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, server_default=func.now()
+    )
+    has_rounds: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default="false"
+    )
+    round_type: Mapped[RoundType | None] = mapped_column(Enum(RoundType, name="round_type"))
+    round_value: Mapped[int | None] = mapped_column(Integer)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.user_id", deferrable=True, initially="IMMEDIATE"),
+        nullable=False,
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, server_default=func.now()
+    )
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime)
+
+    user = relationship("User", back_populates="simulations")
+    positions = relationship("Position", back_populates="simulation")
+    transactions = relationship("Transaction", back_populates="simulation")
+    history = relationship("SimulationHistory", back_populates="simulation")
+    summaries = relationship("Summary", back_populates="simulation")
