@@ -7,6 +7,7 @@ Create Date: 2026-05-17
 
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy.dialects import postgresql
 
 revision = "0001_create_initial_schema"
 down_revision = None
@@ -15,7 +16,7 @@ depends_on = None
 
 
 def upgrade():
-    round_type = sa.Enum(
+    round_type = postgresql.ENUM(
         "second",
         "minute",
         "hour",
@@ -25,10 +26,17 @@ def upgrade():
         "month",
         "year",
         name="round_type",
+        create_type=False,
     )
-    transaction_type = sa.Enum("buy", "sell", name="transaction_type")
-    stock_data_interval = sa.Enum(
-        "daily", "weekly", "monthly", name="stock_data_interval"
+    transaction_type = postgresql.ENUM(
+        "buy", "sell", name="transaction_type", create_type=False
+    )
+    stock_data_interval = postgresql.ENUM(
+        "daily",
+        "weekly",
+        "monthly",
+        name="stock_data_interval",
+        create_type=False,
     )
 
     bind = op.get_bind()
