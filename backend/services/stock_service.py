@@ -1,3 +1,4 @@
+from datetime import date
 from io import StringIO
 
 from fastapi import HTTPException, status
@@ -10,6 +11,21 @@ from repositories import stock_repository
 
 
 SP500_WIKI_URL = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
+YFINANCE_INTERVALS = {
+    "1m",
+    "2m",
+    "5m",
+    "15m",
+    "30m",
+    "60m",
+    "90m",
+    "1h",
+    "1d",
+    "5d",
+    "1wk",
+    "1mo",
+    "3mo",
+}
 
 
 def get_stocks(db: Session, skip: int = 0, limit: int = 100):
@@ -24,6 +40,47 @@ def get_stock(db: Session, ticker: str):
             detail="Stock not found",
         )
     return stock
+
+
+def get_stock_prices(
+    db: Session,
+    ticker: str,
+    start: date | None = None,
+    finish: date | None = None,
+    interval: str = "1d",
+):
+    if interval not in YFINANCE_INTERVALS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid interval. Allowed values: {', '.join(sorted(YFINANCE_INTERVALS))}",
+        )
+
+    get_stock(db, ticker)
+
+    yfinance_ticker = yf.Ticker(ticker)
+    if start is None and finish is None:
+        history = yfinance_ticker.history(
+            period="max",
+            interval=interval,
+            timeout=20,
+        )
+        return _serialize_price_history(history)
+
+    finish = finish or date.today()
+    if start is not None and finish < start:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="finish must be greater than or equal to start",
+        )
+
+    history = yfinance_ticker.history(
+        start=start.isoformat() if start is not None else None,
+        end=finish.isoformat(),
+        interval=interval,
+        timeout=20,
+    )
+
+    return _serialize_price_history(history)
 
 
 def scrap_stock_data(db: Session, limit: int | None = None):
@@ -85,3 +142,37 @@ def _fetch_stock_data(ticker: str):
     info.setdefault("symbol", ticker.upper())
 
     return info
+
+
+def _serialize_price_history(history):
+    prices = []
+
+    for price_date, row in history.iterrows():
+        open_price = _clean_number(row.get("Open"))
+        high = _clean_number(row.get("High"))
+        low = _clean_number(row.get("Low"))
+        close = _clean_number(row.get("Close"))
+        volume = _clean_number(row.get("Volume"))
+
+        if None in (open_price, high, low, close, volume):
+            continue
+
+        prices.append(
+            {
+                "price_date": price_date.to_pydatetime(),
+                "open": open_price,
+                "high": high,
+                "low": low,
+                "close": close,
+                "volume": volume,
+                "dividend_amount": _clean_number(row.get("Dividends")),
+            }
+        )
+
+    return prices
+
+
+def _clean_number(value):
+    if value is None or pd.isna(value):
+        return None
+    return float(value)

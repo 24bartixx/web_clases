@@ -1,3 +1,4 @@
+from datetime import date
 from threading import Lock
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Query, status
@@ -5,7 +6,7 @@ from fastapi.exceptions import HTTPException
 from sqlalchemy.orm import Session
 
 from db.database import SessionLocal, get_db
-from schemas.stock_schema import StockRead, StockScrapeRequest
+from schemas.stock_schema import StockPriceRead, StockRead, StockScrapeRequest
 from services import stock_service
 
 router = APIRouter()
@@ -27,6 +28,23 @@ def get_stock(
     db: Session = Depends(get_db),
 ):
     return stock_service.get_stock(db, ticker)
+
+
+@router.get("/{ticker}/prices", response_model=list[StockPriceRead])
+def get_stock_prices(
+    ticker: str,
+    start: date | None = Query(default=None),
+    finish: date | None = Query(default=None),
+    interval: str = Query(default="1d"),
+    db: Session = Depends(get_db),
+):
+    return stock_service.get_stock_prices(
+        db,
+        ticker,
+        start=start,
+        finish=finish,
+        interval=interval,
+    )
 
 
 @router.post("/scrape", status_code=status.HTTP_202_ACCEPTED)
