@@ -22,9 +22,25 @@ def create_stock(
     if ticker is None:
         raise ValueError("Cannot create stock without ticker symbol")
 
-    stock = Stock(
-        ticker=ticker.upper(),
-        company_name=_truncate(
+    stock = Stock(ticker=ticker.upper(), **_stock_fields_from_yfinance_info(yfinance_info))
+    db.add(stock)
+    db.flush()
+    return stock
+
+
+def update_stock(
+    stock: Stock,
+    yfinance_info: dict,
+):
+    for field, value in _stock_fields_from_yfinance_info(yfinance_info).items():
+        setattr(stock, field, value)
+
+    return stock
+
+
+def _stock_fields_from_yfinance_info(yfinance_info: dict):
+    return {
+        "company_name": _truncate(
             _clean_value(
                 yfinance_info.get("longName")
                 or yfinance_info.get("shortName")
@@ -32,21 +48,9 @@ def create_stock(
             ),
             255,
         ),
-        description=_clean_value(yfinance_info.get("longBusinessSummary")),
-        sector=_truncate(_clean_value(yfinance_info.get("sector")), 120),
-        industry=_truncate(_clean_value(yfinance_info.get("industry")), 120),
-        country=_truncate(_clean_value(yfinance_info.get("country")), 80),
-        currency=_truncate(
-            _clean_value(
-                yfinance_info.get("currency") or yfinance_info.get("financialCurrency")
-            ),
-            10,
-        ),
-        website=_truncate(_clean_value(yfinance_info.get("website")), 512),
-    )
-    db.add(stock)
-    db.flush()
-    return stock
+        "sector": _truncate(_clean_value(yfinance_info.get("sector")), 120),
+        "industry": _truncate(_clean_value(yfinance_info.get("industry")), 120),
+    }
 
 
 def _clean_value(value):

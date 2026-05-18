@@ -14,12 +14,6 @@ CREATE TYPE "transaction_type" AS ENUM (
   'sell'
 );
 
-CREATE TYPE "stock_data_interval" AS ENUM (
-  'daily',
-  'weekly',
-  'monthly'
-);
-
 CREATE TABLE "users" (
   "user_id" integer PRIMARY KEY,
   "google_id" varchar UNIQUE,
@@ -48,25 +42,8 @@ CREATE TABLE "stocks" (
   "stock_id" integer PRIMARY KEY,
   "ticker" varchar(10) UNIQUE NOT NULL,
   "company_name" varchar(255),
-  "description" text,
   "sector" varchar(120),
-  "industry" varchar(120),
-  "country" varchar(80),
-  "currency" varchar(10),
-  "website" varchar(512)
-);
-
-CREATE TABLE "stock_prices" (
-  "stock_prices_id" integer PRIMARY KEY,
-  "interval" stock_data_interval NOT NULL,
-  "open" decimal(12,2) NOT NULL,
-  "high" decimal(12,2) NOT NULL,
-  "low" decimal(12,2) NOT NULL,
-  "close" decimal(12,2) NOT NULL,
-  "volume" decimal(12,2) NOT NULL,
-  "dividend_amount" decimal(12,2),
-  "price_date" timestamp NOT NULL,
-  "stock_id" integer NOT NULL
+  "industry" varchar(120)
 );
 
 CREATE TABLE "positions" (
@@ -106,8 +83,6 @@ CREATE TABLE "summaries" (
 );
 
 ALTER TABLE "simulations" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id") DEFERRABLE INITIALLY IMMEDIATE;
-
-ALTER TABLE "stock_prices" ADD FOREIGN KEY ("stock_id") REFERENCES "stocks" ("stock_id") DEFERRABLE INITIALLY IMMEDIATE;
 
 ALTER TABLE "positions" ADD FOREIGN KEY ("simulation_id") REFERENCES "simulations" ("simulation_id") DEFERRABLE INITIALLY IMMEDIATE;
 

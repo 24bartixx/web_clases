@@ -24,4 +24,10 @@ Optional request body:
 }
 ```
 
-`limit` restricts scraping to the first N tickers from the S&P 500 list. If omitted, all tickers are processed.
+`limit` restricts scraping to the first N tickers from the S&P 500 list. If omitted or set to `null`, all tickers are processed.
+
+```json
+{
+  "limit": null
+}
+```

@@ -15,9 +15,3 @@ class RoundType(str, Enum):
 class TransactionType(str, Enum):
     buy = "buy"
     sell = "sell"
-
-
-class StockDataInterval(str, Enum):
-    daily = "daily"
-    weekly = "weekly"
-    monthly = "monthly"
