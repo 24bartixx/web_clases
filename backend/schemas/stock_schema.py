@@ -25,3 +25,12 @@ class StockPriceRead(BaseModel):
     close: float
     volume: float
     dividend_amount: float | None = None
+
+
+class StockDetailsRead(BaseModel):
+    description: str | None = None
+    sharesOutstanding: int | None = None
+    floatShares: int | None = None
+    country: str | None = None
+    currency: str | None = None
+    website: str | None = None

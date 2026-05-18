@@ -108,6 +108,20 @@ def get_stock_prices(
     return _serialize_price_history(history)
 
 
+def get_stock_details(db: Session, ticker: str):
+    get_stock(db, ticker)
+    info = _fetch_stock_data(ticker)
+
+    return {
+        "description": _clean_value(info.get("longBusinessSummary")),
+        "sharesOutstanding": _clean_int(info.get("sharesOutstanding")),
+        "floatShares": _clean_int(info.get("floatShares")),
+        "country": _clean_value(info.get("country")),
+        "currency": _clean_value(info.get("currency") or info.get("financialCurrency")),
+        "website": _clean_value(info.get("website")),
+    }
+
+
 def scrap_stock_data(db: Session, limit: int | None = None):
 
     tickers = _get_sp500_tickers_from_wiki()
@@ -201,3 +215,15 @@ def _clean_number(value):
     if value is None or pd.isna(value):
         return None
     return float(value)
+
+
+def _clean_int(value):
+    if value is None or pd.isna(value):
+        return None
+    return int(value)
+
+
+def _clean_value(value):
+    if value in (None, "", "N/A"):
+        return None
+    return value

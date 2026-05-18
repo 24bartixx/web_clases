@@ -6,7 +6,12 @@ from fastapi.exceptions import HTTPException
 from sqlalchemy.orm import Session
 
 from db.database import SessionLocal, get_db
-from schemas.stock_schema import StockPriceRead, StockRead, StockScrapeRequest
+from schemas.stock_schema import (
+    StockDetailsRead,
+    StockPriceRead,
+    StockRead,
+    StockScrapeRequest,
+)
 from services import stock_service
 
 router = APIRouter()
@@ -53,6 +58,14 @@ def get_stock_prices(
         finish=finish,
         interval=interval,
     )
+
+
+@router.get("/{ticker}/details", response_model=StockDetailsRead)
+def get_stock_details(
+    ticker: str,
+    db: Session = Depends(get_db),
+):
+    return stock_service.get_stock_details(db, ticker)
 
 
 @router.post("/scrape-jobs", status_code=status.HTTP_202_ACCEPTED)
