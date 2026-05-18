@@ -22,6 +22,14 @@ def get_stocks(
     return stock_service.get_stocks(db, skip=skip, limit=limit)
 
 
+@router.get("/id/{stock_id}", response_model=StockRead)
+def get_stock_by_id(
+    stock_id: int,
+    db: Session = Depends(get_db),
+):
+    return stock_service.get_stock_by_id(db, stock_id)
+
+
 @router.get("/{ticker}", response_model=StockRead)
 def get_stock(
     ticker: str,
@@ -47,7 +55,7 @@ def get_stock_prices(
     )
 
 
-@router.post("/scrape", status_code=status.HTTP_202_ACCEPTED)
+@router.post("/scrape-jobs", status_code=status.HTTP_202_ACCEPTED)
 def scrap_stock_data(
     background_tasks: BackgroundTasks,
     scrape_data: StockScrapeRequest | None = None,
@@ -69,3 +77,10 @@ def _run_stock_scraping(limit: int | None = None):
     finally:
         db.close()
         scraping_lock.release()
+
+
+@router.delete("/")
+def delete_stocks(
+    db: Session = Depends(get_db),
+):
+    return stock_service.delete_stocks(db)

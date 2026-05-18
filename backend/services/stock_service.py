@@ -2,6 +2,7 @@ from datetime import date
 from io import StringIO
 
 from fastapi import HTTPException, status
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 import yfinance as yf
 import pandas as pd
@@ -40,6 +41,30 @@ def get_stock(db: Session, ticker: str):
             detail="Stock not found",
         )
     return stock
+
+
+def get_stock_by_id(db: Session, stock_id: int):
+    stock = stock_repository.get_stock_by_id(db, stock_id)
+    if stock is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Stock not found",
+        )
+    return stock
+
+
+def delete_stocks(db: Session):
+    try:
+        deleted_count = stock_repository.delete_stocks(db)
+        db.commit()
+    except IntegrityError as exc:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Could not delete stocks because related records exist.",
+        ) from exc
+
+    return {"deleted_count": deleted_count}
 
 
 def get_stock_prices(

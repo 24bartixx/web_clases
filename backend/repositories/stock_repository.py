@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from models.stock import Stock
@@ -9,9 +9,18 @@ def get_stocks(db: Session, skip: int = 0, limit: int = 100):
     return db.scalars(statement).all()
 
 
+def get_stock_by_id(db: Session, stock_id: int):
+    return db.get(Stock, stock_id)
+
+
 def get_stock_by_ticker(db: Session, ticker: str):
     statement = select(Stock).where(Stock.ticker == ticker.upper())
     return db.scalars(statement).one_or_none()
+
+
+def delete_stocks(db: Session):
+    result = db.execute(delete(Stock))
+    return result.rowcount or 0
 
 
 def create_stock(
