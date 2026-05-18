@@ -65,9 +65,6 @@ CREATE TABLE "stock_prices" (
   "close" decimal(12,2) NOT NULL,
   "volume" decimal(12,2) NOT NULL,
   "dividend_amount" decimal(12,2),
-  "sma20" decimal(12,2) NOT NULL,
-  "sma50" decimal(12,2) NOT NULL,
-  "sma200" decimal(12,2) NOT NULL,
   "price_date" timestamp NOT NULL,
   "stock_id" integer NOT NULL
 );

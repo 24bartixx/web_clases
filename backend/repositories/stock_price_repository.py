@@ -12,9 +12,6 @@ def create_stock_prices(db, stock_id: int, prices: list[dict]):
             close=price["close"],
             volume=price["volume"],
             dividend_amount=price.get("dividend_amount"),
-            sma20=price["sma20"],
-            sma50=price["sma50"],
-            sma200=price["sma200"],
             price_date=price["price_date"],
         )
         for price in prices

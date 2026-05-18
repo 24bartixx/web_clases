@@ -34,6 +34,9 @@ logs/
 *.log
 *.csv
 
+# Local experiments
+y_finance_test/
+
 # IDE / editor
 .vscode/
 .idea/

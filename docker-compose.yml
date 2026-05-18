@@ -23,12 +23,6 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  api_test:
-    build:
-      context: ./api_test
-    env_file:
-      - ./api_test/.env
-
   frontend:
     build:
       context: ./frontend
