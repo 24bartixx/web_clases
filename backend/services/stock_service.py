@@ -1,7 +1,15 @@
+from io import StringIO
+
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
+import yfinance as yf
+import pandas as pd
+import requests
 
-from repositories import stock_repository
+from repositories import stock_price_repository, stock_repository
+
+
+SP500_WIKI_URL = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
 
 
 def get_stocks(db: Session, skip: int = 0, limit: int = 100):
@@ -16,3 +24,67 @@ def get_stock(db: Session, ticker: str):
             detail="Stock not found",
         )
     return stock
+
+
+def scrap_stock_data(db: Session, limit: int | None = None):
+
+    tickers = _get_sp500_tickers_from_wiki()
+    if limit is not None:
+        tickers = tickers[:limit]
+
+    total_tickers = len(tickers)
+
+    for index, ticker in enumerate(tickers, start=1):
+        if stock_repository.get_stock_by_ticker(db, ticker) is not None:
+            print(f"{ticker} is already scrapped. Skipping... ({index}/{total_tickers})", flush=True)
+            continue
+
+        print(f"Scrapping data for {ticker}... ({index}/{total_tickers})", flush=True)
+
+        try:
+            print(f"Fetching data for {ticker}... ({index}/{total_tickers})", flush=True)
+            info, history = _fetch_stock_data(ticker)
+            print(
+                f"Fetched {len(history)} price rows for {ticker}. Saving... ({index}/{total_tickers})",
+                flush=True,
+            )
+
+            stock = stock_repository.create_stock(db, info)
+            stock_price_repository.create_stock_prices(db, stock.stock_id, history)
+            print(f"Committing data for {ticker}... ({index}/{total_tickers})", flush=True)
+            db.commit()
+
+            print(f"Successfully scrapped data for {ticker}! ({index}/{total_tickers})\n", flush=True)
+        except Exception as exc:
+            db.rollback()
+            print(
+                f"Failed to scrap data for {ticker}: {type(exc).__name__} ({index}/{total_tickers})",
+                flush=True,
+            )
+
+
+def _get_sp500_tickers_from_wiki():
+    response = requests.get(
+        SP500_WIKI_URL,
+        headers={"User-Agent": "Mozilla/5.0"},
+        timeout=20,
+    )
+    response.raise_for_status()
+
+    parsed_table = pd.read_html(StringIO(response.text), attrs={"id": "constituents"})[0]
+
+    tickers = parsed_table["Symbol"].tolist()
+    tickers = [ticker.replace(".", "-") for ticker in tickers]
+
+    print(f"Successfully parsed {len(tickers)} tickers from Wikipedia!\n")
+
+    return tickers
+
+
+def _fetch_stock_data(ticker: str):
+    yfinance_ticker = yf.Ticker(ticker)
+    info = dict(yfinance_ticker.info or {})
+    info.setdefault("symbol", ticker.upper())
+    history = yfinance_ticker.history(period="max", interval="1d", timeout=20)
+
+    return info, history

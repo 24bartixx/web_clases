@@ -1,6 +1,6 @@
 """remove stock price sma columns
 
-Revision ID: 0004_remove_stock_price_sma_columns
+Revision ID: 0004_remove_stock_price_sma
 Revises: 0003_add_stock_price_sma_columns
 Create Date: 2026-05-18
 """
@@ -8,7 +8,7 @@ Create Date: 2026-05-18
 from alembic import op
 import sqlalchemy as sa
 
-revision = "0004_remove_stock_price_sma_columns"
+revision = "0004_remove_stock_price_sma"
 down_revision = "0003_add_stock_price_sma_columns"
 branch_labels = None
 depends_on = None

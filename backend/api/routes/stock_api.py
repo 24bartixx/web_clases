@@ -1,11 +1,15 @@
-from fastapi import APIRouter, Depends, Query
+from threading import Lock
+
+from fastapi import APIRouter, BackgroundTasks, Depends, Query, status
+from fastapi.exceptions import HTTPException
 from sqlalchemy.orm import Session
 
-from db.database import get_db
-from schemas.stock_schema import StockRead
+from db.database import SessionLocal, get_db
+from schemas.stock_schema import StockRead, StockScrapeRequest
 from services import stock_service
 
 router = APIRouter()
+scraping_lock = Lock()
 
 
 @router.get("/", response_model=list[StockRead])
@@ -23,3 +27,27 @@ def get_stock(
     db: Session = Depends(get_db),
 ):
     return stock_service.get_stock(db, ticker)
+
+
+@router.post("/scrape", status_code=status.HTTP_202_ACCEPTED)
+def scrap_stock_data(
+    background_tasks: BackgroundTasks,
+    scrape_data: StockScrapeRequest | None = None,
+):
+    if not scraping_lock.acquire(blocking=False):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Stock scraping is already running",
+        )
+
+    background_tasks.add_task(_run_stock_scraping, scrape_data.limit if scrape_data else None)
+    return {"detail": "Stock scraping started"}
+
+
+def _run_stock_scraping(limit: int | None = None):
+    db = SessionLocal()
+    try:
+        stock_service.scrap_stock_data(db, limit=limit)
+    finally:
+        db.close()
+        scraping_lock.release()

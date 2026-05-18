@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class StockRead(BaseModel):
@@ -13,3 +13,7 @@ class StockRead(BaseModel):
     country: str | None
     currency: str | None
     website: str | None
+
+
+class StockScrapeRequest(BaseModel):
+    limit: int | None = Field(default=None, ge=1, le=503)
