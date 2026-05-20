@@ -1,7 +1,14 @@
+import { GoogleLogin } from "@react-oauth/google";
+
 export function LoginPage() {
   return (
-    <div>
-      <h1>Login Page</h1>
-    </div>
+    <GoogleLogin
+      onSuccess={(credentialResponse) => {
+        console.log(credentialResponse);
+      }}
+      onError={() => {
+        console.log("Login Failed");
+      }}
+    />
   );
 }
