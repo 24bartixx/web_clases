@@ -9,6 +9,9 @@ function getCssVar(name, fallback) {
 
 export function buildThemeFromCssVars() {
   return createTheme({
+    typography: {
+      fontFamily: 'Roboto, Arial, sans-serif',
+    },
     palette: {
       primary: {
         main: getCssVar('--md-sys-color-primary', '#1976d2'),
