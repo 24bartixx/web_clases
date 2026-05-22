@@ -1,0 +1,65 @@
+$primary: rgb(135 209 235);
+$primary-text: rgb(0 53 67);
+$primary-bg-subtle: rgb(0 78 96);
+$primary-border-subtle: rgb(181 235 255);
+
+$secondary: rgb(179 202 212);
+$secondary-text: rgb(29 51 59);
+$secondary-bg-subtle: rgb(52 74 82);
+$secondary-border-subtle: rgb(207 230 240);
+
+$success: rgb(194 195 235);
+$success-text: rgb(43 46 77);
+$success-bg-subtle: rgb(66 68 101);
+$success-border-subtle: rgb(224 224 255);
+
+$danger: rgb(255 180 171);
+$danger-text: rgb(105 0 5);
+$danger-bg-subtle: rgb(147 0 10);
+$danger-border-subtle: rgb(255 218 214);
+
+$body-bg: rgb(15 20 22);
+$body-color: rgb(222 227 230);
+
+$surface: rgb(15 20 22);
+$surface-color: rgb(222 227 230);
+
+$gray-100: rgb(222 227 230);
+$gray-200: rgb(207 230 240);
+$gray-300: rgb(191 200 204);
+$gray-400: rgb(137 146 150);
+$gray-500: rgb(64 72 76);
+$gray-600: rgb(52 58 60);
+$gray-700: rgb(48 54 56);
+$gray-800: rgb(37 43 45);
+$gray-900: rgb(23 28 31);
+
+$border-color: rgb(64 72 76);
+$text-muted: rgb(137 146 150);
+
+$light: rgb(52 58 60);
+$dark: rgb(10 15 17);
+
+$card-bg: rgb(27 32 35);
+$card-cap-bg: rgb(37 43 45);
+
+$modal-content-bg: rgb(27 32 35);
+
+$input-bg: rgb(23 28 31);
+$input-color: rgb(222 227 230);
+$input-border-color: rgb(64 72 76);
+
+$dropdown-bg: rgb(27 32 35);
+$dropdown-link-color: rgb(222 227 230);
+
+$list-group-bg: rgb(27 32 35);
+$list-group-color: rgb(222 227 230);
+$list-group-border-color: rgb(64 72 76);
+
+$navbar-dark-color: rgb(222 227 230);
+$navbar-dark-hover-color: rgb(135 209 235);
+
+$btn-close-color: rgb(222 227 230);
+
+@import 'bootstrap/scss/bootstrap';
+@import 'mdb-react-ui-kit/dist/css/mdb.min.css';

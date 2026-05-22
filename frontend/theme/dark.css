@@ -49,12 +49,3 @@
   --md-sys-color-surface-container-high: rgb(37 43 45);
   --md-sys-color-surface-container-highest: rgb(48 54 56);
 }
-
-.dark body {
-  background-color: var(--md-sys-color-background);
-  color: var(--md-sys-color-on-background);
-}
-
-.dark a {
-  color: var(--md-sys-color-primary);
-}

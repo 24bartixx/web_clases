@@ -49,3 +49,30 @@
   --md-sys-color-surface-container-high: rgb(217 222 224);
   --md-sys-color-surface-container-highest: rgb(205 210 213);
 }
+
+.light-medium-contrast {
+  /* Kolory bazowe Bootstrap/MDB */
+  --mdb-primary: var(--md-sys-color-primary);
+  --bs-primary: var(--md-sys-color-primary);
+
+  --mdb-secondary: var(--md-sys-color-secondary);
+  --bs-secondary: var(--md-sys-color-secondary);
+
+  /* MDB nie ma natywnie koloru 'tertiary', najczęściej mapuje się go na 'info' lub 'success' w zależności od potrzeb */
+  --mdb-info: var(--md-sys-color-tertiary);
+  --bs-info: var(--md-sys-color-tertiary);
+
+  --mdb-danger: var(--md-sys-color-error);
+  --bs-danger: var(--md-sys-color-error);
+
+  /* Tło i główny kolor tekstu na stronie */
+  --bs-body-bg: var(--md-sys-color-background);
+  --bs-body-color: var(--md-sys-color-on-background);
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+
+  /* Nadpisanie kolorów powierzchni (kart, modali, navbarów) */
+  --bs-body-bg-rgb:
+    245, 250, 253; 
+  --mdb-surface-color: var(--md-sys-color-surface);
+}
