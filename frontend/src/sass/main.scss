@@ -3,6 +3,10 @@ $primary-text: rgb(0 53 67);
 $primary-bg-subtle: rgb(0 78 96);
 $primary-border-subtle: rgb(181 235 255);
 
+.btn-primary {
+  color: rgb(0 53 67) !important;
+}
+
 $secondary: rgb(179 202 212);
 $secondary-text: rgb(29 51 59);
 $secondary-bg-subtle: rgb(52 74 82);

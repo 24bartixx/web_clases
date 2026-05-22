@@ -1,6 +1,6 @@
 import { useGoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
-import { MDBBtn } from 'mdb-react-ui-kit';
+import { MDBBtn, MDBIcon } from 'mdb-react-ui-kit';
 
 export function LoginPage() {
   const login = useGoogleLogin({
@@ -27,5 +27,20 @@ export function LoginPage() {
     },
   });
 
-  return <MDBBtn onClick={() => login()}>Zaloguj się Google</MDBBtn>;
+  return (
+    <div className="d-flex justify-content-center align-items-center vh-100">
+      <div className="d-flex flex-column align-items-center justify-content-center gap-3">
+        <h2 className="mb-1">Zaloguj się</h2>
+        <MDBBtn
+          rounded
+          className="mx-2 rounded-pill"
+          size="lg"
+          onClick={() => login()}
+        >
+          <MDBIcon fab icon="google" />
+          &nbsp; Zaloguj się Google
+        </MDBBtn>
+      </div>
+    </div>
+  );
 }
