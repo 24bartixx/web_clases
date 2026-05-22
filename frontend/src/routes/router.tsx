@@ -1,24 +1,24 @@
-import { createBrowserRouter } from "react-router-dom";
-import { HomePage } from "../pages/home/HomePage";
-import { LoginPage } from "../pages/login/LoginPage";
-import { PortfolioPage } from "../pages/portfolio/PortfolioPage";
-import { TradingViewDemoPage } from "../pages/trading_view_test/TradingViewDemoPage";
+import { createBrowserRouter } from 'react-router-dom';
+import { HomePage } from '../pages/home/HomePage';
+import { LoginPage } from '../pages/login/LoginPage';
+import { PortfolioPage } from '../pages/portfolio/PortfolioPage';
+import { TradingViewDemoPage } from '../pages/trading_view_test/TradingViewDemoPage';
 
 export const router = createBrowserRouter([
   {
-    path: "/",
+    path: '/',
     element: <HomePage />,
   },
   {
-    path: "/login",
+    path: '/login',
     element: <LoginPage />,
   },
   {
-    path: "/portfolio",
+    path: '/portfolio',
     element: <PortfolioPage />,
   },
   {
-    path: "/trading-view-test",
+    path: '/trading-view-test',
     element: <TradingViewDemoPage />,
   },
 ]);

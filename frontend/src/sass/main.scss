@@ -12,8 +12,8 @@ $secondary-text: rgb(29 51 59);
 $secondary-bg-subtle: rgb(52 74 82);
 $secondary-border-subtle: rgb(207 230 240);
 
-$success: rgb(194 195 235);
-$success-text: rgb(43 46 77);
+$success: rgb(0, 255, 38);
+$success-text: rgb(77, 255, 71);
 $success-bg-subtle: rgb(66 68 101);
 $success-border-subtle: rgb(224 224 255);
 
@@ -67,3 +67,19 @@ $btn-close-color: rgb(222 227 230);
 
 @import 'bootstrap/scss/bootstrap';
 @import 'mdb-react-ui-kit/dist/css/mdb.min.css';
+
+/* Rounded semi-transparent square used in PreviousGame */
+.round-square {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+
+  background: rgba(255, 255, 255, 0.06); /* pół przezroczyste */
+  color: $gray-100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+}
