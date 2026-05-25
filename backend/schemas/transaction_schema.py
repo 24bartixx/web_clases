@@ -5,10 +5,7 @@ from models.enums import TransactionType
 
 from pydantic import BaseModel, ConfigDict
 
-from models.enums import RoundType
-
-class TransactionBase(BaseModel):
-    transaction_id: int
+class TransactionCreate(BaseModel):
     simulation_id: int
     stock_id: int
     
@@ -17,5 +14,3 @@ class TransactionBase(BaseModel):
     
     price: Decimal
     amount: Decimal
-
-    created_at: datetime
