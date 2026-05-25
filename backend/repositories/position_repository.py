@@ -2,7 +2,7 @@ from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from models.position import Position
-from schemas.position_schema import PostitionBase
+from schemas.position_schema import PostitionCreate
 
 def get_position_by_id(db: Session, position_id: int):
     return db.get(Position, position_id)

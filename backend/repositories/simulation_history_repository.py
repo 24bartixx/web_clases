@@ -1,8 +1,9 @@
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
+from schemas.simulation_history_schema import SimulationHistoryUpdate
 from models.simulation_history import SimulationHistory
-from models.simulation import Simulation, SimulationHistoryUpdate
+from models.simulation import Simulation
 
 def get_simulation_histories_by_user_id(db: Session, user_id: int, skip: int = 0, limit: int = 10):
     statement = (
