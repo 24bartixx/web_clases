@@ -10,6 +10,7 @@
     "lightweight-charts": "^5.2.0",
     "mdb-react-ui-kit": "10.0.0",
     "react": ">=17.0.0 <20.0.0",
+    "react-datepicker": "^9.1.0",
     "react-dom": ">=17.0.0 <20.0.0",
     "react-router": "^7.15.1",
     "react-router-dom": "^7.15.1",

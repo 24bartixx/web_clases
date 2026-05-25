@@ -14,7 +14,7 @@ export function HomePage() {
             rounded
             className="p-lg-4 rounded-pill"
             size="lg"
-            onClick={() => navigate('/game-details')}
+            onClick={() => navigate('/game-params')}
           >
             Rozpocznij nową grę!
           </MDBBtn>
