@@ -63,3 +63,10 @@ def delete_users(
     db: Session = Depends(get_db),
 ):
     return user_service.delete_users(db)
+
+@router.put("/login")
+def login_user(
+    access_token: str,
+    db: Session = Depends(get_db),
+):
+    return user_service.login_user(db, access_token)

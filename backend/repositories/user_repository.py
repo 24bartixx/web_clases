@@ -15,10 +15,16 @@ def get_user_by_google_id(db: Session, google_id: str):
     return db.scalars(statement).one_or_none()
 
 def create_user(db: Session, user: UserBase):
-    user = User(**user.dict())
-    db.add(user)
+    user_db = User(
+        google_id=user.google_id,
+        email=user.email,
+        first_name=user.name,
+        last_name=user.surname or "",
+        picture=user.picture,
+    )
+    db.add(user_db)
     db.flush()
-    return user
+    return user_db
 
 def update_user(db: Session, user: UserUpdate):
     user_db = db.get(User, user.user_id)
@@ -26,12 +32,17 @@ def update_user(db: Session, user: UserUpdate):
     if not user_db:
         return None
 
-    for field, value in user.dict(exclude_unset=True).items():
-        if value is not None:
-            setattr(user_db, field, value)
+    if user.name is not None:
+        user_db.first_name = user.name
+    if user.surname is not None:
+        user_db.last_name = user.surname
+    if user.email is not None:
+        user_db.email = user.email
+    if user.picture is not None:
+        user_db.picture = user.picture
 
     db.flush()
-    return user
+    return user_db
 
 def delete_user(db: Session, user_id: int):
     user = db.get(User, user_id)
@@ -43,3 +54,10 @@ def delete_user(db: Session, user_id: int):
 def delete_users(db: Session):
     result = db.execute(delete(User))
     return result.rowcount or 0
+
+def login_user(db: Session, google_id: str, access_token: str):
+    user = get_user_by_google_id(db, google_id)
+    if user:
+        db.flush()
+        return user
+    return None
