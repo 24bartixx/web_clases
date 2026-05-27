@@ -1,5 +1,6 @@
 import React from 'react';
 import { MDBBtn } from 'mdb-react-ui-kit';
+import { useGame } from '../../contexts/GameContext';
 
 export function PortfolioPage() {
   return (

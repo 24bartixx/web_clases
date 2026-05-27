@@ -1,19 +1,16 @@
-import {
-  MDBBtn,
-  MDBIcon,
-  MDBInput,
-  MDBListGroup,
-  MDBValidation,
-} from 'mdb-react-ui-kit';
+import { MDBBtn, MDBInput, MDBValidation } from 'mdb-react-ui-kit';
 import { useState } from 'react';
 import { DatePicker } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { useNavigate } from 'react-router-dom';
 import { registerLocale } from 'react-datepicker';
 import { pl } from 'date-fns/locale/pl';
+import { useGame } from '../../contexts/GameContext';
 registerLocale('pl', pl);
 
 export function GameParamsPage() {
+  const state = useGame();
+  console.log(state);
+
   const [gameParams, setGameParams] = useState({
     budget: 1000_000,
     companiesCount: 5,

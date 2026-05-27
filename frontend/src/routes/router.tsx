@@ -4,6 +4,8 @@ import { LoginPage } from '../pages/login/LoginPage';
 import { PortfolioPage } from '../pages/portfolio/PortfolioPage';
 import { TradingViewDemoPage } from '../pages/trading_view_test/TradingViewDemoPage';
 import { GameParamsPage } from '../pages/game_params/GameParamsPage';
+import { GameProvider } from '../contexts/GameContext';
+import { GameProviderLayout } from '../layouts/GameProviderLayout';
 
 export const router = createBrowserRouter([
   {
@@ -15,15 +17,20 @@ export const router = createBrowserRouter([
     element: <LoginPage />,
   },
   {
-    path: '/portfolio',
-    element: <PortfolioPage />,
-  },
-  {
-    path: '/trading-view-test',
-    element: <TradingViewDemoPage />,
-  },
-  {
-    path: '/game-params',
-    element: <GameParamsPage />,
+    element: <GameProviderLayout />,
+    children: [
+      {
+        path: '/portfolio',
+        element: <PortfolioPage />,
+      },
+      {
+        path: '/trading-view-test',
+        element: <TradingViewDemoPage />,
+      },
+      {
+        path: '/game-params',
+        element: <GameParamsPage />,
+      },
+    ],
   },
 ]);
