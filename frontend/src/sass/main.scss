@@ -65,10 +65,34 @@ $navbar-dark-hover-color: rgb(135 209 235);
 
 $btn-close-color: rgb(222 227 230);
 
-@import 'bootstrap/scss/bootstrap';
-@import 'mdb-react-ui-kit/dist/css/mdb.min.css';
+$box-shadow:          0 0.5rem 1.5rem rgba(255, 255, 255, 0.25);
+$box-shadow-inset:    inset 0 1px 3px rgba(255, 255, 255, 0.15);
+$box-shadow-lg:       0 1rem 3rem rgba(255, 255, 255, 0.4);
+$box-shadow-sm:       0 0.125rem 0.5rem rgba(255, 255, 255, 0.15);
 
-/* Rounded semi-transparent square used in PreviousGame */
+@import 'bootstrap/scss/bootstrap';
+// @import 'mdb-react-ui-kit/dist/css/mdb.min.css';
+
+$price-up-color: rgb(0, 255, 38);     
+$price-down-color: rgb(255, 68, 68);
+$candle-up-color: rgb(45, 170, 64);
+$candle-down-color: rgb(163, 30, 30);
+
+:root {
+  --bs-price-up-color: #{$price-up-color};     
+  --bs-price-down-color: #{$price-down-color};
+  --bs-candle-up-color: #{$candle-up-color};
+  --bs-input-bg: #{$input-bg};
+}
+
+.text-price-up {
+  color: $price-up-color;
+}
+
+.text-price-down {
+  color: $price-down-color;
+}
+
 .round-square {
   width: 50px;
   height: 50px;
