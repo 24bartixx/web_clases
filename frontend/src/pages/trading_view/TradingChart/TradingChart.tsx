@@ -175,7 +175,7 @@ export const TradingChart = ({candleSeriesData, volumeSeriesData, period = {amou
 
     volumeSeries.priceScale().applyOptions({
 			scaleMargins: {
-				top: 0.8, 
+				top: 0.85, 
 				bottom: 0,
 			},
 			visible: true, 

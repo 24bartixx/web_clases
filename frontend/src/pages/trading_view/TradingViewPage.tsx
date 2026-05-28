@@ -1,6 +1,16 @@
 import {
+  MDBBtn,
+  MDBCardText,
   MDBCol,
   MDBContainer,
+  MDBIcon,
+  MDBModal,
+  MDBModalBody,
+  MDBModalContent,
+  MDBModalDialog,
+  MDBModalFooter,
+  MDBModalHeader,
+  MDBModalTitle,
   MDBRow,
   MDBTabs,
   MDBTabsItem,
@@ -14,6 +24,7 @@ import { AmountInput } from './AmountInput';
 import { useEffect, useState } from 'react';
 import { UTCTimestamp } from 'lightweight-charts';
 import { Controller, useForm, useFormContext } from 'react-hook-form';
+import { CompanyDetailsModal } from './CompanyDetails';
 
 // Mirrors backend schema StockRead.
 interface StockReadDto {
@@ -80,7 +91,10 @@ interface CompanyCardViewModel {
   // Ссылка на сайт компании.
   website: string | null;
   // Валюта отображаемой цены.
-  currency: string;
+  currency: string | null;
+
+  sharesOutstanding: number | null;
+  floatShares: number | null;
   // Текущая цена.
   price: number;
   // Абсолютное изменение цены.
@@ -123,6 +137,7 @@ export function TradingViewPage() {
   // prettier-ignore
   const [activeTradeSide, setActiveTradeSide] = useState<TradeSideKey>(TradeSideKey.Buy,);
   const [activePeriod, setActivePeriod] = useState<PeriodKey>(PeriodKey.M1);
+  const [isCompanyDetailsOpen, setIsCompanyDetailsOpen] = useState(false);
 
   const data = 1780876800;
   const price = 150;
@@ -302,7 +317,9 @@ export function TradingViewPage() {
     description: stockDetails.description,
     country: stockDetails.country,
     website: stockDetails.website,
-    currency: stockDetails.currency ?? 'USD',
+    currency: stockDetails.currency,
+    sharesOutstanding: stockDetails.sharesOutstanding,
+    floatShares: stockDetails.floatShares,
     price: latestPrice.close,
     change,
     changePercent,
@@ -316,9 +333,14 @@ export function TradingViewPage() {
             <MDBCol size="auto">
               <MDBRow className="align-items-end g-2">
                 <MDBCol size="auto">
-                  <MDBTypography tag="h2" className="fw-bold">
-                    {company.ticker}
-                  </MDBTypography>
+                  <button
+                    className="btn p-0 m-0 border-0"
+                    onClick={() => setIsCompanyDetailsOpen(true)}
+                  >
+                    <MDBTypography tag="h2" className="fw-bold">
+                      {company.ticker}
+                    </MDBTypography>
+                  </button>
                 </MDBCol>
                 <MDBCol size="auto">
                   <MDBTypography tag="h5" className="opacity-50">
@@ -335,7 +357,7 @@ export function TradingViewPage() {
             </MDBCol>
 
             <MDBCol size="auto">
-              <MDBRow className="align-items-center g-3">
+              <MDBRow className="align-items-center g-2">
                 <MDBCol size="auto">
                   <MDBTypography tag="p" className={`fs-5 fw-semibold`}>
                     {company.price} {company.currency}
@@ -356,8 +378,7 @@ export function TradingViewPage() {
                     tag="p"
                     className={`fs-6 ${company.change >= 0 ? 'text-price-up' : 'text-price-down'}`}
                   >
-                    {company.change >= 0 ? '+' : '-'}
-                    {Math.abs(company.changePercent).toFixed(2)}%
+                    ({Math.abs(company.changePercent).toFixed(2)}%)
                   </MDBTypography>
                 </MDBCol>
               </MDBRow>
@@ -386,7 +407,7 @@ export function TradingViewPage() {
                           active={activePeriod === PeriodKey.D1}
                         >
                           <MDBTypography tag="h6" className="fw-bold m-0 lh-1">
-                            1d
+                            {PeriodKey.D1}
                           </MDBTypography>
                         </MDBTabsLink>
                       </MDBTabsItem>
@@ -396,7 +417,7 @@ export function TradingViewPage() {
                           active={activePeriod === PeriodKey.D3}
                         >
                           <MDBTypography tag="h6" className="fw-bold m-0 lh-1">
-                            3d
+                            {PeriodKey.D3}
                           </MDBTypography>
                         </MDBTabsLink>
                       </MDBTabsItem>
@@ -406,7 +427,7 @@ export function TradingViewPage() {
                           active={activePeriod === PeriodKey.M1}
                         >
                           <MDBTypography tag="h6" className="fw-bold m-0 lh-1">
-                            1m
+                            {PeriodKey.M1}
                           </MDBTypography>
                         </MDBTabsLink>
                       </MDBTabsItem>
@@ -416,7 +437,7 @@ export function TradingViewPage() {
                           active={activePeriod === PeriodKey.M3}
                         >
                           <MDBTypography tag="h6" className="fw-bold m-0 lh-1">
-                            3m
+                            {PeriodKey.M3}
                           </MDBTypography>
                         </MDBTabsLink>
                       </MDBTabsItem>
@@ -426,7 +447,7 @@ export function TradingViewPage() {
                           active={activePeriod === PeriodKey.M6}
                         >
                           <MDBTypography tag="h6" className="fw-bold m-0 lh-1">
-                            6m
+                            {PeriodKey.M6}
                           </MDBTypography>
                         </MDBTabsLink>
                       </MDBTabsItem>
@@ -436,7 +457,7 @@ export function TradingViewPage() {
                           active={activePeriod === PeriodKey.Y1}
                         >
                           <MDBTypography tag="h6" className="fw-bold m-0 lh-1">
-                            1y
+                            {PeriodKey.Y1}
                           </MDBTypography>
                         </MDBTabsLink>
                       </MDBTabsItem>
@@ -587,11 +608,13 @@ export function TradingViewPage() {
             </div>
           </MDBCol>
         </MDBRow>
-
-        <MDBRow>
-          <MDBCol></MDBCol>
-        </MDBRow>
       </MDBContainer>
+
+      <CompanyDetailsModal
+        isOpen={isCompanyDetailsOpen}
+        onClose={() => setIsCompanyDetailsOpen(false)}
+        company={company}
+      />
     </div>
   );
 }
