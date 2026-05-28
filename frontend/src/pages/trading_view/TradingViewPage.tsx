@@ -1,9 +1,6 @@
 import {
-  MDBBtn,
-  MDBBtnGroup,
   MDBCol,
   MDBContainer,
-  MDBRadio,
   MDBRow,
   MDBTabs,
   MDBTabsItem,
@@ -14,8 +11,9 @@ import { TimeUnit, TradingChart, TradingChartPeriod } from './TradingChart';
 import stockImg from '../../assets/stock-30.png';
 import moneyImg from '../../assets/money-30.png';
 import { AmountInput } from './AmountInput';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { UTCTimestamp } from 'lightweight-charts';
+import { Controller, useForm, useFormContext } from 'react-hook-form';
 
 // Mirrors backend schema StockRead.
 interface StockReadDto {
@@ -91,12 +89,12 @@ interface CompanyCardViewModel {
   changePercent: number;
 }
 
-export enum TradeSideKey {
+enum TradeSideKey {
   Buy = 'buy',
   Sell = 'sell',
 }
 
-export enum PeriodKey {
+enum PeriodKey {
   D1 = 'D1',
   D3 = 'D3',
   M1 = 'M1',
@@ -106,7 +104,7 @@ export enum PeriodKey {
   ALL = 'ALL',
 }
 
-export const periods: Record<PeriodKey, TradingChartPeriod> = {
+const periods: Record<PeriodKey, TradingChartPeriod> = {
   [PeriodKey.D1]: { amount: 1, unit: TimeUnit.Day },
   [PeriodKey.D3]: { amount: 3, unit: TimeUnit.Day },
   [PeriodKey.M1]: { amount: 1, unit: TimeUnit.Month },
@@ -116,16 +114,37 @@ export const periods: Record<PeriodKey, TradingChartPeriod> = {
   [PeriodKey.ALL]: { amount: 0, unit: TimeUnit.All },
 };
 
+interface SellOrBuyForm {
+  amount: number;
+  total: number;
+}
+
 export function TradingViewPage() {
   // prettier-ignore
   const [activeTradeSide, setActiveTradeSide] = useState<TradeSideKey>(TradeSideKey.Buy,);
   const [activePeriod, setActivePeriod] = useState<PeriodKey>(PeriodKey.M1);
 
+  const data = 1780876800;
+  const price = 150;
+
+  const buyForm = useForm<SellOrBuyForm>({
+    defaultValues: {
+      amount: NaN,
+      total: NaN,
+    },
+  });
+
+  const sellForm = useForm<SellOrBuyForm>({
+    defaultValues: {
+      amount: NaN,
+      total: NaN,
+    },
+  });
+
   const handleTradeSideChange = (newTradeSide: TradeSideKey) => {
     if (newTradeSide === activeTradeSide) {
       return;
     }
-
     setActiveTradeSide(newTradeSide);
   };
 
@@ -134,6 +153,52 @@ export function TradingViewPage() {
       return;
     }
     setActivePeriod(newPeriod);
+  };
+
+  const buyAmount = buyForm.watch('amount');
+  const buyTotal = buyForm.watch('total');
+
+  useEffect(() => {
+    const activeName = document.activeElement?.getAttribute('name');
+
+    if (activeName === 'buy-amount') {
+      const newTotal = Number(buyAmount) * price;
+      if (Number(buyTotal) !== newTotal) {
+        buyForm.setValue('total', newTotal);
+      }
+    } else if (activeName === 'buy-total') {
+      const newAmount = Number((Number(buyTotal) / price).toFixed(6));
+      if (Number(buyAmount) !== newAmount) {
+        buyForm.setValue('amount', newAmount);
+      }
+    }
+  }, [buyAmount, buyTotal, buyForm.setValue]);
+
+  const sellAmount = sellForm.watch('amount');
+  const sellTotal = sellForm.watch('total');
+
+  useEffect(() => {
+    const activeName = document.activeElement?.getAttribute('name');
+
+    if (activeName === 'sell-amount') {
+      const newTotal = Number(sellAmount) * price;
+      if (Number(sellTotal) !== newTotal) {
+        sellForm.setValue('total', newTotal);
+      }
+    } else if (activeName === 'sell-total') {
+      const newAmount = Number((Number(sellTotal) / price).toFixed(6));
+      if (Number(sellAmount) !== newAmount) {
+        sellForm.setValue('amount', newAmount);
+      }
+    }
+  }, [sellAmount, sellTotal, sellForm.setValue]);
+
+  const onBuySubmit = (data: SellOrBuyForm) => {
+    console.log('Данные покупки:', data);
+  };
+
+  const onSellSubmit = (data: SellOrBuyForm) => {
+    console.log('Данные продажи:', data);
   };
 
   // prettier-ignore
@@ -424,36 +489,100 @@ export function TradingViewPage() {
                     </MDBTabsItem>
                   </MDBTabs>
                 </div>
-                {activeTradeSide === TradeSideKey.Buy ? (
-                  <>
-                    <AmountInput iconSrc={stockImg} label="Kupujesz" />
-                    <AmountInput iconSrc={moneyImg} label="Spędzisz" />
-
-                    <button className="btn btn-primary w-100 rounded-3 p-3">
-                      <MDBTypography
-                        color="white"
-                        tag="h6"
-                        className="fw-bold m-0 lh-1"
-                      >
-                        Kup
-                      </MDBTypography>
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <AmountInput iconSrc={stockImg} label="Sprzedajesz" />
-                    <AmountInput iconSrc={moneyImg} label="Zarobisz" />
-                    <button className="btn btn-primary w-100 rounded-3 p-3">
-                      <MDBTypography
-                        color="white"
-                        tag="h6"
-                        className="fw-bold m-0 lh-1"
-                      >
-                        Sprzedaj
-                      </MDBTypography>
-                    </button>
-                  </>
-                )}
+                <form
+                  style={{
+                    display:
+                      activeTradeSide === TradeSideKey.Buy
+                        ? 'contents'
+                        : 'none',
+                  }}
+                >
+                  <Controller
+                    name="amount"
+                    control={buyForm.control}
+                    render={({ field }) => (
+                      <AmountInput
+                        {...field}
+                        name="buy-amount"
+                        iconSrc={stockImg}
+                        label="Kupujesz"
+                        placeholder="0"
+                      />
+                    )}
+                  />
+                  <Controller
+                    name="total"
+                    control={buyForm.control}
+                    render={({ field }) => (
+                      <AmountInput
+                        {...field}
+                        name="buy-total"
+                        iconSrc={moneyImg}
+                        label="Spędzisz"
+                        placeholder="0.00"
+                      />
+                    )}
+                  />
+                  <button
+                    onClick={buyForm.handleSubmit(onBuySubmit)}
+                    className="btn btn-primary w-100 rounded-3 p-3"
+                  >
+                    <MDBTypography
+                      color="white"
+                      tag="h6"
+                      className="fw-bold m-0 lh-1"
+                    >
+                      Kup
+                    </MDBTypography>
+                  </button>
+                </form>
+                <form
+                  style={{
+                    display:
+                      activeTradeSide === TradeSideKey.Sell
+                        ? 'contents'
+                        : 'none',
+                  }}
+                >
+                  <Controller
+                    name="amount"
+                    control={sellForm.control}
+                    render={({ field }) => (
+                      <AmountInput
+                        {...field}
+                        name="sell-amount"
+                        iconSrc={stockImg}
+                        label="Sprzedajesz"
+                        placeholder="0"
+                      />
+                    )}
+                  />
+                  <Controller
+                    name="total"
+                    control={sellForm.control}
+                    render={({ field }) => (
+                      <AmountInput
+                        {...field}
+                        name="sell-total"
+                        iconSrc={moneyImg}
+                        label="Zarobisz"
+                        placeholder="0.00"
+                      />
+                    )}
+                  />
+                  <button
+                    onClick={sellForm.handleSubmit(onSellSubmit)}
+                    className="btn btn-primary w-100 rounded-3 p-3"
+                  >
+                    <MDBTypography
+                      color="white"
+                      tag="h6"
+                      className="fw-bold m-0 lh-1"
+                    >
+                      Sprzedaj
+                    </MDBTypography>
+                  </button>
+                </form>
               </div>
             </div>
           </MDBCol>

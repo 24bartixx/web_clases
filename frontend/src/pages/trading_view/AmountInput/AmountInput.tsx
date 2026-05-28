@@ -28,7 +28,6 @@ export const AmountInput = ({ label = "", iconSrc, ...rest }: AmountInputProps) 
             <MDBInput
               {...rest}
               type="number"
-              placeholder="0.00"
               style={{
                 border: 'none',
                 boxShadow: 'none',
