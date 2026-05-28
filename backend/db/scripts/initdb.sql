@@ -1,14 +1,3 @@
-CREATE TYPE "round_type" AS ENUM (
-  'second',
-  'minute',
-  'hour',
-  'four_hours',
-  'day',
-  'week',
-  'month',
-  'year'
-);
-
 CREATE TYPE "transaction_type" AS ENUM (
   'buy',
   'sell'
@@ -28,10 +17,8 @@ CREATE TABLE "simulations" (
   "initial_balance" decimal(12,2) NOT NULL,
   "current_balance" decimal(12,2) NOT NULL,
   "start_date" timestamp NOT NULL,
+  "current_date" timestamp NOT NULL,
   "finish_date" timestamp NOT NULL DEFAULT (now()),
-  "has_rounds" boolean NOT NULL DEFAULT false,
-  "round_type" round_type,
-  "round_value" integer,
   "user_id" integer NOT NULL,
   "created_at" timestamp NOT NULL DEFAULT (now()),
   "updated_at" timestamp NOT NULL DEFAULT (now()),

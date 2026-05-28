@@ -32,6 +32,7 @@ def get_simulation(db: Session, simulation_id: int):
 def create_simulation(db: Session, simulation_data: SimulationCreate):
     create_data = simulation_data.model_dump(exclude_unset=True, exclude_none=True)
     create_data["current_balance"] = simulation_data.initial_balance
+    create_data["current_date"] = simulation_data.start_date
 
     simulation = Simulation(
         **create_data

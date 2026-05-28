@@ -1,11 +1,10 @@
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, Integer, Numeric, func
+from sqlalchemy import DateTime, ForeignKey, Numeric, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db.base import Base
-from models.enums import RoundType
 
 
 class Simulation(Base):
@@ -15,14 +14,10 @@ class Simulation(Base):
     initial_balance: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
     current_balance: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
     start_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    current_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     finish_date: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, server_default=func.now()
     )
-    has_rounds: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, server_default="false"
-    )
-    round_type: Mapped[RoundType | None] = mapped_column(Enum(RoundType, name="round_type"))
-    round_value: Mapped[int | None] = mapped_column(Integer)
     user_id: Mapped[int] = mapped_column(
         ForeignKey("users.user_id", deferrable=True, initially="IMMEDIATE"),
         nullable=False,
