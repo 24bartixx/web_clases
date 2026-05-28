@@ -2,7 +2,12 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from db.database import get_db
-from schemas.simulation_schema import SimulationCreate, SimulationRead, SimulationUpdate
+from schemas.simulation_schema import (
+    SimulationCreate,
+    SimulationDetailRead,
+    SimulationRead,
+    SimulationUpdate,
+)
 from services import simulation_service
 
 router = APIRouter()
@@ -25,12 +30,12 @@ def create_simulation(
     return simulation_service.create_simulation(db, simulation_data)
 
 
-@router.get("/{simulation_id}", response_model=SimulationRead)
+@router.get("/{simulation_id}", response_model=SimulationDetailRead)
 def get_simulation(
     simulation_id: int,
     db: Session = Depends(get_db),
 ):
-    return simulation_service.get_simulation(db, simulation_id)
+    return simulation_service.get_simulation_detail(db, simulation_id)
 
 
 @router.patch("/{simulation_id}", response_model=SimulationRead)

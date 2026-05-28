@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from models.user import User
 from repositories import user_repository
-from schemas.user_schema import UserBase, UserUpdate
+from schemas.user_schema import UserCreate, UserUpdate
 
 GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo"
 
@@ -31,12 +31,11 @@ def get_user_by_google_id(db: Session, google_id: str):
     return user
 
 
-def create_user(db: Session, user_data: UserBase):
+def create_user(db: Session, user_data: UserCreate):
     user = User(
         google_id=user_data.google_id,
-        email=user_data.email,
-        first_name=user_data.name,
-        last_name=user_data.surname or "",
+        first_name=user_data.first_name,
+        last_name=user_data.last_name,
         picture=user_data.picture,
     )
     db.add(user)
@@ -57,12 +56,12 @@ def create_user(db: Session, user_data: UserBase):
 def update_user(db: Session, user_id: int, user_data: UserUpdate):
     user = get_user(db, user_id)
 
-    if user_data.name is not None:
-        user.first_name = user_data.name
-    if user_data.surname is not None:
-        user.last_name = user_data.surname
-    if user_data.email is not None:
-        user.email = user_data.email
+    if user_data.google_id is not None:
+        user.google_id = user_data.google_id
+    if user_data.first_name is not None:
+        user.first_name = user_data.first_name
+    if user_data.last_name is not None:
+        user.last_name = user_data.last_name
     if user_data.picture is not None:
         user.picture = user_data.picture
 
@@ -153,7 +152,6 @@ def login_user(db: Session, access_token: str):
         )
         db.add(user)
     else:
-        user.email = profile.get("email")
         user.first_name = first_name
         user.last_name = last_name
         user.picture = profile.get("picture")

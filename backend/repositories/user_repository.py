@@ -2,7 +2,7 @@ from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from models.user import User
-from schemas.user_schema import UserBase, UserUpdate
+from schemas.user_schema import UserCreate, UserUpdate
 
 def get_users(db: Session, skip: int = 0, limit: int = 100):
     return db.execute(select(User).order_by(User.user_id).offset(skip).limit(limit)).scalars().all()
@@ -14,30 +14,29 @@ def get_user_by_google_id(db: Session, google_id: str):
     statement = select(User).where(User.google_id == google_id)
     return db.scalars(statement).one_or_none()
 
-def create_user(db: Session, user: UserBase):
+def create_user(db: Session, user: UserCreate):
     user_db = User(
         google_id=user.google_id,
-        email=user.email,
-        first_name=user.name,
-        last_name=user.surname or "",
+        first_name=user.first_name,
+        last_name=user.last_name,
         picture=user.picture,
     )
     db.add(user_db)
     db.flush()
     return user_db
 
-def update_user(db: Session, user: UserUpdate):
-    user_db = db.get(User, user.user_id)
+def update_user(db: Session, user_id: int, user: UserUpdate):
+    user_db = db.get(User, user_id)
     
     if not user_db:
         return None
 
-    if user.name is not None:
-        user_db.first_name = user.name
-    if user.surname is not None:
-        user_db.last_name = user.surname
-    if user.email is not None:
-        user_db.email = user.email
+    if user.google_id is not None:
+        user_db.google_id = user.google_id
+    if user.first_name is not None:
+        user_db.first_name = user.first_name
+    if user.last_name is not None:
+        user_db.last_name = user.last_name
     if user.picture is not None:
         user_db.picture = user.picture
 

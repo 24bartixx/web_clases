@@ -2,13 +2,13 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from db.database import get_db
-from schemas.user_schema import UserBase, UserUpdate
+from schemas.user_schema import UserCreate, UserRead, UserUpdate
 from services import user_service
 
 router = APIRouter()
 
 
-@router.get("/")
+@router.get("/", response_model=list[UserRead])
 def get_users(
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=100, ge=1, le=500),
@@ -17,15 +17,15 @@ def get_users(
     return user_service.get_users(db, skip=skip, limit=limit)
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=UserRead, status_code=status.HTTP_201_CREATED)
 def create_user(
-    user_data: UserBase,
+    user_data: UserCreate,
     db: Session = Depends(get_db),
 ):
     return user_service.create_user(db, user_data)
 
 
-@router.get("/google/{google_id}")
+@router.get("/google/{google_id}", response_model=UserRead)
 def get_user_by_google_id(
     google_id: str,
     db: Session = Depends(get_db),
@@ -33,7 +33,7 @@ def get_user_by_google_id(
     return user_service.get_user_by_google_id(db, google_id)
 
 
-@router.get("/{user_id}")
+@router.get("/{user_id}", response_model=UserRead)
 def get_user(
     user_id: int,
     db: Session = Depends(get_db),
@@ -41,7 +41,7 @@ def get_user(
     return user_service.get_user(db, user_id)
 
 
-@router.patch("/{user_id}")
+@router.patch("/{user_id}", response_model=UserRead)
 def update_user(
     user_id: int,
     user_data: UserUpdate,
@@ -64,7 +64,7 @@ def delete_users(
 ):
     return user_service.delete_users(db)
 
-@router.put("/login")
+@router.put("/login", response_model=UserRead)
 def login_user(
     access_token: str,
     db: Session = Depends(get_db),
