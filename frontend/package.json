@@ -6,6 +6,7 @@
   "dependencies": {
     "@react-oauth/google": "^0.13.5",
     "bootstrap": "^5.3.8",
+    "js-cookie": "^3.0.8",
     "jwt-decode": "^4.0.0",
     "lightweight-charts": "^5.2.0",
     "mdb-react-ui-kit": "10.0.0",
@@ -25,6 +26,7 @@
   },
   "devDependencies": {
     "@types/jest": "^29.5.4",
+    "@types/js-cookie": "^3.0.6",
     "@types/node": "^18.17.18",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",

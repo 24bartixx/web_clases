@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from db.database import get_db
-from schemas.user_schema import UserCreate, UserRead, UserUpdate
+from schemas.user_schema import UserCreate, UserLoginData, UserRead, UserUpdate
 from services import user_service
 
 router = APIRouter()
@@ -64,9 +64,10 @@ def delete_users(
 ):
     return user_service.delete_users(db)
 
-@router.put("/login", response_model=UserRead)
+# post due to security reasons
+@router.post("/login", response_model=UserRead)
 def login_user(
-    access_token: str,
+    user_login_data: UserLoginData,
     db: Session = Depends(get_db),
 ):
-    return user_service.login_user(db, access_token)
+    return user_service.login_user(db, user_login_data.access_token)

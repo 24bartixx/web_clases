@@ -1,26 +1,39 @@
 import { useGoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
 import { MDBBtn, MDBIcon } from 'mdb-react-ui-kit';
+import Cookies from 'js-cookie';
+import { useNavigate } from 'react-router-dom';
 
 export function LoginPage() {
+  const navigate = useNavigate();
   const login = useGoogleLogin({
-    flow: 'implicit', // albo 'auth-code' zależnie od backendu
+    flow: 'implicit',
     onSuccess: async (tokenResponse) => {
       console.log('Token response:', tokenResponse);
+      const accessToken = tokenResponse.access_token;
 
-      // jeśli potrzebujesz user info:
-      const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-        headers: {
-          Authorization: `Bearer ${tokenResponse.access_token}`,
-        },
-      });
+      try {
+        const response = await fetch('http://localhost:8000/api/users/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ access_token: accessToken }),
+        });
+        if (!response.ok) {
+          throw new Error('Błąd podczas wysyłania POST');
+        }
+        const data = await response.json();
 
-      const user = await res.json();
-
-      console.log('Imię:', user.given_name);
-      console.log('Nazwisko:', user.family_name);
-      console.log('Email:', user.email);
-      console.log('ID:', user.sub);
+        Cookies.set('user_session', JSON.stringify(data), {
+          expires: 1,
+          secure: true,
+          sameSite: 'strict',
+        });
+        navigate('/');
+      } catch (error) {
+        console.error('Błąd POST:', error);
+      }
     },
     onError: () => {
       console.log('Login Failed');

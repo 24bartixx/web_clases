@@ -26,3 +26,6 @@ class UserRead(BaseModel):
     last_name: str
     picture: str | None
     created_at: datetime
+
+class UserLoginData(BaseModel):
+    access_token: str
