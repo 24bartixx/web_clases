@@ -4,12 +4,14 @@ import { GameState, initialGameState } from '../types/GameState';
 
 interface GameContextType {
   gameState: GameState;
-  createGame: (
-    startingBudget: number,
-    companiesTickets: string[],
-    startDate: string,
-    finishDate: string,
-  ) => void;
+  createGame: (params: CreateGameParams) => void;
+}
+
+interface CreateGameParams {
+  startingBudget: number;
+  companiesTickets: string[];
+  startDate: string;
+  finishDate: string;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -17,12 +19,7 @@ const GameContext = createContext<GameContextType | undefined>(undefined);
 export function GameProvider({ children }: { children: ReactNode }) {
   const [gameState, setGameState] = useState<GameState>(initialGameState);
 
-  const createGame = (
-    startingBudget: number,
-    companiesTickets: string[],
-    startDate: string,
-    finishDate: string,
-  ) => {
+  const createGame = (params: CreateGameParams) => {
     // TODO: call to create game
     // TODO: update gameState based on response
   };

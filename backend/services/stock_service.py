@@ -91,6 +91,15 @@ def get_stock_prices(
         )
         return _serialize_price_history(history)
 
+    if start is None and finish is not None:
+        history = yfinance_ticker.history(
+            period="max",
+            end=finish.isoformat(),
+            interval=interval,
+            timeout=20,
+        )
+        return _serialize_price_history(history)
+
     finish = finish or date.today()
     if start is not None and finish < start:
         raise HTTPException(

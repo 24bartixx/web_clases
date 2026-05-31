@@ -8,9 +8,10 @@ import { useGame } from '../../contexts/GameContext';
 registerLocale('pl', pl);
 
 export function GameParamsPage() {
-  const state = useGame();
-  console.log(state);
+  const { gameState, createGame } = useGame();
+  console.log(gameState);
 
+  const [startDate, setStartDate] = useState(new Date());
   const [gameParams, setGameParams] = useState({
     budget: 1000_000,
     companiesCount: 5,
@@ -22,14 +23,26 @@ export function GameParamsPage() {
     setGameParams({ ...gameParams, [e.target.name]: e.target.value });
   };
 
-  const [startDate, setStartDate] = useState(new Date());
+  const onSubmit = (e: any) => {
+    e.preventDefault();
+    console.log('onSubmit');
+    createGame({
+      startingBudget: gameParams.budget,
+      companiesTickets: [],
+      startDate: startDate.toISOString().split('T')[0],
+      finishDate: '',
+    });
+  };
 
   return (
     <div className="container py-5">
       <h1>Nowa gra!</h1>
       <h4>Ustal parametry rozgrywki</h4>
 
-      <MDBValidation className="col-md-4 d-flex flex-column gap-4 mt-16 ">
+      <MDBValidation
+        onSubmit={onSubmit}
+        className="col-md-4 d-flex flex-column gap-4 mt-16 "
+      >
         <MDBInput
           value={gameParams.budget}
           name="budget"
