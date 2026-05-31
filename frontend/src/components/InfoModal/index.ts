@@ -1,0 +1,1 @@
+export {InfoModal, type InfoModalProps} from './InfoModal';

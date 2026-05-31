@@ -13,6 +13,7 @@ import {
   UTCTimestamp,
 } from 'lightweight-charts';
 import { toTimestamp } from './time';
+import { Price } from '../../../types';
 
 export enum TimeUnit {
   Day = 'd',
@@ -27,19 +28,35 @@ export type TradingChartPeriod = {
 };
 
 export interface TradingChartProps extends HTMLAttributes<HTMLDivElement> {
-  candleSeriesData: CandlestickData[];
-  volumeSeriesData: HistogramData[];
+  priceRange: Price[];
   period?: TradingChartPeriod;
 }
 
 // prettier-ignore
-export const TradingChart = ({candleSeriesData, volumeSeriesData, period = {amount: 0, unit: TimeUnit.All}, ...rest}: TradingChartProps) => {
+export const TradingChart = ({priceRange, period = {amount: 0, unit: TimeUnit.All}, ...rest}: TradingChartProps) => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
-    
+   
   const getCssVar = (variable: string) => {
     return getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
   };
+
+  const candleSeriesData = priceRange.map(price => ({
+    time: toTimestamp(price.priceDate),
+    value: price.volume,
+    open: price.open,
+    high: price.high,
+    low: price.low,
+    close: price.close,
+  }));
+
+  const volumeSeriesData = priceRange.map(price => ({
+  time: toTimestamp(price.priceDate),
+  value: price.volume,    
+  color: price.close >= price.open ? getCssVar('--bs-candle-up-color') : getCssVar('--bs-candle-down-color')
+}));
+
+
   
   const setViewRange = useCallback((period: TradingChartPeriod) => {
     const chart = chartRef.current;

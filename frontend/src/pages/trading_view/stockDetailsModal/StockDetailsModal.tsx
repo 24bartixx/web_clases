@@ -10,34 +10,27 @@ import {
   MDBTypography,
   MDBIcon,
 } from 'mdb-react-ui-kit';
+import { Stock, StockDetails } from '../../../types';
 
-export type CompanyDetails = {
-  name: string;
-  ticker: string;
-  sector: string | null;
-  industry: string | null;
-  description: string | null;
-  country: string | null;
-  website: string | null;
-  currency: string | null;
-  sharesOutstanding: number | null;
-  floatShares: number | null;
+export interface StockDetailsModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  stock: Stock
   price: number;
   change: number;
   changePercent: number;
-};
-
-export interface CompanyDetailsProps {
-  isOpen: boolean;
-  onClose: () => void;
-  company: CompanyDetails;
+  stockDetails: StockDetails;
 }
 
-export const CompanyDetailsModal = ({
+export const StockDetailsModal = ({
   isOpen,
   onClose,
-  company,
-}: CompanyDetailsProps) => {
+  stock,
+  price,
+  change,
+  changePercent,
+  stockDetails,
+}: StockDetailsModalProps) => {
   return (
     <MDBModal open={isOpen} onClose={onClose} tabIndex="-1">
       <MDBModalDialog size="lg">
@@ -48,17 +41,17 @@ export const CompanyDetailsModal = ({
                 <MDBRow className="align-items-end g-2">
                   <MDBCol size="auto">
                     <MDBTypography tag="h2" className="fw-bold m-0">
-                      {company.ticker}
+                      {stock.ticker}
                     </MDBTypography>
                   </MDBCol>
                   <MDBCol size="auto">
                     <MDBTypography tag="h5" className="opacity-50 m-0">
-                      {company.name}
+                      {stock.companyName}
                     </MDBTypography>
                   </MDBCol>
                 </MDBRow>
                 <MDBTypography tag="p" className="fs-6 opacity-50 m-0">
-                  {company.sector} / {company.industry}
+                  {stock.sector} / {stock.industry}
                 </MDBTypography>
               </MDBCol>
 
@@ -78,7 +71,7 @@ export const CompanyDetailsModal = ({
               <MDBTypography tag="h6" className="fw-bold opacity-50">
                 Opis
               </MDBTypography>
-              <p>{company.description || 'Brak'}</p>
+              <p>{stockDetails.description || 'Brak'}</p>
             </div>
             <hr />
             <MDBRow className="align-items-center justify-content-start g-3">
@@ -86,13 +79,13 @@ export const CompanyDetailsModal = ({
                 <MDBTypography tag="h6" className="fw-bold opacity-50">
                   Łączna liczba akcji
                 </MDBTypography>
-                <p className="fs-5">{company.sharesOutstanding || '-'}</p>
+                <p className="fs-5">{stockDetails.sharesOutstanding || '-'}</p>
               </MDBCol>
               <MDBCol size="6" lg="4">
                 <MDBTypography tag="h6" className="fw-bold opacity-50">
                   Akcje w obrocie (Float)
                 </MDBTypography>
-                <p className="fs-5">{company.floatShares|| '-'}</p>
+                <p className="fs-5">{stockDetails.floatShares|| '-'}</p>
               </MDBCol>
             </MDBRow>
 
@@ -101,24 +94,24 @@ export const CompanyDetailsModal = ({
                 <MDBTypography tag="h6" className="fw-bold opacity-50">
                   Kraj
                 </MDBTypography>
-                <p>{company.country || '–'}</p>
+                <p>{stockDetails.country || '–'}</p>
               </MDBCol>
               <MDBCol size="6" lg="4">
                 <MDBTypography tag="h6" className="fw-bold opacity-50">
                   Waluta
                 </MDBTypography>
-                <p>{company.currency}</p>
+                <p>{stockDetails.currency}</p>
               </MDBCol>
               <MDBCol size="6" lg="4">
                 <MDBTypography tag="h6" className="fw-bold opacity-50">
                   Strona www
                 </MDBTypography>
                 <a
-                  href={company.website || '#'}
+                  href={stockDetails.website || '#'}
                   target="_blank"
                   rel="noreferrer"
                 >
-                  {company.website ? 'Przejdź' : '–'}
+                  {stockDetails.website}
                 </a>
               </MDBCol>
             </MDBRow>
@@ -131,7 +124,7 @@ export const CompanyDetailsModal = ({
                   Aktualna cena
                 </MDBTypography>
                 <p className="fs-5 fw-bold">
-                  {company.price} {company.currency}
+                  {price} {stockDetails.currency}
                 </p>
               </MDBCol>
               <MDBCol size="6">
@@ -140,11 +133,11 @@ export const CompanyDetailsModal = ({
                 </MDBTypography>
                 <MDBTypography
                   tag="p"
-                  className={`fs-5 ${company.change >= 0 ? 'text-price-up' : 'text-price-down'}`}
+                  className={`fs-5 ${change >= 0 ? 'text-price-up' : 'text-price-down'}`}
                 >
-                  {company.change >= 0 ? '+' : ''}
-                  {company.change.toFixed(2)} (
-                  {company.changePercent.toFixed(2)}%)
+                  {change >= 0 ? '+' : ''}
+                  {change.toFixed(2)} (
+                  {changePercent.toFixed(2)}%)
                 </MDBTypography>
               </MDBCol>
             </MDBRow>
