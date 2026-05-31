@@ -63,6 +63,8 @@ $list-group-border-color: rgb(64 72 76);
 $navbar-dark-color: rgb(222 227 230);
 $navbar-dark-hover-color: rgb(135 209 235);
 
+$nav-pills-link-active-color: $dark;
+
 $btn-close-color: rgb(222 227 230);
 
 $box-shadow:          0 0.5rem 1.5rem rgba(255, 255, 255, 0.25);
@@ -71,7 +73,7 @@ $box-shadow-lg:       0 1rem 3rem rgba(255, 255, 255, 0.4);
 $box-shadow-sm:       0 0.125rem 0.5rem rgba(255, 255, 255, 0.15);
 
 @import 'bootstrap/scss/bootstrap';
-// @import 'mdb-react-ui-kit/dist/css/mdb.min.css';
+@import 'mdb-react-ui-kit/dist/css/mdb.min.css';
 
 $price-up-color: rgb(0, 255, 38);     
 $price-down-color: rgb(255, 68, 68);
@@ -106,4 +108,17 @@ $candle-down-color: rgb(163, 30, 30);
   justify-content: center;
   font-weight: 600;
   font-size: 14px;
+}
+
+.nav-pills .nav-link:not(.active) {
+  background-color: $body-bg;   
+  color: $primary;
+}
+
+.custom-clean-input {
+  .form-control:focus {
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+  }
 }
