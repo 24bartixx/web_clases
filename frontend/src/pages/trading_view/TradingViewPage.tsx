@@ -402,71 +402,71 @@ export function TradingViewPage() {
                   <MDBCol size="auto">
                     <MDBTabs pills fill>
                       <MDBTabsItem>
-                        <MDBTabsLink
+                        <MDBTabsLink className="py-2 px-3"
                           onClick={() => handlePeriodChange(PeriodKey.D1)}
                           active={activePeriod === PeriodKey.D1}
                         >
-                          <MDBTypography tag="h6" className="fw-bold m-0 lh-1">
+                          <MDBTypography tag="h6" className="fw-semibold m-0 lh-1">
                             {PeriodKey.D1}
                           </MDBTypography>
                         </MDBTabsLink>
                       </MDBTabsItem>
                       <MDBTabsItem>
-                        <MDBTabsLink
+                        <MDBTabsLink className="py-2 px-3"
                           onClick={() => handlePeriodChange(PeriodKey.D3)}
                           active={activePeriod === PeriodKey.D3}
                         >
-                          <MDBTypography tag="h6" className="fw-bold m-0 lh-1">
+                          <MDBTypography tag="h6" className="fw-semibold m-0 lh-1">
                             {PeriodKey.D3}
                           </MDBTypography>
                         </MDBTabsLink>
                       </MDBTabsItem>
                       <MDBTabsItem>
-                        <MDBTabsLink
+                        <MDBTabsLink className="py-2 px-3"
                           onClick={() => handlePeriodChange(PeriodKey.M1)}
                           active={activePeriod === PeriodKey.M1}
                         >
-                          <MDBTypography tag="h6" className="fw-bold m-0 lh-1">
+                          <MDBTypography tag="h6" className="fw-semibold m-0 lh-1">
                             {PeriodKey.M1}
                           </MDBTypography>
                         </MDBTabsLink>
                       </MDBTabsItem>
                       <MDBTabsItem>
-                        <MDBTabsLink
+                        <MDBTabsLink className="py-2 px-3"
                           onClick={() => handlePeriodChange(PeriodKey.M3)}
                           active={activePeriod === PeriodKey.M3}
                         >
-                          <MDBTypography tag="h6" className="fw-bold m-0 lh-1">
+                          <MDBTypography tag="h6" className="fw-semibold m-0 lh-1">
                             {PeriodKey.M3}
                           </MDBTypography>
                         </MDBTabsLink>
                       </MDBTabsItem>
                       <MDBTabsItem>
-                        <MDBTabsLink
+                        <MDBTabsLink className="py-2 px-3"
                           onClick={() => handlePeriodChange(PeriodKey.M6)}
                           active={activePeriod === PeriodKey.M6}
                         >
-                          <MDBTypography tag="h6" className="fw-bold m-0 lh-1">
+                          <MDBTypography tag="h6" className="fw-semibold m-0 lh-1">
                             {PeriodKey.M6}
                           </MDBTypography>
                         </MDBTabsLink>
                       </MDBTabsItem>
                       <MDBTabsItem>
-                        <MDBTabsLink
+                        <MDBTabsLink className="py-2 px-3"
                           onClick={() => handlePeriodChange(PeriodKey.Y1)}
                           active={activePeriod === PeriodKey.Y1}
                         >
-                          <MDBTypography tag="h6" className="fw-bold m-0 lh-1">
+                          <MDBTypography tag="h6" className="fw-semibold m-0 lh-1">
                             {PeriodKey.Y1}
                           </MDBTypography>
                         </MDBTabsLink>
                       </MDBTabsItem>
                       <MDBTabsItem>
-                        <MDBTabsLink
+                        <MDBTabsLink className="py-2 px-3"
                           onClick={() => handlePeriodChange(PeriodKey.ALL)}
                           active={activePeriod === PeriodKey.ALL}
                         >
-                          <MDBTypography tag="h6" className="fw-bold m-0 lh-1">
+                          <MDBTypography tag="h6" className="fw-semibold m-0 lh-1">
                             Wszystko
                           </MDBTypography>
                         </MDBTabsLink>
@@ -474,7 +474,7 @@ export function TradingViewPage() {
                     </MDBTabs>
                   </MDBCol>
                   <MDBCol fill size="auto" className="d-flex">
-                    <MDBTypography tag="h6" className="fw-bold m-0 lh-1">
+                    <MDBTypography tag="h6" className="fw-semibold m-0 lh-1">
                       {/* nie wiem  */}
                     </MDBTypography>
                   </MDBCol>
@@ -489,21 +489,21 @@ export function TradingViewPage() {
                 <div className="border-bottom pb-3">
                   <MDBTabs pills fill>
                     <MDBTabsItem>
-                      <MDBTabsLink
+                      <MDBTabsLink className="py-2 px-3"
                         onClick={() => handleTradeSideChange(TradeSideKey.Buy)}
                         active={activeTradeSide === TradeSideKey.Buy}
                       >
-                        <MDBTypography tag="h6" className="fw-bold m-0 lh-1">
+                        <MDBTypography tag="p"  className="fs-6 fw-semibold m-0 lh-1">
                           Kup
                         </MDBTypography>
                       </MDBTabsLink>
                     </MDBTabsItem>
                     <MDBTabsItem>
-                      <MDBTabsLink
+                      <MDBTabsLink className="py-2 px-3"
                         onClick={() => handleTradeSideChange(TradeSideKey.Sell)}
                         active={activeTradeSide === TradeSideKey.Sell}
                       >
-                        <MDBTypography tag="h6" className="fw-bold m-0 lh-1">
+                        <MDBTypography tag="p"  className="fs-6 fw-semibold m-0 lh-1" style={{ fontSize: '16px' }}>
                           Sprzedaj
                         </MDBTypography>
                       </MDBTabsLink>
@@ -544,18 +544,17 @@ export function TradingViewPage() {
                       />
                     )}
                   />
-                  <button
+                  <MDBBtn
                     onClick={buyForm.handleSubmit(onBuySubmit)}
-                    className="btn btn-primary w-100 rounded-3 p-3"
+                    className="w-100 rounded-3 p-3"
                   >
                     <MDBTypography
-                      color="white"
                       tag="h6"
-                      className="fw-bold m-0 lh-1"
+                      className="fw-semibold m-0 lh-1"
                     >
                       Kup
                     </MDBTypography>
-                  </button>
+                  </MDBBtn>
                 </form>
                 <form
                   style={{
@@ -596,9 +595,8 @@ export function TradingViewPage() {
                     className="btn btn-primary w-100 rounded-3 p-3"
                   >
                     <MDBTypography
-                      color="white"
                       tag="h6"
-                      className="fw-bold m-0 lh-1"
+                      className="fw-semibold m-0 lh-1"
                     >
                       Sprzedaj
                     </MDBTypography>

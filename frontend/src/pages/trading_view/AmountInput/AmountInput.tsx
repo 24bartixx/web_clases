@@ -1,12 +1,19 @@
 import { MDBInput, MDBTypography, MDBRow, MDBCol } from 'mdb-react-ui-kit';
 import { InputHTMLAttributes } from 'react';
 
-export interface AmountInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
+export interface AmountInputProps extends Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  'size'
+> {
   label?: string;
   iconSrc?: string;
 }
 
-export const AmountInput = ({ label = "", iconSrc, ...rest }: AmountInputProps) => {
+export const AmountInput = ({
+  label = '',
+  iconSrc,
+  ...rest
+}: AmountInputProps) => {
   return (
     <div
       className="rounded-3 p-3"
@@ -15,17 +22,28 @@ export const AmountInput = ({ label = "", iconSrc, ...rest }: AmountInputProps) 
       }}
     >
       <div className="d-flex flex-column gap-2">
-        <MDBTypography tag="p" className="m-0 lh-1 opacity-50" style={{ fontSize: '14px' }}>
+        <MDBTypography
+          tag="p"
+          className="m-0 lh-1 opacity-50"
+          style={{ fontSize: '16px' }}
+        >
           {label}
         </MDBTypography>
-        <MDBRow className="align-items-center g-2">
+        <MDBRow
+          className="align-items-center g-2 flex-nowrap"
+          style={{ width: '100%' }}
+        >
           {iconSrc && (
-            <MDBCol size="auto">
-              <img src={iconSrc} style={{ width: '20px', height: '20px' }} alt="icon" />
+            <MDBCol size="auto" className="d-flex align-items-center">
+              <img
+                src={iconSrc}
+                style={{ width: '20px', height: '20px', display: 'block' }}
+                alt="icon"
+              />
             </MDBCol>
           )}
           <MDBCol className="flex-grow-1">
-            <MDBInput
+            <input
               {...rest}
               type="number"
               style={{
@@ -33,8 +51,12 @@ export const AmountInput = ({ label = "", iconSrc, ...rest }: AmountInputProps) 
                 boxShadow: 'none',
                 outline: 'none',
                 fontSize: '20px',
-                caretColor: 'var(--bs-primary)',
-                padding: 0, 
+                backgroundColor: 'transparent', 
+                color: 'var(--bs-white)',
+                width: '100%',
+                display: 'inline-block',
+                padding: 0,
+                margin: 0,
               }}
             />
           </MDBCol>
