@@ -114,11 +114,3 @@ $candle-down-color: rgb(163, 30, 30);
   background-color: $body-bg;   
   color: $primary;
 }
-
-.custom-clean-input {
-  .form-control:focus {
-    border: none !important;
-    box-shadow: none !important;
-    outline: none !important;
-  }
-}
