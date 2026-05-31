@@ -28,7 +28,7 @@ export const router = createBrowserRouter([
             element: <PortfolioPage />,
           },
           {
-            path: '/trading-view-test',
+            path: '/trading-view/:ticker',  
             element: <TradingViewPage />,
           },
           {
