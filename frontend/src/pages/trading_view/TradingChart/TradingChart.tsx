@@ -12,7 +12,7 @@ import {
   PriceScaleMode,
   UTCTimestamp,
 } from 'lightweight-charts';
-import { toTimestamp } from './time';
+import { toTimestamp } from './../../../utils';
 import { Price } from '../../../types';
 
 export enum TimeUnit {

@@ -31,6 +31,7 @@ import {
 } from '../../types';
 import { InfoModal } from '../../components/InfoModal';
 import { apiUrl } from '../../utils/apiUrl';
+import { calculatePriceMetrics } from '../../utils';
 
 enum TradeSideKey {
   Buy = 'buy',
@@ -134,8 +135,8 @@ export function TradingViewPage() {
 
         const priceResponse = await fetch(
           apiUrl(
-            `/api/stocks/${cleanTicker}/prices?start=${'2024-12-15'}&interval=1d`,
-          ),
+            `/api/stocks/${cleanTicker}/prices?start=${'2024-12-15'}&interval=1d`
+          )
         );
 
         if (!priceResponse.ok) {
@@ -161,15 +162,10 @@ export function TradingViewPage() {
 
  
 
-  const currentPrice: number = priceRange && priceRange.length > 0 ? priceRange[priceRange.length - 1].close : 0;
+  const todayPrice: number = priceRange && priceRange.length > 0 ? priceRange[priceRange.length - 1].close : 0;
   const yesterdayPrice = priceRange && priceRange.length > 1 ? priceRange[priceRange.length - 2].close : undefined;
 
-  let priceChange = 0;
-  let percentagePriceChange = 0;
-  if (yesterdayPrice !== undefined && currentPrice !== 0) {
-    priceChange = currentPrice - yesterdayPrice;
-    percentagePriceChange = (priceChange / yesterdayPrice) * 100;
-  }
+   const {currentPrice, priceChange, priceChangePercent } = calculatePriceMetrics(todayPrice, yesterdayPrice);
 
 
   const buyAmount = buyForm.watch('amount');
@@ -301,7 +297,7 @@ export function TradingViewPage() {
                     tag="p"
                     className={`fs-6 ${priceChange >= 0 ? 'text-price-up' : 'text-price-down'}`}
                   >
-                    ({Math.abs(percentagePriceChange).toFixed(2)}%)
+                    ({Math.abs(priceChangePercent).toFixed(2)}%)
                   </MDBTypography>
                 </MDBCol>
               </MDBRow>
@@ -568,7 +564,7 @@ export function TradingViewPage() {
         stockDetails={stockDetails}
         price={currentPrice}
         change={priceChange}
-        changePercent={percentagePriceChange}
+        changePercent={priceChangePercent}
       />
     </div>
   );
