@@ -1,12 +1,15 @@
+from datetime import datetime, timedelta, timezone
 from fastapi import HTTPException, status
+import jwt
 import requests
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from core.config import settings
 from models.user import User
 from repositories import user_repository
-from schemas.user_schema import UserCreate, UserUpdate
+from schemas.user_schema import UserCreate, UserRead, UserUpdate
 
 GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo"
 
@@ -166,4 +169,13 @@ def login_user(db: Session, access_token: str):
         ) from exc
 
     db.refresh(user)
-    return user
+
+    payload = {
+        "sub": str(user.user_id),
+        "exp": datetime.now(timezone.utc) + timedelta(minutes=60)
+    }
+    token = jwt.encode(payload, settings.secret_key, algorithm="HS256")
+
+    user_read = UserRead.model_validate(user)
+    user_read.bearer_token = token
+    return user_read

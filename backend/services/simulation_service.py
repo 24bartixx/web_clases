@@ -12,13 +12,13 @@ from models.transaction import Transaction
 from schemas.simulation_schema import SimulationCreate, SimulationUpdate
 
 
-def get_simulations(db: Session, skip: int = 0, limit: int = 100):
-    statement = (
-        select(Simulation)
-        .order_by(Simulation.simulation_id)
-        .offset(skip)
-        .limit(limit)
-    )
+def get_simulations(db: Session, skip: int = 0, limit: int = 100, user_id: int | None = None):
+    statement = select(Simulation)
+
+    if user_id is not None:
+        statement = statement.where(Simulation.user_id == user_id)
+
+    statement = statement.order_by(Simulation.simulation_id).offset(skip).limit(limit)
     return db.scalars(statement).all()
 
 

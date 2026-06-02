@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
+from core.auth import get_current_user
 from db.database import get_db
+from models.user import User
 from schemas.simulation_schema import (
     SimulationCreate,
     SimulationDetailRead,
@@ -17,9 +19,15 @@ router = APIRouter()
 def get_simulations(
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=100, ge=1, le=500),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    return simulation_service.get_simulations(db, skip=skip, limit=limit)
+    return simulation_service.get_simulations(
+        db,
+        skip=skip,
+        limit=limit,
+        user_id=current_user.user_id,
+    )
 
 
 @router.post("/", response_model=SimulationRead, status_code=status.HTTP_201_CREATED)

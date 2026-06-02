@@ -1,7 +1,12 @@
 import { MDBBadge, MDBBtn, MDBListGroupItem } from 'mdb-react-ui-kit';
 import { useNavigate } from 'react-router-dom';
+import { SimulationPreview } from '../../types/Simulation';
 
-export function PreviousGame() {
+type PreviousGameProps = {
+  simulation: SimulationPreview;
+};
+
+export function PreviousGame({ simulation }: PreviousGameProps) {
   const navigate = useNavigate();
   return (
     <MDBListGroupItem
@@ -26,7 +31,7 @@ export function PreviousGame() {
           Liczba transakcji: 123
         </span>
         <span className="text-muted" style={{ fontSize: '10px' }}>
-          Przedział czasowy: 10.10.2010 - 10.10.2020
+          Przedział czasowy: {simulation.startDate} - {simulation.finishDate}
         </span>
       </div>
       <div className="flex-grow-1"></div>
