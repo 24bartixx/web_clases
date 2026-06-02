@@ -63,11 +63,9 @@ export function StocksViewPage() {
   prevDate.setDate(prevDate.getDate() - 3);
   prevDate.setHours(0, 0, 0, 0);
 
-  const columnHelper = createColumnHelper<RowData>();
-
-  const loadData = async (): Promise<FinancialData> => {
+  const loadData = async (skip: number): Promise<FinancialData> => {
     const stocksResponse = await fetch(
-      `http://localhost:8000/api/stocks/?skip=0&limit=20`,
+      `http://localhost:8000/api/stocks/?skip=${skip}&limit=20`,
     );
     if (!stocksResponse.ok) throw new Error(`Status: ${stocksResponse.status}`);
     const stocksRowData: StockDto[] = await stocksResponse.json();
@@ -122,14 +120,25 @@ export function StocksViewPage() {
   // prettier-ignore
   const {data: financialData, isLoading, error} = useQuery<FinancialData, Error>({
     queryKey: [process.env.REACT_APP_STOCKS_VIEW_CACHE_KEY],
-    queryFn: loadData,
+    queryFn: () => loadData(0),
 
     staleTime: 60 * 1000,
     gcTime: 5 * 60 * 1000,
   });
 
-  const tableData: RowData[] = financialData ? financialData.stocks.map((stock: Stock) => {
-      const prices = getPricesFromRange(financialData.pricesRange[stock.ticker]);
+  const tableData: RowData[] = useMemo(() => {
+    if (
+      !financialData ||
+      !financialData.stocks ||
+      !financialData.stocksDetails ||
+      !financialData.pricesRange
+    )
+      return [];
+
+    return financialData.stocks.map((stock: Stock) => {
+      const prices = getPricesFromRange(
+        financialData.pricesRange[stock.ticker],
+      );
       const volume = prices.todayPrice?.volume || 0;
       const metrics = calculatePriceMetrics(
         prices.todayPrice?.close,
@@ -142,7 +151,10 @@ export function StocksViewPage() {
         ...metrics,
         volume: volume,
       };
-    }): [];
+    });
+  }, [financialData, getPricesFromRange, calculatePriceMetrics]);
+
+  const columnHelper = createColumnHelper<RowData>();
 
   const columns = useMemo(() => {
     const createSortableHeader = (title: string) => {
@@ -151,7 +163,7 @@ export function StocksViewPage() {
         return (
           <button
             onClick={column.getToggleSortingHandler()}
-            className="bg-transparent border-0 text-white d-flex align-items-center gap-1 fs-4 p-0"
+            className="bg-transparent border-0 text-white d-flex align-items-center gap-1 fs-5 p-0"
           >
             <MDBIcon
               fas
