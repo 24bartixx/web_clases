@@ -15,7 +15,6 @@ import {
   mapStockDetailsDtoToStockDetails,
   mapStockDtoToStock,
   Price,
-  PriceDto,
   Stock,
   StockDetails,
   StockDetailsDto,
@@ -29,6 +28,9 @@ import {
   flexRender,
   createColumnHelper,
 } from '@tanstack/react-table';
+
+import ls from 'localstorage-slim';
+
 import { StockItemView } from './StockItemView';
 import { useNavigate, useParams } from 'react-router';
 import { useEffect, useMemo, useState } from 'react';
@@ -36,8 +38,12 @@ import { InfoModal } from '../../components/InfoModal';
 import { calculatePriceMetrics, PriceMetrics } from '../../utils';
 
 // prettier-ignore
-export type RowData = Stock &StockDetails & PriceMetrics & { volume: number };
-
+type RowData = Stock &StockDetails & PriceMetrics & { volume: number };
+type FinancialData = {
+  stocks: Stock[];
+  stocksDetails: Record<Stock['ticker'], StockDetails>;
+  pricesRange: Record<Stock['ticker'], Price[]>;
+};
 // prettier-ignore
 const getPricesFromRange = (priceRange: Price[] | undefined): { todayPrice: Price | undefined; yesterdayPrice: Price | undefined } => {
   if (!priceRange || priceRange.length === 0) {
@@ -59,15 +65,7 @@ export function StocksViewPage() {
   prevDate.setDate(prevDate.getDate() - 3);
   prevDate.setHours(0, 0, 0, 0);
 
-  const [stocks, setStocks] = useState<Stock[] | null>(null);
-  const [stocksDetails, setStockDetails] = useState<Record<
-    StockDto['ticker'],
-    StockDetailsDto
-  > | null>(null);
-  const [pricesRange, setPriceRange] = useState<Record<
-    Stock['ticker'],
-    Price[]
-  > | null>(null);
+  const [financialData, setFinancialData] = useState<FinancialData | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -75,16 +73,23 @@ export function StocksViewPage() {
         setLoading(true);
         setError(null);
 
+        const cachedData = ls.get(process.env.REACT_APP_STOCKS_VIEW_CACHE_KEY as string) as FinancialData | null;
+        if (cachedData) {
+          setFinancialData(cachedData);
+          setLoading(false);
+          return;
+        }
+
         const stocksResponse = await fetch(
           `http://localhost:8000/api/stocks/?skip=0&limit=20`,
         );
         if (!stocksResponse.ok)
           throw new Error(`Status: ${stocksResponse.status}`);
-        const stocksData: StockDto[] = await stocksResponse.json();
+        const stocksRowData: StockDto[] = await stocksResponse.json();
 
-        const [detailsResults, pricesResults] = await Promise.all([
+        const [detailsRowData, pricesRowData] = await Promise.all([
           Promise.all(
-            stocksData.map(async (s) => {
+            stocksRowData.map(async (s) => {
               const res = await fetch(
                 `http://localhost:8000/api/stocks/${s.ticker}/details`,
               );
@@ -94,9 +99,11 @@ export function StocksViewPage() {
             }),
           ),
           Promise.all(
-            stocksData.map(async (s) => {
+            stocksRowData.map(async (s) => {
+              const start = prevDate.toISOString().split('T')[0];
+              const finish = currentDate.toISOString().split('T')[0];
               const res = await fetch(
-                `http://localhost:8000/api/stocks/${s.ticker}/prices?start=${prevDate.toISOString().split('T')[0]}&finish=${currentDate.toISOString().split('T')[0]}&interval=1d`,
+                `http://localhost:8000/api/stocks/${s.ticker}/prices?start=${start}&finish=${finish}&interval=1d`,
               );
               if (!res.ok)
                 throw new Error(`Failed to fetch prices for ${s.ticker}`);
@@ -105,25 +112,28 @@ export function StocksViewPage() {
           ),
         ]);
 
-        setStocks(stocksData.map(mapStockDtoToStock));
+        const stocks:Stock[] = stocksRowData.map(mapStockDtoToStock);
 
-        setStockDetails(
+        const stocksDetails: Record<Stock['ticker'], StockDetails> =
           Object.fromEntries(
-            detailsResults.map(({ ticker, data }) => [
+            detailsRowData.map(({ ticker, data }) => [
               ticker,
               mapStockDetailsDtoToStockDetails(data),
             ]),
-          ),
-        );
+          );
 
-        setPriceRange(
+        const pricesRange: Record<Stock['ticker'], Price[]> = 
           Object.fromEntries(
-            pricesResults.map(({ ticker, data }) => [
+            pricesRowData.map(({ ticker, data }) => [
               ticker,
               data.map(mapPriceDtoToPrice),
             ]),
-          ),
-        );
+          );
+
+          ls.set(process.env.REACT_APP_STOCKS_VIEW_CACHE_KEY as string, {stocks, stocksDetails, pricesRange}, { ttl: 60 });
+
+          setFinancialData({ stocks, stocksDetails, pricesRange });
+        
       } catch (err: any) {
         setError(err.message || 'Unknown error');
       } finally {
@@ -135,10 +145,10 @@ export function StocksViewPage() {
   }, []);
 
   const tableData: RowData[] = useMemo(() => {
-    if (!stocks || !stocksDetails || !pricesRange) return [];
+    if (!financialData || !financialData.stocks || !financialData.stocksDetails || !financialData.pricesRange) return [];
 
-    return stocks.map((stock) => {
-      const prices = getPricesFromRange(pricesRange[stock.ticker]);
+    return financialData.stocks.map((stock) => {
+      const prices = getPricesFromRange(financialData.pricesRange[stock.ticker]);
       const volume = prices.todayPrice?.volume || 0;
       const metrics = calculatePriceMetrics(
         prices.todayPrice?.close,
@@ -147,15 +157,13 @@ export function StocksViewPage() {
 
       return {
         ...stock,
-        ...stocksDetails[stock.ticker],
+        ...financialData.stocksDetails[stock.ticker],
         ...metrics,
         volume: volume,
       };
     });
   }, [
-    stocks,
-    stocksDetails,
-    pricesRange,
+    financialData,
     getPricesFromRange,
     calculatePriceMetrics,
   ]);
@@ -229,7 +237,7 @@ export function StocksViewPage() {
     );
   }
 
-  if (error || !stocks || !stocksDetails || !pricesRange) {
+  if (!financialData || !financialData.stocks || !financialData.stocksDetails || !financialData.pricesRange) {
     return (
       <InfoModal
         open={true}
@@ -279,7 +287,6 @@ export function StocksViewPage() {
                 />
               );
             })}
-            ;
           </MDBTableBody>
         </MDBTable>
       </MDBContainer>
