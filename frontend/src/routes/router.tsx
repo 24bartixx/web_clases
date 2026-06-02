@@ -6,7 +6,6 @@ import { TradingViewPage } from '../pages/trading_view/TradingViewPage';
 import { GameParamsPage } from '../pages/game_params/GameParamsPage';
 import { GameProvider } from '../contexts/GameContext';
 import { GameProviderLayout } from '../layouts/GameProviderLayout';
-import { ProtectedRoute } from '../contexts/CookieData';
 import { StocksViewPage } from '../pages/stocks_view/StocksViewPage';
 
 export const router = createBrowserRouter([
@@ -15,32 +14,27 @@ export const router = createBrowserRouter([
     element: <LoginPage />,
   },
   {
-    element: <ProtectedRoute />,
+    path: '/',
+    element: <HomePage />,
+  },
+  {
+    element: <GameProviderLayout />,
     children: [
       {
-        path: '/',
-        element: <HomePage />,
+        path: '/portfolio',
+        element: <PortfolioPage />,
       },
       {
-        element: <GameProviderLayout />,
-        children: [
-          {
-            path: '/portfolio',
-            element: <PortfolioPage />,
-          },
-          {
-            path: '/stocks-view',
-            element: <StocksViewPage />,
-          },
-          {
-            path: '/trading-view/:ticker',  
-            element: <TradingViewPage />,
-          },
-          {
-            path: '/game-params',
-            element: <GameParamsPage />,
-          },
-        ],
+        path: '/stocks-view',
+        element: <StocksViewPage />,
+      },
+      {
+        path: '/trading-view/:ticker',
+        element: <TradingViewPage />,
+      },
+      {
+        path: '/game-params',
+        element: <GameParamsPage />,
       },
     ],
   },
