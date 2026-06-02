@@ -1,7 +1,9 @@
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, Query, Response, status
 from sqlalchemy.orm import Session
 
+from core.auth import get_current_user
 from db.database import get_db
+from models.user import User
 from schemas.user_schema import UserCreate, UserLoginData, UserRead, UserUpdate
 from services import user_service
 
@@ -31,6 +33,11 @@ def get_user_by_google_id(
     db: Session = Depends(get_db),
 ):
     return user_service.get_user_by_google_id(db, google_id)
+
+
+@router.get("/info", response_model=UserRead)
+def get_user(current_user: User = Depends(get_current_user)):
+    return current_user
 
 
 @router.get("/{user_id}", response_model=UserRead)
@@ -64,10 +71,27 @@ def delete_users(
 ):
     return user_service.delete_users(db)
 
+
 # post due to security reasons
 @router.post("/login", response_model=UserRead)
 def login_user(
     user_login_data: UserLoginData,
+    response: Response,
     db: Session = Depends(get_db),
 ):
-    return user_service.login_user(db, user_login_data.access_token)
+    user_read = user_service.login_user(db, user_login_data.access_token)
+    
+    # Set httpOnly cookie with token
+    response.set_cookie(
+        key="access_token",
+        value=user_read.bearer_token,
+        httponly=True,
+        path="/",
+        secure=False,
+        samesite="lax",
+        max_age=3600,
+    )
+    
+    # Return user without token in body
+    user_read.bearer_token = None
+    return user_read

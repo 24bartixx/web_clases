@@ -30,6 +30,7 @@ import {
   StockDto,
 } from '../../types';
 import { InfoModal } from '../../components/InfoModal';
+import { apiUrl } from '../../utils/apiUrl';
 
 enum TradeSideKey {
   Buy = 'buy',
@@ -114,9 +115,7 @@ export function TradingViewPage() {
         setLoading(true);
         setError(null);
 
-        const stockResponse = await fetch(
-          `http://localhost:8000/api/stocks/${cleanTicker}`,
-        );
+        const stockResponse = await fetch(apiUrl(`/api/stocks/${cleanTicker}`));
 
         if (!stockResponse.ok) {
           throw new Error(`Status: ${stockResponse.status}`);
@@ -125,7 +124,7 @@ export function TradingViewPage() {
         const stockData: StockDto = await stockResponse.json();
 
         const detailsResponse = await fetch(
-          `http://localhost:8000/api/stocks/${cleanTicker}/details`,
+          apiUrl(`/api/stocks/${cleanTicker}/details`),
         );
 
         if (!detailsResponse.ok) {
@@ -134,7 +133,9 @@ export function TradingViewPage() {
         const detailsData: StockDetailsDto = await detailsResponse.json();
 
         const priceResponse = await fetch(
-          `http://localhost:8000/api/stocks/${cleanTicker}/prices?start=${'2024-12-15'}&interval=1d`,
+          apiUrl(
+            `/api/stocks/${cleanTicker}/prices?start=${'2024-12-15'}&interval=1d`,
+          ),
         );
 
         if (!priceResponse.ok) {

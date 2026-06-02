@@ -8,30 +8,48 @@ import {
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PreviousGame } from './PreviousGame';
-import { getUserSession } from '../../contexts/CookieData';
+import { apiUrl } from '../../utils/apiUrl';
 import { auth_fetch } from '../../utils/auth_fetch';
 import {
   mapSimulationDtoToSimulationPreview,
   SimulationPreview,
 } from '../../types/Simulation';
 
+type UserInfo = {
+  user_id: number;
+  first_name: string;
+  picture: string | null;
+};
+
 export function HomePage() {
   const navigate = useNavigate();
-  const userSession = getUserSession();
 
-  const defaultAvatar =
-    'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png';
-
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [userSimulationsPreviews, setUserSimulationsPreviews] = useState<
     SimulationPreview[]
   >([]);
 
+  const defaultAvatar =
+    'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png';
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const response = await auth_fetch(apiUrl('/api/users/info'));
+        const user = await response.json();
+        setUserInfo(user);
+      } catch (error) {
+        console.error('Failed to fetch user info:', error);
+      }
+    };
+
+    fetchUserInfo();
+  }, []);
+
   useEffect(() => {
     const fetchUserSimulationsPreviews = async () => {
       try {
-        const response = await auth_fetch(
-          'http://localhost:8000/api/simulation/',
-        );
+        const response = await auth_fetch(apiUrl('/api/simulation/'));
         const data = await response.json();
 
         const simulations = data.map(mapSimulationDtoToSimulationPreview);
@@ -54,7 +72,7 @@ export function HomePage() {
           className="d-flex flex-column align-items-start gap-2"
         >
           <h1 style={{ fontWeight: '600' }}>
-            Cześć {userSession?.first_name || 'Chess Bro'}!
+            Cześć {userInfo?.first_name || 'Chess Bro'}!
           </h1>
           <MDBBtn
             rounded
@@ -68,7 +86,7 @@ export function HomePage() {
 
         <MDBCol size="auto">
           <img
-            src={userSession?.picture || defaultAvatar}
+            src={userInfo?.picture || defaultAvatar}
             className="img-fluid rounded-circle"
             style={{ width: '150px', height: '150px', objectFit: 'cover' }}
             alt="User Avatar"

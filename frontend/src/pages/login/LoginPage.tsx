@@ -1,8 +1,7 @@
 import { useGoogleLogin } from '@react-oauth/google';
-import { jwtDecode } from 'jwt-decode';
 import { MDBBtn, MDBIcon } from 'mdb-react-ui-kit';
-import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
+import { apiUrl } from '../../utils/apiUrl';
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -13,26 +12,21 @@ export function LoginPage() {
       const accessToken = tokenResponse.access_token;
 
       try {
-        const response = await fetch('http://localhost:8000/api/users/login', {
+        const response = await fetch(apiUrl('/api/users/login'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
+          credentials: 'include',
           body: JSON.stringify({ access_token: accessToken }),
         });
         if (!response.ok) {
-          throw new Error('Błąd podczas wysyłania POST');
+          throw new Error('Błąd podczas logowania');
         }
-        const data = await response.json();
-
-        Cookies.set('user_session', JSON.stringify(data), {
-          expires: 1,
-          secure: true,
-          sameSite: 'strict',
-        });
+        // Backend sets httpOnly cookie, redirect to home
         navigate('/');
       } catch (error) {
-        console.error('Błąd POST:', error);
+        console.error('Błąd logowania:', error);
       }
     },
     onError: () => {
