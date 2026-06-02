@@ -73,10 +73,11 @@ def create_simulation(db: Session, simulation_data: SimulationCreate):
 
     try:
         db.flush()
+        simulation_id = simulation.simulation_id
         for stock_id in simulation_data.stock_ids:
             db.add(
                 Position(
-                    simulation_id=simulation.simulation_id,
+                    simulation_id=simulation_id,
                     stock_id=stock_id,
                     amount=0,
                 )
@@ -90,8 +91,7 @@ def create_simulation(db: Session, simulation_data: SimulationCreate):
             detail="Could not create simulation or default positions. Check related ids.",
         ) from exc
 
-    db.refresh(simulation)
-    return simulation
+    return get_simulation_detail(db, simulation_id)
 
 
 def _validate_stock_ids(db: Session, stock_ids: list[int]):

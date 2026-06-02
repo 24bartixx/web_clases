@@ -13,7 +13,6 @@ class Summary(Base):
     summary_id: Mapped[int] = mapped_column(primary_key=True)
     income: Mapped[Decimal] = mapped_column(Numeric(12, 0), nullable=False)
     transactions: Mapped[int] = mapped_column(Integer, nullable=False)
-    summary_time: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now())
     final_balance: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
     stock_id: Mapped[int | None] = mapped_column(
         ForeignKey("stocks.stock_id", deferrable=True, initially="IMMEDIATE")

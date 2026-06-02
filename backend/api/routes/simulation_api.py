@@ -30,7 +30,7 @@ def get_simulations(
     )
 
 
-@router.post("/", response_model=SimulationRead, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=SimulationDetailRead, status_code=status.HTTP_201_CREATED)
 def create_simulation(
     simulation_data: SimulationCreate,
     db: Session = Depends(get_db),

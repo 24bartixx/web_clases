@@ -10,6 +10,7 @@ import {
   MDBTabsLink,
   MDBTypography,
 } from 'mdb-react-ui-kit';
+import { apiUrl } from '../../config/api';
 import { TimeUnit, TradingChart, TradingChartPeriod } from './TradingChart';
 import stockImg from '../../assets/stock-30.png';
 import moneyImg from '../../assets/money-30.png';
@@ -116,7 +117,7 @@ export function TradingViewPage() {
         setLoading(true);
         setError(null);
 
-        const stockResponse = await fetch(apiUrl(`/api/stocks/${cleanTicker}`));
+        const stockResponse = await fetch(apiUrl(`/stocks/${cleanTicker}`));
 
         if (!stockResponse.ok) {
           throw new Error(`Status: ${stockResponse.status}`);
@@ -125,7 +126,7 @@ export function TradingViewPage() {
         const stockData: StockDto = await stockResponse.json();
 
         const detailsResponse = await fetch(
-          apiUrl(`/api/stocks/${cleanTicker}/details`),
+          apiUrl(`/stocks/${cleanTicker}/details`),
         );
 
         if (!detailsResponse.ok) {

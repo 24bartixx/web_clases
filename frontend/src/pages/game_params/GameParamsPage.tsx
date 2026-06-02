@@ -6,6 +6,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { registerLocale } from 'react-datepicker';
 import { pl } from 'date-fns/locale/pl';
 import { useGame } from '../../contexts/GameContext';
+import { useNavigate } from 'react-router-dom';
 registerLocale('pl', pl);
 
 interface GameParams {
@@ -16,54 +17,45 @@ interface GameParams {
 }
 
 export function GameParamsPage() {
+  const navigate = useNavigate();
+
   const { gameState, createGame } = useGame();
-  console.log(gameState);
+
+  const [finishDate, setFinishDate] = useState(new Date());
 
   const [gameParams, setGameParams] = useState<GameParams>({
     budget: 1000_000,
     startDate: '2010-01-01',
-    endDate: '2015-01-01',
-    companiesTickets: [],
+    time: '5y',
   });
 
-  const ALL_COMPANIES = [
-    { id: '1', name: 'Apple Inc.' },
-    { id: '2', name: 'Microsoft' },
-    { id: '3', name: 'Google' },
-    { id: '4', name: 'Amazon' },
-    { id: '5', name: 'Tesla' },
-    { id: '6', name: 'Nvidia' },
-  ];
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value =
+      e.target.name === 'budget' || e.target.name === 'companiesCount'
+        ? Number(e.target.value)
+        : e.target.value;
 
-  const selectedIds = gameParams.companiesTickets || [];
-
-  const handleSelect = (companyId: string) => {
-    setGameParams({
-      ...gameParams,
-      companiesTickets: [...selectedIds, companyId],
-    });
+    setGameParams({ ...gameParams, [e.target.name]: value });
   };
 
-  const handleRemove = (companyId: string) => {
-    setGameParams({
-      ...gameParams,
-      companiesTickets: selectedIds.filter((id) => id !== companyId),
-    });
-  };
-
-  const onChange = (e: any) => {
-    setGameParams({ ...gameParams, [e.target.name]: e.target.value });
-  };
-
-  const onSubmit = (e: any) => {
+  const onSubmit = async (e: any) => {
     e.preventDefault();
-    console.log('onSubmit');
-    createGame({
+    const newGame = await createGame({
       startingBudget: gameParams.budget,
       companiesTickets: gameParams.companiesTickets,
       startDate: gameParams.startDate,
       finishDate: gameParams.endDate,
+      companiesTickets: [],
+      startDate: startDate.toISOString().split('T')[0],
+      finishDate: finishDate.toISOString().split('T')[0],
     });
+
+    if (gameState.error) {
+      alert('Nie udało się utworzyć gry: ' + gameState.error);
+    } else {
+      alert('Gra została utworzona!');
+      navigate('/portfolio');
+    }
   };
 
   return (
@@ -76,6 +68,7 @@ export function GameParamsPage() {
         className="col-md-4 d-flex flex-column gap-4 mt-16 "
       >
         <MDBInput
+          type="number"
           value={gameParams.budget}
           name="budget"
           size="lg"
@@ -95,6 +88,7 @@ export function GameParamsPage() {
         />
 
         <MDBInput
+          type="number"
           value={gameParams.startDate}
           name="startDate"
           size="lg"
@@ -102,18 +96,33 @@ export function GameParamsPage() {
           onChange={onChange}
           id="validationCustom02"
           required
-          label="Określ datę rozpoczęcia"
+          label="Wybierz ile firm będzie dostępnych w ramach gry"
         />
 
-        <MDBInput
-          value={gameParams.endDate}
-          name="endDate"
-          size="lg"
-          type="date"
-          onChange={onChange}
-          id="validationCustom03"
-          required
-          label="Określ datę zakończenia"
+        <DatePicker
+          selected={startDate}
+          onChange={(date: Date | null) => setStartDate(date || new Date())}
+          // Podstawa: włączenie dropdownów
+          showMonthDropdown
+          showYearDropdown
+          // Dodatkowe usprawnienie: lata wyświetlają się w scrollowanej liście, a nie długim menu
+          dropdownMode="select"
+          // Opcjonalnie: zakres lat wstecz i w przód (np. 100 lat wstecz od teraz)
+          yearDropdownItemNumber={100}
+          dateFormat="dd/MM/yyyy"
+        />
+
+        <DatePicker
+          selected={finishDate}
+          onChange={(date: Date | null) => setFinishDate(date || new Date())}
+          // Podstawa: włączenie dropdownów
+          showMonthDropdown
+          showYearDropdown
+          // Dodatkowe usprawnienie: lata wyświetlają się w scrollowanej liście, a nie długim menu
+          dropdownMode="select"
+          // Opcjonalnie: zakres lat wstecz i w przód (np. 100 lat wstecz od teraz)
+          yearDropdownItemNumber={100}
+          dateFormat="dd/MM/yyyy"
         />
 
         <div className="col-12">

@@ -20,8 +20,8 @@ def get_summaries_by_stock_simulation_id(db: Session, stock_id: int, simulation_
 def get_summaries_by_stock_date_range(db: Session, stock_id: int, start_date: datetime, end_date: datetime):
     statement = select(Summary).where(
         Summary.stock_id == stock_id,
-        Summary.summary_time >= start_date,
-        Summary.summary_time <= end_date
+        Summary.created_at >= start_date,
+        Summary.created_at <= end_date
     ).order_by(Summary.summary_id)
     return db.scalars(statement).all()
 

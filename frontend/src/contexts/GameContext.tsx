@@ -1,10 +1,14 @@
 import { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
 import { GameState, initialGameState } from '../types/GameState';
+import { apiUrl } from '../config/api';
+import { getUserSession } from './CookieData';
+import { mapSimulationDetailToGameState } from '../mappers/simulationMapper';
+import type { SimulationDetailResponse } from '../mappers/simulationMapper';
 
 interface GameContextType {
   gameState: GameState;
-  createGame: (params: CreateGameParams) => void;
+  createGame: (params: CreateGameParams) => Promise<void>;
 }
 
 interface CreateGameParams {
@@ -17,11 +21,62 @@ interface CreateGameParams {
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
 export function GameProvider({ children }: { children: ReactNode }) {
+  const session = getUserSession();
   const [gameState, setGameState] = useState<GameState>(initialGameState);
 
-  const createGame = (params: CreateGameParams) => {
-    // TODO: call to create game
-    // TODO: update gameState based on response
+  if (!session) {
+    throw new Error('User is not logged in');
+  }
+
+  const createGame = async (params: CreateGameParams) => {
+    console.log('createGame', params);
+
+    setGameState((currentGameState) => ({
+      ...currentGameState,
+      status: 'creating',
+      error: null,
+    }));
+
+    try {
+      const response = await fetch(apiUrl('/simulation/'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          initial_balance: params.startingBudget,
+          start_date: params.startDate || null,
+          finish_date: params.finishDate || null,
+          user_id: session.user_id,
+          stock_ids: [624, 794, 892, 923, 664],
+        }),
+      });
+
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        console.error('Failed to create game', errorMessage);
+        setGameState((currentGameState) => ({
+          ...currentGameState,
+          status: 'error',
+          error: errorMessage || 'Failed to create game',
+        }));
+        return;
+      }
+
+      const data = (await response.json()) as SimulationDetailResponse;
+      console.log('Created game', data);
+      setGameState(mapSimulationDetailToGameState(data));
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to create game';
+
+      console.error('Failed to create game', error);
+      setGameState((currentGameState) => ({
+        ...currentGameState,
+        status: 'error',
+        error: errorMessage,
+      }));
+    }
   };
 
   return (
