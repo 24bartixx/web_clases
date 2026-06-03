@@ -32,6 +32,7 @@ import {
 import { InfoModal } from '../../components/InfoModal';
 import { apiUrl } from '../../utils/apiUrl';
 import { calculatePriceMetrics } from '../../utils';
+import { useGame } from '../../contexts/GameContext';
 
 enum TradeSideKey {
   Buy = 'buy',
@@ -68,6 +69,7 @@ export function TradingViewPage() {
   const [activeTradeSide, setActiveTradeSide] = useState<TradeSideKey>(TradeSideKey.Buy,);
   const [activePeriod, setActivePeriod] = useState<PeriodKey>(PeriodKey.M1);
   const [isCompanyDetailsOpen, setIsCompanyDetailsOpen] = useState(false);
+  const { makeTransaction } = useGame();
 
   const navigate = useNavigate();
   const { ticker } = useParams<{ ticker: string }>();
@@ -214,12 +216,32 @@ export function TradingViewPage() {
     }
   }, [sellAmount, sellTotal, sellForm.setValue]);
 
-  const onBuySubmit = (data: SellOrBuyForm) => {
-    console.log('Данные покупки:', data);
+  const onBuySubmit = async (data: SellOrBuyForm) => {
+    if (!stock) {
+      return;
+    }
+
+    await makeTransaction({
+      stockId: stock.stockId,
+      transactionType: 'buy',
+      transactionTime: currentDate,
+      price: currentPrice,
+      amount: data.amount,
+    });
   };
 
-  const onSellSubmit = (data: SellOrBuyForm) => {
-    console.log('Данные продажи:', data);
+  const onSellSubmit = async (data: SellOrBuyForm) => {
+    if (!stock) {
+      return;
+    }
+
+    await makeTransaction({
+      stockId: stock.stockId,
+      transactionType: 'sell',
+      transactionTime: currentDate,
+      price: currentPrice,
+      amount: data.amount,
+    });
   };
 
   if (loading) {

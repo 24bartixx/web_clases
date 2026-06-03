@@ -1,6 +1,5 @@
-import { Price } from './Price';
-import { Stock } from './Stock';
-import { Transaction } from './Transaction';
+import type { Stock } from './Stock';
+import type { Transaction } from './Transaction';
 
 export type StockPosition = {
   positionId: number;
@@ -8,5 +7,4 @@ export type StockPosition = {
   stock: Stock;
   amount: number;
   transactions: Transaction[];
-  prices: Price[];
 };

@@ -1,14 +1,14 @@
 import { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
 import { GameState, initialGameState } from '../types/GameState';
-import { apiUrl } from '../config/api';
-import { auth_fetch } from '../utils/auth_fetch';
 import { mapSimulationDetailToGameState } from '../mappers/simulationMapper';
-import type { SimulationDetailResponse } from '../mappers/simulationMapper';
+import { createTransaction } from '../api/transactionsApi';
+import { createSimulation, getSimulation } from '../api/simulationApi';
 
 interface GameContextType {
   gameState: GameState;
   createGame: (params: CreateGameParams) => Promise<void>;
+  makeTransaction: (params: MakeTransactionParams) => Promise<void>;
 }
 
 interface CreateGameParams {
@@ -16,6 +16,14 @@ interface CreateGameParams {
   stockIds: number[];
   startDate: string;
   finishDate: string;
+}
+
+interface MakeTransactionParams {
+  stockId: number;
+  transactionType: 'buy' | 'sell';
+  transactionTime: string;
+  price: number;
+  amount: number;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -33,32 +41,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }));
 
     try {
-      const response = await auth_fetch(apiUrl('/simulation/'), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          initial_balance: params.startingBudget,
-          start_date: params.startDate || null,
-          finish_date: params.finishDate || null,
-          stock_ids: params.stockIds,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorMessage = await response.text();
-        console.error('Failed to create game', errorMessage);
-        setGameState((currentGameState) => ({
-          ...currentGameState,
-          status: 'error',
-          error: errorMessage || 'Failed to create game',
-        }));
-        return;
-      }
-
-      const data = (await response.json()) as SimulationDetailResponse;
-      console.log('Created game', data);
+      const data = await createSimulation(params);
       setGameState(mapSimulationDetailToGameState(data));
     } catch (error) {
       const errorMessage =
@@ -73,8 +56,56 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const makeTransaction = async (params: MakeTransactionParams) => {
+    const simulationId = gameState.simulationId;
+
+    if (simulationId === null) {
+      setGameState((currentGameState) => ({
+        ...currentGameState,
+        status: 'error',
+        error: 'Cannot create transaction before game is created',
+      }));
+      return;
+    }
+
+    setGameState((currentGameState) => ({
+      ...currentGameState,
+      status: 'loading',
+      error: null,
+    }));
+
+    try {
+      await createTransaction({
+        simulationId,
+        stockId: params.stockId,
+        transactionType: params.transactionType,
+        transactionTime: params.transactionTime,
+        price: params.price,
+        amount: params.amount,
+      });
+
+      const simulation = await getSimulation(simulationId);
+      const updatedGameState = mapSimulationDetailToGameState(simulation);
+
+      setGameState((currentGameState) => ({
+        ...updatedGameState,
+        pricesByStockId: currentGameState.pricesByStockId,
+      }));
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to create transaction';
+
+      console.error('Failed to create transaction', error);
+      setGameState((currentGameState) => ({
+        ...currentGameState,
+        status: 'error',
+        error: errorMessage,
+      }));
+    }
+  };
+
   return (
-    <GameContext.Provider value={{ gameState, createGame }}>
+    <GameContext.Provider value={{ gameState, createGame, makeTransaction }}>
       {children}
     </GameContext.Provider>
   );

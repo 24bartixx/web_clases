@@ -6,6 +6,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from models.enums import TransactionType
+from models.simulation import Simulation
 from models.transaction import Transaction
 from repositories import transaction_repository
 from schemas.transaction_schema import TransactionCreate
@@ -62,7 +63,23 @@ def get_transaction(db: Session, transaction_id: int):
 
 
 def create_transaction(db: Session, transaction_data: TransactionCreate):
+    simulation = db.get(Simulation, transaction_data.simulation_id)
+
+    if simulation is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Simulation not found",
+        )
+
     transaction = Transaction(**transaction_data.model_dump())
+    transaction_value = transaction_data.price * transaction_data.amount
+
+    if transaction_data.transaction_type == TransactionType.buy:
+        simulation.current_balance -= transaction_value
+    else:
+        simulation.current_balance += transaction_value
+
+    simulation.updated_at = datetime.now()
     db.add(transaction)
 
     try:

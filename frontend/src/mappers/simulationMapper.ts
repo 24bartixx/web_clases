@@ -70,7 +70,7 @@ export const mapSimulationDetailToGameState = (
         amount: Number(transaction.amount),
         price: Number(transaction.price),
       })),
-    prices: [],
   })),
+  pricesByStockId: {},
   error: null,
 });

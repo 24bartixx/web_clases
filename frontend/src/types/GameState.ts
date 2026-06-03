@@ -1,4 +1,5 @@
-import { StockPosition } from './StockPosition';
+import type { Price } from './Price';
+import type { StockPosition } from './StockPosition';
 
 export type GameStatus = 'idle' | 'creating' | 'loading' | 'ready' | 'error';
 
@@ -9,6 +10,7 @@ export type GameState = {
   startDate: string | null;
   finishDate: string | null;
   stockPositions: StockPosition[] | null;
+  pricesByStockId: Record<number, Price[]>;
   error: string | null;
 };
 
@@ -19,5 +21,6 @@ export const initialGameState: GameState = {
   startDate: null,
   finishDate: null,
   stockPositions: null,
+  pricesByStockId: {},
   error: null,
 };
