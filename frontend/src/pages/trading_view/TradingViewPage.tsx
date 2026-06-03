@@ -10,7 +10,6 @@ import {
   MDBTabsLink,
   MDBTypography,
 } from 'mdb-react-ui-kit';
-import { apiUrl } from '../../config/api';
 import { TimeUnit, TradingChart, TradingChartPeriod } from './TradingChart';
 import stockImg from '../../assets/stock-30.png';
 import moneyImg from '../../assets/money-30.png';
@@ -117,7 +116,7 @@ export function TradingViewPage() {
         setLoading(true);
         setError(null);
 
-        const stockResponse = await fetch(apiUrl(`/stocks/${cleanTicker}`));
+        const stockResponse = await fetch(apiUrl(`/api/stocks/${cleanTicker}`));
 
         if (!stockResponse.ok) {
           throw new Error(`Status: ${stockResponse.status}`);
@@ -126,7 +125,7 @@ export function TradingViewPage() {
         const stockData: StockDto = await stockResponse.json();
 
         const detailsResponse = await fetch(
-          apiUrl(`/stocks/${cleanTicker}/details`),
+          apiUrl(`/api/stocks/${cleanTicker}/details`),
         );
 
         if (!detailsResponse.ok) {
@@ -136,8 +135,8 @@ export function TradingViewPage() {
 
         const priceResponse = await fetch(
           apiUrl(
-            `/api/stocks/${cleanTicker}/prices?start=${'2024-12-15'}&interval=1d`
-          )
+            `/api/stocks/${cleanTicker}/prices?start=${'2024-12-15'}&interval=1d`,
+          ),
         );
 
         if (!priceResponse.ok) {
@@ -161,13 +160,17 @@ export function TradingViewPage() {
     loadData();
   }, [ticker]);
 
- 
+  const todayPrice: number =
+    priceRange && priceRange.length > 0
+      ? priceRange[priceRange.length - 1].close
+      : 0;
+  const yesterdayPrice =
+    priceRange && priceRange.length > 1
+      ? priceRange[priceRange.length - 2].close
+      : undefined;
 
-  const todayPrice: number = priceRange && priceRange.length > 0 ? priceRange[priceRange.length - 1].close : 0;
-  const yesterdayPrice = priceRange && priceRange.length > 1 ? priceRange[priceRange.length - 2].close : undefined;
-
-   const {currentPrice, priceChange, priceChangePercent } = calculatePriceMetrics(todayPrice, yesterdayPrice);
-
+  const { currentPrice, priceChange, priceChangePercent } =
+    calculatePriceMetrics(todayPrice, yesterdayPrice);
 
   const buyAmount = buyForm.watch('amount');
   const buyTotal = buyForm.watch('total');
@@ -219,8 +222,7 @@ export function TradingViewPage() {
     console.log('Данные продажи:', data);
   };
 
-
-   if (loading) {
+  if (loading) {
     return (
       <MDBContainer className="d-flex justify-content-center align-items-center vh-100">
         <MDBSpinner grow color="primary" className="mb-3"></MDBSpinner>
@@ -243,7 +245,6 @@ export function TradingViewPage() {
       />
     );
   }
-
 
   return (
     <div className="container px-4 py-4 pb-4 border rounded-3 shadow-sm">

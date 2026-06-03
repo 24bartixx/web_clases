@@ -33,9 +33,14 @@ def get_simulations(
 @router.post("/", response_model=SimulationDetailRead, status_code=status.HTTP_201_CREATED)
 def create_simulation(
     simulation_data: SimulationCreate,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    return simulation_service.create_simulation(db, simulation_data)
+    return simulation_service.create_simulation(
+        db,
+        simulation_data,
+        user_id=current_user.user_id,
+    )
 
 
 @router.get("/{simulation_id}", response_model=SimulationDetailRead)

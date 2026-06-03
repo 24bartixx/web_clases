@@ -10,16 +10,12 @@ import { useNavigate } from 'react-router-dom';
 import { PreviousGame } from './PreviousGame';
 import { apiUrl } from '../../utils/apiUrl';
 import { auth_fetch } from '../../utils/auth_fetch';
+import { getUserInfo } from '../../api/userApi';
+import type { UserInfo } from '../../api/userApi';
 import {
   mapSimulationDtoToSimulationPreview,
   SimulationPreview,
 } from '../../types/Simulation';
-
-type UserInfo = {
-  user_id: number;
-  first_name: string;
-  picture: string | null;
-};
 
 export function HomePage() {
   const navigate = useNavigate();
@@ -35,9 +31,7 @@ export function HomePage() {
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        const response = await auth_fetch(apiUrl('/api/users/info'));
-        const user = await response.json();
-        setUserInfo(user);
+        setUserInfo(await getUserInfo());
       } catch (error) {
         console.error('Failed to fetch user info:', error);
       }

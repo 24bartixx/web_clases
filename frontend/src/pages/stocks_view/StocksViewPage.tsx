@@ -32,7 +32,7 @@ import {
 
 import { StockItemView } from './StockItemView';
 import { useNavigate, useParams } from 'react-router';
-import { useEffect, useMemo, useState } from 'react';
+import { Key, useEffect, useMemo, useState } from 'react';
 import { InfoModal } from '../../components/InfoModal';
 import { calculatePriceMetrics, PriceMetrics } from '../../utils';
 import { useQuery } from '@tanstack/react-query';
@@ -247,38 +247,61 @@ export function StocksViewPage() {
       <MDBContainer className="d-flex flex-column gap-3">
         <MDBTable>
           <MDBTableHead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th key={header.id} scope="col">
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
-                  </th>
-                ))}
-              </tr>
-            ))}
+            {table
+              .getHeaderGroups()
+              .map(
+                (headerGroup: {
+                  id: Key | null | undefined;
+                  headers: any[];
+                }) => (
+                  <tr key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => (
+                      <th key={header.id} scope="col">
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext(),
+                            )}
+                      </th>
+                    ))}
+                  </tr>
+                ),
+              )}
           </MDBTableHead>
           <MDBTableBody>
-            {table.getRowModel().rows.map((row) => {
-              return (
-                <StockItemView
-                  key={row.id}
-                  onClick={handleClick}
-                  volume={row.original.volume}
-                  price={row.original.currentPrice}
-                  ticker={row.original.ticker}
-                  companyName={row.original.companyName}
-                  sector={row.original.sector}
-                  industry={row.original.industry}
-                  currency={row.original.currency}
-                  changePricePercent={row.original.priceChangePercent}
-                />
-              );
-            })}
+            {table
+              .getRowModel()
+              .rows.map(
+                (row: {
+                  id: Key | null | undefined;
+                  original: {
+                    volume: number;
+                    currentPrice: number;
+                    ticker: string;
+                    companyName: string;
+                    sector: string;
+                    industry: string;
+                    currency: string;
+                    priceChangePercent: number;
+                  };
+                }) => {
+                  return (
+                    <StockItemView
+                      key={row.id}
+                      onClick={handleClick}
+                      volume={row.original.volume}
+                      price={row.original.currentPrice}
+                      ticker={row.original.ticker}
+                      companyName={row.original.companyName}
+                      sector={row.original.sector}
+                      industry={row.original.industry}
+                      currency={row.original.currency}
+                      changePricePercent={row.original.priceChangePercent}
+                    />
+                  );
+                },
+              )}
           </MDBTableBody>
         </MDBTable>
       </MDBContainer>

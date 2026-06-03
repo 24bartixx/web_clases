@@ -13,7 +13,10 @@ class SimulationBase(BaseModel):
     user_id: int
 
 
-class SimulationCreate(SimulationBase):
+class SimulationCreate(BaseModel):
+    initial_balance: Decimal
+    start_date: datetime
+    finish_date: datetime | None = None
     stock_ids: list[int]
 
 

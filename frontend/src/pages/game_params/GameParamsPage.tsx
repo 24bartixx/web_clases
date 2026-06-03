@@ -1,6 +1,7 @@
 import { MDBBtn, MDBInput, MDBValidation } from 'mdb-react-ui-kit';
 import { CompanyMultiSelect } from './CompanyMultiSelect';
 import { useState } from 'react';
+import type { ChangeEvent, FormEvent } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { registerLocale } from 'react-datepicker';
@@ -11,9 +12,9 @@ registerLocale('pl', pl);
 
 interface GameParams {
   budget: number;
-  startDate: string;
-  endDate: string;
-  companiesTickets: string[];
+  startDate: Date;
+  endDate: Date;
+  companiesTickers: string[];
 }
 
 export function GameParamsPage() {
@@ -21,40 +22,64 @@ export function GameParamsPage() {
 
   const { gameState, createGame } = useGame();
 
-  const [finishDate, setFinishDate] = useState(new Date());
+  const ALL_COMPANIES = [
+    { id: '1', name: 'Apple Inc.' },
+    { id: '2', name: 'Microsoft' },
+    { id: '3', name: 'Google' },
+    { id: '4', name: 'Amazon' },
+    { id: '5', name: 'Tesla' },
+    { id: '6', name: 'Nvidia' },
+  ];
 
   const [gameParams, setGameParams] = useState<GameParams>({
     budget: 1000_000,
-    startDate: '2010-01-01',
-    time: '5y',
+    startDate: new Date(2024, 0, 1),
+    endDate: new Date(2026, 0, 1),
+    companiesTickers: [],
   });
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value =
-      e.target.name === 'budget' || e.target.name === 'companiesCount'
-        ? Number(e.target.value)
-        : e.target.value;
+  const selectedIds = gameParams.companiesTickers || [];
 
-    setGameParams({ ...gameParams, [e.target.name]: value });
+  const handleSelect = (companyId: string) => {
+    setGameParams({
+      ...gameParams,
+      companiesTickers: [...selectedIds, companyId],
+    });
   };
 
-  const onSubmit = async (e: any) => {
+  const handleRemove = (companyId: string) => {
+    setGameParams({
+      ...gameParams,
+      companiesTickers: selectedIds.filter((id) => id !== companyId),
+    });
+  };
+
+  const dateToDateString = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+  };
+
+  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setGameParams({ ...gameParams, [e.target.name]: Number(e.target.value) });
+  };
+
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const newGame = await createGame({
+    await createGame({
       startingBudget: gameParams.budget,
-      companiesTickets: gameParams.companiesTickets,
-      startDate: gameParams.startDate,
-      finishDate: gameParams.endDate,
-      companiesTickets: [],
-      startDate: startDate.toISOString().split('T')[0],
-      finishDate: finishDate.toISOString().split('T')[0],
+      companiesTickers: gameParams.companiesTickers,
+      startDate: dateToDateString(gameParams.startDate),
+      finishDate: dateToDateString(gameParams.endDate),
     });
 
     if (gameState.error) {
       alert('Nie udało się utworzyć gry: ' + gameState.error);
     } else {
       alert('Gra została utworzona!');
-      navigate('/portfolio');
+      navigate('/stocks-view');
     }
   };
 
@@ -73,7 +98,6 @@ export function GameParamsPage() {
           name="budget"
           size="lg"
           min={1}
-          type="number"
           onChange={onChange}
           id="validationCustom01"
           required
@@ -87,21 +111,13 @@ export function GameParamsPage() {
           onRemove={handleRemove}
         />
 
-        <MDBInput
-          type="number"
-          value={gameParams.startDate}
-          name="startDate"
-          size="lg"
-          type="date"
-          onChange={onChange}
-          id="validationCustom02"
-          required
-          label="Wybierz ile firm będzie dostępnych w ramach gry"
-        />
-
         <DatePicker
-          selected={startDate}
-          onChange={(date: Date | null) => setStartDate(date || new Date())}
+          selected={gameParams.startDate}
+          onChange={(date: Date | null) => {
+            if (date) {
+              setGameParams({ ...gameParams, startDate: date });
+            }
+          }}
           // Podstawa: włączenie dropdownów
           showMonthDropdown
           showYearDropdown
@@ -113,8 +129,12 @@ export function GameParamsPage() {
         />
 
         <DatePicker
-          selected={finishDate}
-          onChange={(date: Date | null) => setFinishDate(date || new Date())}
+          selected={gameParams.endDate}
+          onChange={(date: Date | null) => {
+            if (date) {
+              setGameParams({ ...gameParams, endDate: date });
+            }
+          }}
           // Podstawa: włączenie dropdownów
           showMonthDropdown
           showYearDropdown

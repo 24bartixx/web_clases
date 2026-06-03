@@ -2,7 +2,7 @@ import { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
 import { GameState, initialGameState } from '../types/GameState';
 import { apiUrl } from '../config/api';
-import { getUserSession } from './CookieData';
+import { auth_fetch } from '../utils/auth_fetch';
 import { mapSimulationDetailToGameState } from '../mappers/simulationMapper';
 import type { SimulationDetailResponse } from '../mappers/simulationMapper';
 
@@ -13,7 +13,7 @@ interface GameContextType {
 
 interface CreateGameParams {
   startingBudget: number;
-  companiesTickets: string[];
+  companiesTickers: string[];
   startDate: string;
   finishDate: string;
 }
@@ -21,12 +21,7 @@ interface CreateGameParams {
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
 export function GameProvider({ children }: { children: ReactNode }) {
-  const session = getUserSession();
   const [gameState, setGameState] = useState<GameState>(initialGameState);
-
-  if (!session) {
-    throw new Error('User is not logged in');
-  }
 
   const createGame = async (params: CreateGameParams) => {
     console.log('createGame', params);
@@ -38,7 +33,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }));
 
     try {
-      const response = await fetch(apiUrl('/simulation/'), {
+      const response = await auth_fetch(apiUrl('/simulation/'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -47,7 +42,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
           initial_balance: params.startingBudget,
           start_date: params.startDate || null,
           finish_date: params.finishDate || null,
-          user_id: session.user_id,
           stock_ids: [624, 794, 892, 923, 664],
         }),
       });

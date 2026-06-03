@@ -53,7 +53,7 @@ def get_simulation_detail(db: Session, simulation_id: int):
     return simulation
 
 
-def create_simulation(db: Session, simulation_data: SimulationCreate):
+def create_simulation(db: Session, simulation_data: SimulationCreate, user_id: int):
     _validate_stock_ids(db, simulation_data.stock_ids)
 
     create_data = simulation_data.model_dump(
@@ -64,6 +64,7 @@ def create_simulation(db: Session, simulation_data: SimulationCreate):
 
     create_data["current_balance"] = simulation_data.initial_balance
     create_data["current_date"] = simulation_data.start_date
+    create_data["user_id"] = user_id
 
     simulation = Simulation(
         **create_data
