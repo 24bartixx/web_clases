@@ -6,6 +6,8 @@ export type Stock = {
   industry: string;
 };
 
+export type StockMinimal = Pick<Stock, 'stockId' | 'ticker' | 'companyName'>;
+
 export type StockDto = {
     stock_id: number;
     ticker: string;
@@ -49,4 +51,3 @@ export const mapStockDetailsDtoToStockDetails = (detailsDto: StockDetailsDto): S
   currency: detailsDto.currency,
   website: detailsDto.website,
 });
-

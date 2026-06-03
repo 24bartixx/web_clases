@@ -1,3 +1,28 @@
 .dropdown-toggle:after {
   display: none;
 }
+
+.game-params-page .form-outline .form-label {
+  color: #fff;
+}
+
+.game-params-page .form-outline .form-control {
+  color: #fff;
+}
+
+.game-params-page .form-outline .form-control:focus ~ .form-label,
+.game-params-page .form-outline .form-control.active ~ .form-label {
+  color: #fff;
+}
+
+.selected-stock-badge {
+  background-color: var(--bs-primary);
+  color: var(--bs-primary-text-emphasis);
+}
+
+.selected-stock-badge__ticker {
+  border-left: 1px solid var(--bs-primary-text-emphasis);
+  color: var(--bs-primary-text-emphasis);
+  font-weight: 700;
+  padding-left: 0.5rem;
+}

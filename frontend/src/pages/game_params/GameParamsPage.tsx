@@ -1,6 +1,6 @@
 import { MDBBtn, MDBInput, MDBValidation } from 'mdb-react-ui-kit';
 import { CompanyMultiSelect } from './CompanyMultiSelect';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -8,50 +8,61 @@ import { registerLocale } from 'react-datepicker';
 import { pl } from 'date-fns/locale/pl';
 import { useGame } from '../../contexts/GameContext';
 import { useNavigate } from 'react-router-dom';
+import { getStocks } from '../../api/stocksApi';
+import type { StockMinimal } from '../../types';
 registerLocale('pl', pl);
 
 interface GameParams {
   budget: number;
   startDate: Date;
   endDate: Date;
-  companiesTickers: string[];
+  selectedStockIds: number[];
 }
 
 export function GameParamsPage() {
   const navigate = useNavigate();
 
   const { gameState, createGame } = useGame();
-
-  const ALL_COMPANIES = [
-    { id: '1', name: 'Apple Inc.' },
-    { id: '2', name: 'Microsoft' },
-    { id: '3', name: 'Google' },
-    { id: '4', name: 'Amazon' },
-    { id: '5', name: 'Tesla' },
-    { id: '6', name: 'Nvidia' },
-  ];
+  const [stocks, setStocks] = useState<StockMinimal[]>([]);
 
   const [gameParams, setGameParams] = useState<GameParams>({
     budget: 1000_000,
     startDate: new Date(2024, 0, 1),
     endDate: new Date(2026, 0, 1),
-    companiesTickers: [],
+    selectedStockIds: [],
   });
 
-  const selectedIds = gameParams.companiesTickers || [];
+  useEffect(() => {
+    const fetchStocks = async () => {
+      try {
+        const stocks = await getStocks({ limit: 500 });
+        setStocks(
+          stocks.map(({ stockId, ticker, companyName }) => ({
+            stockId,
+            ticker,
+            companyName,
+          })),
+        );
+      } catch (error) {
+        console.error('Failed to fetch stocks:', error);
+      }
+    };
 
-  const handleSelect = (companyId: string) => {
-    setGameParams({
-      ...gameParams,
-      companiesTickers: [...selectedIds, companyId],
-    });
+    fetchStocks();
+  }, []);
+
+  const handleSelect = (stockId: number) => {
+    setGameParams((params) => ({
+      ...params,
+      selectedStockIds: [...params.selectedStockIds, Number(stockId)],
+    }));
   };
 
-  const handleRemove = (companyId: string) => {
-    setGameParams({
-      ...gameParams,
-      companiesTickers: selectedIds.filter((id) => id !== companyId),
-    });
+  const handleRemove = (stockId: number) => {
+    setGameParams((params) => ({
+      ...params,
+      selectedStockIds: params.selectedStockIds.filter((id) => id !== stockId),
+    }));
   };
 
   const dateToDateString = (date: Date) => {
@@ -70,7 +81,7 @@ export function GameParamsPage() {
     e.preventDefault();
     await createGame({
       startingBudget: gameParams.budget,
-      companiesTickers: gameParams.companiesTickers,
+      stockIds: gameParams.selectedStockIds,
       startDate: dateToDateString(gameParams.startDate),
       finishDate: dateToDateString(gameParams.endDate),
     });
@@ -84,7 +95,7 @@ export function GameParamsPage() {
   };
 
   return (
-    <div className="container py-5">
+    <div className="container py-5 game-params-page">
       <h1>Nowa gra!</h1>
       <h4 className="mb-4">Ustal parametry rozgrywki</h4>
 
@@ -105,8 +116,8 @@ export function GameParamsPage() {
         />
 
         <CompanyMultiSelect
-          allCompanies={ALL_COMPANIES}
-          selectedIds={selectedIds}
+          allCompanies={stocks}
+          selectedIds={gameParams.selectedStockIds}
           onSelect={handleSelect}
           onRemove={handleRemove}
         />

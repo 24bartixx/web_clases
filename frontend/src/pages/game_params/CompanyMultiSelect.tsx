@@ -9,17 +9,13 @@ import {
   MDBInput,
 } from 'mdb-react-ui-kit';
 import './dropdown.css';
-
-export interface Company {
-  id: string;
-  name: string;
-}
+import { StockMinimal } from '../../types';
 
 interface CompanyMultiSelectProps {
-  allCompanies: Company[];
-  selectedIds: string[];
-  onSelect: (id: string) => void;
-  onRemove: (id: string) => void;
+  allCompanies: StockMinimal[];
+  selectedIds: number[];
+  onSelect: (id: number) => void;
+  onRemove: (id: number) => void;
 }
 
 export function CompanyMultiSelect({
@@ -32,31 +28,38 @@ export function CompanyMultiSelect({
 
   const filteredCompanies = allCompanies.filter(
     (company) =>
-      company.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      !selectedIds.includes(company.id),
+      company.companyName.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      !selectedIds.includes(company.stockId),
   );
 
   return (
     <div>
-      {selectedIds.map((id) => {
-        const company = allCompanies.find((c) => c.id === id);
-        return (
-          <MDBBadge
-            className="m-2 px-3"
-            key={id}
-            pill
-            style={{ cursor: 'pointer', userSelect: 'none' }}
-            onClick={(e: React.MouseEvent<HTMLElement>) => {
-              e.stopPropagation();
-              onRemove(id);
-            }}
-          >
-            {company?.name}
-            <MDBIcon fas size="sm" />
-          </MDBBadge>
-        );
-      })}
-      <MDBDropdown>
+      <div>
+        {selectedIds.map((id) => {
+          const company = allCompanies.find((c) => c.stockId === id);
+          return (
+            <MDBBadge
+              className="m-2 px-3 selected-stock-badge"
+              key={id}
+              pill
+              style={{ cursor: 'pointer', userSelect: 'none' }}
+              onClick={(e: React.MouseEvent<HTMLElement>) => {
+                e.stopPropagation();
+                onRemove(id);
+              }}
+            >
+              <span>{company?.companyName}</span>
+              {company?.ticker && (
+                <span className="ms-2 selected-stock-badge__ticker">
+                  {company.ticker}
+                </span>
+              )}
+              <MDBIcon fas size="sm" />
+            </MDBBadge>
+          );
+        })}
+      </div>
+      <MDBDropdown className="mt-2">
         {/* Zamieniamy domyślny <button> na <div> i usuwamy style przycisku */}
         <MDBDropdownToggle
           tag="div"
@@ -67,7 +70,9 @@ export function CompanyMultiSelect({
             label="Wyszukaj firmę..."
             type="text"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e: {
+              target: { value: React.SetStateAction<string> };
+            }) => setSearchTerm(e.target.value)}
             autoFocus
           />
         </MDBDropdownToggle>
@@ -78,13 +83,20 @@ export function CompanyMultiSelect({
               filteredCompanies.map((company) => (
                 <MDBDropdownItem
                   link
-                  key={company.id}
+                  key={company.stockId}
                   onClick={() => {
-                    onSelect(company.id);
+                    onSelect(company.stockId);
                     setSearchTerm('');
                   }}
                 >
-                  {company.name}
+                  <div className="d-flex justify-content-between align-items-center gap-3 w-100">
+                    <span>{company.companyName}</span>
+                    {company.ticker && (
+                      <span className="text-muted small ms-auto">
+                        {company.ticker}
+                      </span>
+                    )}
+                  </div>
                 </MDBDropdownItem>
               ))
             ) : (

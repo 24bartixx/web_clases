@@ -13,7 +13,7 @@ interface GameContextType {
 
 interface CreateGameParams {
   startingBudget: number;
-  companiesTickers: string[];
+  stockIds: number[];
   startDate: string;
   finishDate: string;
 }
@@ -42,7 +42,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
           initial_balance: params.startingBudget,
           start_date: params.startDate || null,
           finish_date: params.finishDate || null,
-          stock_ids: [624, 794, 892, 923, 664],
+          stock_ids: params.stockIds,
         }),
       });
 
