@@ -132,6 +132,7 @@ export function GameParamsPage() {
             }
           }}
           size="lg"
+          label="Data rozpoczęcia gry"
         />
 
         <MDBInput
@@ -144,6 +145,7 @@ export function GameParamsPage() {
             }
           }}
           size="lg"
+          label="Data zakończenia gry"
         />
 
         <div className="col-12">
