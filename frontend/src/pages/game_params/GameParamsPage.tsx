@@ -122,38 +122,28 @@ export function GameParamsPage() {
           onRemove={handleRemove}
         />
 
-        <DatePicker
-          selected={gameParams.startDate}
-          onChange={(date: Date | null) => {
-            if (date) {
+        <MDBInput
+          type="date"
+          value={dateToDateString(gameParams.startDate)}
+          onChange={(e) => {
+            const date = new Date(e.target.value);
+            if (!isNaN(date.getTime())) {
               setGameParams({ ...gameParams, startDate: date });
             }
           }}
-          // Podstawa: włączenie dropdownów
-          showMonthDropdown
-          showYearDropdown
-          // Dodatkowe usprawnienie: lata wyświetlają się w scrollowanej liście, a nie długim menu
-          dropdownMode="select"
-          // Opcjonalnie: zakres lat wstecz i w przód (np. 100 lat wstecz od teraz)
-          yearDropdownItemNumber={100}
-          dateFormat="dd/MM/yyyy"
+          size="lg"
         />
 
-        <DatePicker
-          selected={gameParams.endDate}
-          onChange={(date: Date | null) => {
-            if (date) {
+        <MDBInput
+          type="date"
+          value={dateToDateString(gameParams.endDate)}
+          onChange={(e) => {
+            const date = new Date(e.target.value);
+            if (!isNaN(date.getTime())) {
               setGameParams({ ...gameParams, endDate: date });
             }
           }}
-          // Podstawa: włączenie dropdownów
-          showMonthDropdown
-          showYearDropdown
-          // Dodatkowe usprawnienie: lata wyświetlają się w scrollowanej liście, a nie długim menu
-          dropdownMode="select"
-          // Opcjonalnie: zakres lat wstecz i w przód (np. 100 lat wstecz od teraz)
-          yearDropdownItemNumber={100}
-          dateFormat="dd/MM/yyyy"
+          size="lg"
         />
 
         <div className="col-12">
