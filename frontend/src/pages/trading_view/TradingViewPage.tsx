@@ -269,7 +269,7 @@ export function TradingViewPage() {
   }
 
   return (
-    <div className="container px-4 py-4 pb-4 border rounded-3 shadow-sm">
+    <div className="container px-4 py-4 pb-4 my-3 border rounded-3 shadow-sm">
       <MDBContainer className="d-flex flex-column gap-3">
         <div className="border-bottom">
           <MDBRow className="align-items-center justify-content-between ">

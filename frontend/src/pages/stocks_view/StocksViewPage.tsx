@@ -243,7 +243,7 @@ export function StocksViewPage() {
   }
 
   return (
-    <div className="container px-4 py-3 pb-4 border rounded-3 shadow-sm">
+    <div className="container px-4 py-3 pb-4 my-4 border rounded-3 shadow-sm">
       <MDBContainer className="d-flex flex-column gap-3">
         <MDBTable>
           <MDBTableHead>
@@ -270,38 +270,36 @@ export function StocksViewPage() {
               )}
           </MDBTableHead>
           <MDBTableBody>
-            {table
-              .getRowModel()
-              .rows.map(
-                (row: {
-                  id: Key | null | undefined;
-                  original: {
-                    volume: number;
-                    currentPrice: number;
-                    ticker: string;
-                    companyName: string;
-                    sector: string;
-                    industry: string;
-                    currency: string;
-                    priceChangePercent: number;
-                  };
-                }) => {
-                  return (
-                    <StockItemView
-                      key={row.id}
-                      onClick={handleClick}
-                      volume={row.original.volume}
-                      price={row.original.currentPrice}
-                      ticker={row.original.ticker}
-                      companyName={row.original.companyName}
-                      sector={row.original.sector}
-                      industry={row.original.industry}
-                      currency={row.original.currency}
-                      changePricePercent={row.original.priceChangePercent}
-                    />
-                  );
-                },
-              )}
+            {table.getRowModel().rows.map(
+              (row: {
+                id: Key | null | undefined;
+                original: {
+                  volume: number;
+                  currentPrice: number;
+                  ticker: string;
+                  companyName: string;
+                  sector: string;
+                  industry: string;
+                  currency: string;
+                  priceChangePercent: number;
+                };
+              }) => {
+                return (
+                  <StockItemView
+                    key={row.id}
+                    onClick={handleClick}
+                    volume={row.original.volume}
+                    price={row.original.currentPrice}
+                    ticker={row.original.ticker}
+                    companyName={row.original.companyName}
+                    sector={row.original.sector}
+                    industry={row.original.industry}
+                    currency={row.original.currency}
+                    changePricePercent={row.original.priceChangePercent}
+                  />
+                );
+              },
+            )}
           </MDBTableBody>
         </MDBTable>
       </MDBContainer>

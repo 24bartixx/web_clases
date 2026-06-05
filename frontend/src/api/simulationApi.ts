@@ -50,3 +50,24 @@ export async function getSimulation(
 
   return response.json();
 }
+
+export async function updateSimulationCurrentDate(
+  simulationId: number,
+  currentDate: string,
+): Promise<void> {
+  const response = await auth_fetch(apiUrl(`/simulation/${simulationId}`), {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      current_date: currentDate,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      await readErrorMessage(response, 'Failed to update simulation date'),
+    );
+  }
+}

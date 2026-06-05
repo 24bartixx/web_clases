@@ -47,8 +47,10 @@ export const mapSimulationDetailToGameState = (
 ): GameState => ({
   simulationId: simulation.simulation_id,
   status: 'ready',
+  initialBalance: Number(simulation.initial_balance),
   currentBalance: Number(simulation.current_balance),
   startDate: simulation.start_date,
+  currentDate: simulation.current_date,
   finishDate: simulation.finish_date,
   stockPositions: simulation.positions.map((position) => ({
     positionId: position.position_id,

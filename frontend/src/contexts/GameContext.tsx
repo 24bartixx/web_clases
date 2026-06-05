@@ -3,12 +3,17 @@ import type { ReactNode } from 'react';
 import { GameState, initialGameState } from '../types/GameState';
 import { mapSimulationDetailToGameState } from '../mappers/simulationMapper';
 import { createTransaction } from '../api/transactionsApi';
-import { createSimulation, getSimulation } from '../api/simulationApi';
+import {
+  createSimulation,
+  getSimulation,
+  updateSimulationCurrentDate,
+} from '../api/simulationApi';
 
 interface GameContextType {
   gameState: GameState;
   createGame: (params: CreateGameParams) => Promise<void>;
   makeTransaction: (params: MakeTransactionParams) => Promise<void>;
+  advanceTurn: (days: number) => Promise<void>;
 }
 
 interface CreateGameParams {
@@ -27,6 +32,19 @@ interface MakeTransactionParams {
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
+
+const parseDateOnly = (dateValue: string) => {
+  const [year, month, day] = dateValue.slice(0, 10).split('-').map(Number);
+  return new Date(year, month - 1, day);
+};
+
+const toDateOnlyString = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+};
 
 export function GameProvider({ children }: { children: ReactNode }) {
   const [gameState, setGameState] = useState<GameState>(initialGameState);
@@ -104,8 +122,63 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const advanceTurn = async (days: number) => {
+    const simulationId = gameState.simulationId;
+    const currentDate = gameState.currentDate ?? gameState.startDate;
+
+    if (simulationId === null || currentDate === null) {
+      setGameState((currentGameState) => ({
+        ...currentGameState,
+        status: 'error',
+        error: 'Cannot advance turn before game is created',
+      }));
+      return;
+    }
+
+    const daysToAdvance = Math.max(1, Math.trunc(days));
+    const nextDate = parseDateOnly(currentDate);
+    nextDate.setDate(nextDate.getDate() + daysToAdvance);
+
+    if (gameState.finishDate !== null) {
+      const finishDate = parseDateOnly(gameState.finishDate);
+      if (nextDate > finishDate) {
+        nextDate.setTime(finishDate.getTime());
+      }
+    }
+
+    setGameState((currentGameState) => ({
+      ...currentGameState,
+      status: 'loading',
+      error: null,
+    }));
+
+    try {
+      await updateSimulationCurrentDate(simulationId, toDateOnlyString(nextDate));
+
+      const simulation = await getSimulation(simulationId);
+      const updatedGameState = mapSimulationDetailToGameState(simulation);
+
+      setGameState((currentGameState) => ({
+        ...updatedGameState,
+        pricesByStockId: currentGameState.pricesByStockId,
+      }));
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to advance turn';
+
+      console.error('Failed to advance turn', error);
+      setGameState((currentGameState) => ({
+        ...currentGameState,
+        status: 'error',
+        error: errorMessage,
+      }));
+    }
+  };
+
   return (
-    <GameContext.Provider value={{ gameState, createGame, makeTransaction }}>
+    <GameContext.Provider
+      value={{ gameState, createGame, makeTransaction, advanceTurn }}
+    >
       {children}
     </GameContext.Provider>
   );
