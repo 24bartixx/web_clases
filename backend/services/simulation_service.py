@@ -1,13 +1,15 @@
 from datetime import datetime
 
 from fastapi import HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, selectinload
 
 from models.position import Position
 from models.simulation import Simulation
+from models.simulation_history import SimulationHistory
 from models.stock import Stock
+from models.summary import Summary
 from models.transaction import Transaction
 from schemas.simulation_schema import SimulationCreate, SimulationUpdate
 
@@ -155,6 +157,9 @@ def update_simulation(
 
 def delete_simulation(db: Session, simulation_id: int):
     simulation = get_simulation(db, simulation_id)
+
+    _delete_simulation_related_records(db, simulation_id)
+
     db.delete(simulation)
 
     try:
@@ -165,3 +170,31 @@ def delete_simulation(db: Session, simulation_id: int):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Could not delete simulation because related records exist.",
         ) from exc
+
+
+def delete_simulations(db: Session):
+    try:
+        _delete_simulation_related_records(db)
+        result = db.execute(delete(Simulation))
+        db.commit()
+    except IntegrityError as exc:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Could not delete simulations because related records exist.",
+        ) from exc
+
+    return {"deleted_count": result.rowcount or 0}
+
+
+def _delete_simulation_related_records(
+    db: Session,
+    simulation_id: int | None = None,
+):
+    for model in (SimulationHistory, Summary, Transaction, Position):
+        statement = delete(model)
+
+        if simulation_id is not None:
+            statement = statement.where(model.simulation_id == simulation_id)
+
+        db.execute(statement)
