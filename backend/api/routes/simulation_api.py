@@ -60,6 +60,13 @@ def update_simulation(
     return simulation_service.update_simulation(db, simulation_id, simulation_data)
 
 
+@router.delete("/")
+def delete_simulations(
+    db: Session = Depends(get_db),
+):
+    return simulation_service.delete_simulations(db)
+
+
 @router.delete("/{simulation_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_simulation(
     simulation_id: int,
