@@ -7,11 +7,16 @@ import { GameParamsPage } from '../pages/game_params/GameParamsPage';
 import { GameProvider } from '../contexts/GameContext';
 import { GameProviderLayout } from '../layouts/GameProviderLayout';
 import { StocksViewPage } from '../pages/stocks_view/StocksViewPage';
+import { AuthCallback } from '../pages/login/AuthCallback';
 
 export const router = createBrowserRouter([
   {
     path: '/login',
     element: <LoginPage />,
+  },
+  {
+    path: '/auth/callback/:provider', // :provider obsłuży zarówno 'google' jak i 'github'
+    element: <AuthCallback />,
   },
   {
     path: '/',

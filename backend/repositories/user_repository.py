@@ -10,13 +10,15 @@ def get_users(db: Session, skip: int = 0, limit: int = 100):
 def get_user_by_id(db: Session, user_id: int):
     return db.get(User, user_id)
 
-def get_user_by_google_id(db: Session, google_id: str):
-    statement = select(User).where(User.google_id == google_id)
+# Zmienione z get_user_by_google_id na uniwersalne oauth_id
+def get_user_by_oauth_id(db: Session, oauth_id: str):
+    statement = select(User).where(User.oauth_id == oauth_id)
     return db.scalars(statement).one_or_none()
 
 def create_user(db: Session, user: UserCreate):
     user_db = User(
-        google_id=user.google_id,
+        email=user.email,              # Nowe pole!
+        oauth_id=user.oauth_id,        # Zmienione z google_id
         first_name=user.first_name,
         last_name=user.last_name,
         picture=user.picture,
@@ -31,8 +33,11 @@ def update_user(db: Session, user_id: int, user: UserUpdate):
     if not user_db:
         return None
 
-    if user.google_id is not None:
-        user_db.google_id = user.google_id
+    # Zmienione warunki dopasowane do nowych pól
+    if user.email is not None:
+        user_db.email = user.email
+    if user.oauth_id is not None:
+        user_db.oauth_id = user.oauth_id
     if user.first_name is not None:
         user_db.first_name = user.first_name
     if user.last_name is not None:
@@ -53,10 +58,3 @@ def delete_user(db: Session, user_id: int):
 def delete_users(db: Session):
     result = db.execute(delete(User))
     return result.rowcount or 0
-
-def login_user(db: Session, google_id: str, access_token: str):
-    user = get_user_by_google_id(db, google_id)
-    if user:
-        db.flush()
-        return user
-    return None
