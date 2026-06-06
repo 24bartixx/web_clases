@@ -35,14 +35,14 @@ export function PreviousGame({ simulation }: PreviousGameProps) {
 
       <div className="d-flex flex-column">
         <div className="fw-bold">
-          Rozgrywka 05.05.2026 - Steam, Amazon, Google, Microsoft, Pepsi
+          Game 05.05.2026 - Steam, Amazon, Google, Microsoft, Pepsi
         </div>
         <span className="text-muted" style={{ fontSize: '10px' }}>
-          Liczba transakcji: 123
+          Transactions: 123
         </span>
         <span className="text-muted" style={{ fontSize: '10px' }}>
-          Przedział czasowy: {simulation.startDate} -{' '}
-          {simulation.finishedAt ?? 'w trakcie'}
+          Date range: {simulation.startDate} -{' '}
+          {simulation.finishedAt ?? 'in progress'}
         </span>
       </div>
       <div className="flex-grow-1"></div>

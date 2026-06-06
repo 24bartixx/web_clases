@@ -60,14 +60,14 @@ export function CompanyMultiSelect({
         })}
       </div>
       <MDBDropdown className="mt-2">
-        {/* Zamieniamy domyślny <button> na <div> i usuwamy style przycisku */}
+        {/* Replace the default <button> with a <div> and remove button styling. */}
         <MDBDropdownToggle
           tag="div"
           className="bg-transparent shadow-none p-0 border-0 hide-dropdown-caret"
-          style={{ cursor: 'text' }} // Zmienia kursor, żeby nie wyglądał jak przycisk
+          style={{ cursor: 'text' }}
         >
           <MDBInput
-            label="Wyszukaj firmę..."
+            label="Search company..."
             type="text"
             value={searchTerm}
             onChange={(e: {
@@ -101,7 +101,7 @@ export function CompanyMultiSelect({
               ))
             ) : (
               <div className="text-muted text-center p-2 small">
-                Brak pasujących firm
+                No matching companies
               </div>
             )}
           </div>
