@@ -14,7 +14,7 @@ import { TimeUnit, TradingChart, TradingChartPeriod } from './TradingChart';
 import stockImg from '../../assets/stock-30.png';
 import moneyImg from '../../assets/money-30.png';
 import { AmountInput } from './AmountInput';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Controller, useForm } from 'react-hook-form';
 import { CompanyDetailsModal } from './stockDetailsModal';
@@ -31,7 +31,12 @@ import {
 } from '../../types';
 import { InfoModal } from '../../components/InfoModal';
 import { apiUrl } from '../../utils/apiUrl';
-import { addDaysToDateOnly, calculatePriceMetrics, toDateOnly } from '../../utils';
+import {
+  addDaysToDateOnly,
+  addMonthsToDateOnly,
+  calculatePriceMetrics,
+  toDateOnly,
+} from '../../utils';
 import { useGame } from '../../contexts/GameContext';
 
 enum TradeSideKey {
@@ -64,6 +69,42 @@ interface SellOrBuyForm {
   total: number;
 }
 
+const getOldestPriceDate = (prices: Price[]): string | null => {
+  if (prices.length === 0) {
+    return null;
+  }
+
+  return prices.reduce<string | null>((oldestDate, price) => {
+    const priceDate = toDateOnly(price.priceDate);
+
+    if (priceDate === null) {
+      return oldestDate;
+    }
+
+    return oldestDate === null || priceDate < oldestDate
+      ? priceDate
+      : oldestDate;
+  }, null);
+};
+
+const mergePriceRanges = (currentPrices: Price[], newPrices: Price[]) => {
+  const pricesByDate = new Map<string, Price>();
+
+  [...newPrices, ...currentPrices].forEach((price) => {
+    const priceDate = toDateOnly(price.priceDate);
+
+    if (priceDate !== null) {
+      pricesByDate.set(priceDate, price);
+    }
+  });
+
+  return Array.from(pricesByDate.values()).sort((left, right) => {
+    const leftDate = toDateOnly(left.priceDate) ?? '';
+    const rightDate = toDateOnly(right.priceDate) ?? '';
+    return leftDate.localeCompare(rightDate);
+  });
+};
+
 export function TradingViewPage() {
   // prettier-ignore
   const [activeTradeSide, setActiveTradeSide] = useState<TradeSideKey>(TradeSideKey.Buy,);
@@ -81,13 +122,31 @@ export function TradingViewPage() {
   const [stock, setStock] = useState<Stock | null>(null);
   const [stockDetails, setStockDetails] = useState<StockDetails | null>(null);
   const [priceRange, setPriceRange] = useState<Price[] | null>(null);
+  const [oldestFetchedDate, setOldestFetchedDate] = useState<string | null>(null);
+  const [hasFetchedAllBack, setHasFetchedAllBack] = useState(false);
+  const isFetchingOlderPricesRef = useRef(false);
+  const olderPriceFetchKeyRef = useRef<string | null>(null);
 
   const simulationDate = gameState.currentDate ?? gameState.startDate;
   const simulationDateOnly = toDateOnly(simulationDate);
-  const simulationStartDateOnly = toDateOnly(gameState.startDate) ?? simulationDateOnly;
-  const priceFinishDateOnly = simulationDateOnly
-    ? addDaysToDateOnly(simulationDateOnly, 1)
+  const priceStartDateOnly = simulationDateOnly
+    ? addMonthsToDateOnly(simulationDateOnly, -2)
     : null;
+  const priceFinishDateOnly = useMemo(() => {
+    if (simulationDateOnly === null) {
+      return null;
+    }
+
+    const futureTradingDates = gameState.tradingDates.filter(
+      (tradingDate) => tradingDate > simulationDateOnly,
+    );
+    const targetDate =
+      futureTradingDates[4] ??
+      futureTradingDates[futureTradingDates.length - 1] ??
+      simulationDateOnly;
+
+    return addDaysToDateOnly(targetDate, 1);
+  }, [gameState.tradingDates, simulationDateOnly]);
 
   const buyForm = useForm<SellOrBuyForm>({
     defaultValues: {
@@ -127,7 +186,7 @@ export function TradingViewPage() {
           !cleanTicker ||
           !simulationDate ||
           !simulationDateOnly ||
-          !simulationStartDateOnly ||
+          !priceStartDateOnly ||
           !priceFinishDateOnly
         ) {
           throw new Error('Simulation is not loaded');
@@ -152,7 +211,7 @@ export function TradingViewPage() {
 
         const priceResponse = await fetch(
           apiUrl(
-            `/api/stocks/${cleanTicker}/prices?start=${simulationStartDateOnly}&finish=${priceFinishDateOnly}&interval=1d`,
+            `/api/stocks/${cleanTicker}/prices?start=${priceStartDateOnly}&finish=${priceFinishDateOnly}&interval=1d`,
           ),
         );
 
@@ -162,11 +221,17 @@ export function TradingViewPage() {
 
         const priceRangeData: PriceDto[] = await priceResponse.json();
 
+        const mappedPrices = priceRangeData.map((priceDto) =>
+          mapPriceDtoToPrice(priceDto),
+        );
+
+        olderPriceFetchKeyRef.current = null;
+        isFetchingOlderPricesRef.current = false;
+        setHasFetchedAllBack(mappedPrices.length === 0);
+        setOldestFetchedDate(getOldestPriceDate(mappedPrices));
         setStock(mapStockDtoToStock(stockData));
         setStockDetails(mapStockDetailsDtoToStockDetails(detailsData));
-        setPriceRange(
-          priceRangeData.map((priceDto) => mapPriceDtoToPrice(priceDto)),
-        );
+        setPriceRange(mappedPrices);
       } catch (err: any) {
         setError(err.message || 'Unknown error');
       } finally {
@@ -178,9 +243,92 @@ export function TradingViewPage() {
   }, [
     cleanTicker,
     priceFinishDateOnly,
+    priceStartDateOnly,
     simulationDate,
     simulationDateOnly,
-    simulationStartDateOnly,
+  ]);
+
+  useEffect(() => {
+    if (
+      !cleanTicker ||
+      oldestFetchedDate === null ||
+      hasFetchedAllBack ||
+      isFetchingOlderPricesRef.current
+    ) {
+      return;
+    }
+
+    const fetchKey = `${cleanTicker}:${oldestFetchedDate}`;
+
+    if (olderPriceFetchKeyRef.current === fetchKey) {
+      return;
+    }
+
+    let isCancelled = false;
+    olderPriceFetchKeyRef.current = fetchKey;
+    isFetchingOlderPricesRef.current = true;
+
+    const loadOlderPrices = async () => {
+      try {
+        const nextStartDate = addMonthsToDateOnly(oldestFetchedDate, -2);
+        const response = await fetch(
+          apiUrl(
+            `/api/stocks/${cleanTicker}/prices?start=${nextStartDate}&finish=${oldestFetchedDate}&interval=1d`,
+          ),
+        );
+
+        if (!response.ok) {
+          throw new Error(`Status: ${response.status}`);
+        }
+
+        const priceRangeData: PriceDto[] = await response.json();
+        const olderPrices = priceRangeData.map((priceDto) =>
+          mapPriceDtoToPrice(priceDto),
+        );
+
+        if (isCancelled) {
+          return;
+        }
+
+        if (olderPrices.length === 0) {
+          setHasFetchedAllBack(true);
+          return;
+        }
+
+        setPriceRange((currentPrices) => {
+          const mergedPrices = mergePriceRanges(currentPrices ?? [], olderPrices);
+          const nextOldestDate = getOldestPriceDate(mergedPrices);
+
+          if (nextOldestDate === oldestFetchedDate) {
+            setHasFetchedAllBack(true);
+          } else {
+            setOldestFetchedDate(nextOldestDate);
+          }
+
+          return mergedPrices;
+        });
+      } catch (err) {
+        console.error(`Failed to load older prices for ${cleanTicker}`, err);
+
+        if (!isCancelled) {
+          setHasFetchedAllBack(true);
+        }
+      } finally {
+        if (!isCancelled) {
+          isFetchingOlderPricesRef.current = false;
+        }
+      }
+    };
+
+    loadOlderPrices();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [
+    cleanTicker,
+    hasFetchedAllBack,
+    oldestFetchedDate,
   ]);
 
   const currentPriceIndex = useMemo(() => {
@@ -192,7 +340,23 @@ export function TradingViewPage() {
       (price) => toDateOnly(price.priceDate) === simulationDateOnly,
     );
 
-    return exactIndex >= 0 ? exactIndex : priceRange.length - 1;
+    if (exactIndex >= 0) {
+      return exactIndex;
+    }
+
+    for (let index = priceRange.length - 1; index >= 0; index -= 1) {
+      const priceDate = toDateOnly(priceRange[index].priceDate);
+
+      if (
+        priceDate !== null &&
+        simulationDateOnly !== null &&
+        priceDate <= simulationDateOnly
+      ) {
+        return index;
+      }
+    }
+
+    return -1;
   }, [priceRange, simulationDateOnly]);
 
   const todayPrice: number =
@@ -206,6 +370,32 @@ export function TradingViewPage() {
 
   const { currentPrice, priceChange, priceChangePercent } =
     calculatePriceMetrics(todayPrice, yesterdayPrice);
+
+  const visiblePriceRange = useMemo(() => {
+    if (!priceRange || simulationDateOnly === null) {
+      return [];
+    }
+
+    return priceRange
+      .filter((price) => {
+        const priceDate = toDateOnly(price.priceDate);
+        return priceDate !== null && priceDate <= simulationDateOnly;
+      })
+      .map((price) => {
+        const priceDate = toDateOnly(price.priceDate);
+
+        if (priceDate !== simulationDateOnly) {
+          return price;
+        }
+
+        return {
+          ...price,
+          high: price.open,
+          low: price.open,
+          close: price.open,
+        };
+      });
+  }, [priceRange, simulationDateOnly]);
 
   const buyAmount = buyForm.watch('amount');
   const buyTotal = buyForm.watch('total');
@@ -368,7 +558,7 @@ export function TradingViewPage() {
               <div className="border rounded-3 shadow-sm p-3">
                 <TradingChart
                   style={{ height: '70vh' }}
-                  priceRange={priceRange}
+                  priceRange={visiblePriceRange}
                   period={periods[activePeriod]}
                 />
               </div>

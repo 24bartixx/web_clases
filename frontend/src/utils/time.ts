@@ -29,3 +29,17 @@ export const addDaysToDateOnly = (dateOnly: string, days: number): string => {
   date.setUTCDate(date.getUTCDate() + days);
   return date.toISOString().slice(0, 10);
 };
+
+export const addMonthsToDateOnly = (dateOnly: string, months: number): string => {
+  const [year, month, day] = dateOnly.split('-').map(Number);
+  const targetMonthStart = new Date(Date.UTC(year, month - 1 + months, 1));
+  const targetYear = targetMonthStart.getUTCFullYear();
+  const targetMonth = targetMonthStart.getUTCMonth();
+  const lastTargetMonthDay = new Date(
+    Date.UTC(targetYear, targetMonth + 1, 0),
+  ).getUTCDate();
+  const date = new Date(
+    Date.UTC(targetYear, targetMonth, Math.min(day, lastTargetMonthDay)),
+  );
+  return date.toISOString().slice(0, 10);
+};
