@@ -15,7 +15,7 @@ export function PreviousGame({ simulation }: PreviousGameProps) {
       return;
     }
 
-    navigate('/summary');
+    navigate(`/game/${simulation.id}/summary`);
   };
 
   return (

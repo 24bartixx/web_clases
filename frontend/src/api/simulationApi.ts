@@ -74,3 +74,20 @@ export async function advanceSimulationTurn(
 
   return response.json();
 }
+
+export async function finishSimulation(
+  simulationId: number,
+  finishedAt: string,
+): Promise<void> {
+  const response = await auth_fetch(apiUrl(`/simulation/${simulationId}`), {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ finished_at: finishedAt }),
+  });
+
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response, 'Failed to finish simulation'));
+  }
+}

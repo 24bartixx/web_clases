@@ -7,6 +7,7 @@ import { GameParamsPage } from '../pages/game_params/GameParamsPage';
 import { GameProviderLayout } from '../layouts/GameProviderLayout';
 import { StocksViewPage } from '../pages/stocks_view/StocksViewPage';
 import { GameProcessLayout } from '../layouts/GameProcessLayout';
+import { SummaryPage } from '../pages/summary/SummaryPage';
 import { AuthCallback } from '../pages/login/AuthCallback';
 
 export const router = createBrowserRouter([
@@ -32,6 +33,10 @@ export const router = createBrowserRouter([
       {
         path: '/game',
         element: <Navigate to="/" replace />,
+      },
+      {
+        path: '/game/:simulationId/summary',
+        element: <SummaryPage />,
       },
       {
         path: '/game/:simulationId',

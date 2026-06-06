@@ -69,6 +69,7 @@ export const mapSimulationDetailToGameState = (
   startDate: simulation.start_date,
   currentDate: simulation.current_date,
   finishDate: simulation.finish_date,
+  finishedAt: simulation.finished_at,
   tradingDates: simulation.trading_dates,
   stockPositions: simulation.positions.map((position) => ({
     positionId: position.position_id,

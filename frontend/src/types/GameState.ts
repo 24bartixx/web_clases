@@ -13,6 +13,7 @@ export type GameState = {
   startDate: string | null;
   currentDate: string | null;
   finishDate: string | null;
+  finishedAt: string | null;
   tradingDates: string[];
   stockPositions: StockPosition[] | null;
   pricesByStockId: Record<number, Price[]>;
@@ -29,6 +30,7 @@ export const initialGameState: GameState = {
   startDate: null,
   currentDate: null,
   finishDate: null,
+  finishedAt: null,
   tradingDates: [],
   stockPositions: null,
   pricesByStockId: {},

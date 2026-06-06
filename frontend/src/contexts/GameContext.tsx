@@ -7,6 +7,7 @@ import { createTransaction } from '../api/transactionsApi';
 import {
   advanceSimulationTurn,
   createSimulation,
+  finishSimulation,
   getSimulation,
 } from '../api/simulationApi';
 
@@ -16,6 +17,7 @@ interface GameContextType {
   resumeGame: (simulationId: number) => Promise<void>;
   makeTransaction: (params: MakeTransactionParams) => Promise<void>;
   advanceTurn: (days: number) => Promise<void>;
+  finishGame: () => Promise<void>;
 }
 
 interface CreateGameParams {
@@ -177,9 +179,52 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const finishGame = async () => {
+    const simulationId = gameState.simulationId;
+
+    if (simulationId === null) {
+      setGameState((currentGameState) => ({
+        ...currentGameState,
+        status: 'error',
+        error: 'Cannot finish game before game is created',
+      }));
+      return;
+    }
+
+    try {
+      await finishSimulation(simulationId, new Date().toISOString());
+      const simulation = await getSimulation(simulationId);
+      const updatedGameState = mapSimulationDetailToGameState(simulation);
+
+      setGameState((currentGameState) => ({
+        ...updatedGameState,
+        pricesByStockId: currentGameState.pricesByStockId,
+      }));
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to finish game';
+
+      console.error('Failed to finish game', error);
+      setGameState((currentGameState) => ({
+        ...currentGameState,
+        status: 'error',
+        error: errorMessage,
+      }));
+
+      throw error;
+    }
+  };
+
   return (
     <GameContext.Provider
-      value={{ gameState, createGame, resumeGame, makeTransaction, advanceTurn }}
+      value={{
+        gameState,
+        createGame,
+        resumeGame,
+        makeTransaction,
+        advanceTurn,
+        finishGame,
+      }}
     >
       {children}
     </GameContext.Provider>

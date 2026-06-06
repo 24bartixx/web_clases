@@ -48,6 +48,13 @@ export function GameProcessLayout() {
     );
   }
 
+  if (
+    isLoadedSimulation &&
+    gameState.finishedAt !== null
+  ) {
+    return <Navigate to={`/game/${parsedSimulationId}/summary`} replace />;
+  }
+
   return (
     <>
       <GameMenu />

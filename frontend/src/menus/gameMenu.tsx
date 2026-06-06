@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ChangeEvent } from 'react';
 import { MDBTypography } from 'mdb-react-ui-kit';
 import { useNavigate } from 'react-router-dom';
@@ -36,7 +36,7 @@ const formatDate = (dateValue: string | null) => {
 };
 
 export function GameMenu() {
-  const { gameState, advanceTurn } = useGame();
+  const { gameState, advanceTurn, finishGame } = useGame();
   const navigate = useNavigate();
   const [daysToAdvance, setDaysToAdvance] = useState(1);
   const isAdvancingRef = useRef(false);
@@ -52,34 +52,67 @@ export function GameMenu() {
       : (profitLoss / gameState.initialBalance) * 100;
 
   const isGameReady = gameState.simulationId !== null;
-  const isAtFinish =
-    gameState.currentDate !== null &&
-    gameState.finishDate !== null &&
-    parseDateOnly(gameState.currentDate) >= parseDateOnly(gameState.finishDate);
-  const canAdvance = isGameReady && !isAtFinish;
+  const remainingTradingDates = useMemo(() => {
+    if (gameState.currentDate === null) {
+      return [];
+    }
+
+    const currentDate = gameState.currentDate.slice(0, 10);
+
+    return gameState.tradingDates.filter((tradingDate) => {
+      if (tradingDate <= currentDate) {
+        return false;
+      }
+
+      if (gameState.finishDate === null) {
+        return true;
+      }
+
+      return tradingDate <= gameState.finishDate.slice(0, 10);
+    });
+  }, [gameState.currentDate, gameState.finishDate, gameState.tradingDates]);
+  const remainingTradingDateCount = remainingTradingDates.length;
+  const maxDaysToAdvance =
+    gameState.currentDate !== null ? remainingTradingDateCount + 1 : 0;
+  const canAdvance = isGameReady && maxDaysToAdvance > 0;
+  const isFinishSelected = canAdvance && daysToAdvance >= maxDaysToAdvance;
   const profitLossClass =
     profitLoss === null || profitLoss >= 0
       ? 'text-price-up'
       : 'text-price-down';
   const displayedDate = gameState.currentDate ?? gameState.startDate;
   const nextRoundLabel = useMemo(() => {
-    if (gameState.currentDate === null) {
+    if (maxDaysToAdvance === 0) {
       return '--';
     }
 
-    const currentDate = gameState.currentDate.slice(0, 10);
-    const tradingDates = gameState.tradingDates.filter(
-      (tradingDate) => tradingDate > currentDate,
+    const daysToSkip = Math.min(
+      remainingTradingDateCount,
+      Math.max(1, Math.trunc(daysToAdvance)),
     );
-    const daysToSkip = Math.max(1, Math.trunc(daysToAdvance));
-    const targetTradingDate = tradingDates[daysToSkip - 1];
+    const targetTradingDate = remainingTradingDates[daysToSkip - 1];
 
     if (targetTradingDate === undefined) {
       return '--';
     }
 
     return formatDate(targetTradingDate);
-  }, [daysToAdvance, gameState.currentDate, gameState.tradingDates]);
+  }, [
+    daysToAdvance,
+    maxDaysToAdvance,
+    remainingTradingDateCount,
+    remainingTradingDates,
+  ]);
+
+  useEffect(() => {
+    if (maxDaysToAdvance === 0) {
+      return;
+    }
+
+    setDaysToAdvance((currentDaysToAdvance) =>
+      Math.min(maxDaysToAdvance, Math.max(1, Math.trunc(currentDaysToAdvance))),
+    );
+  }, [maxDaysToAdvance]);
 
   const handleNextTurn = async () => {
     if (!canAdvance || isAdvancingRef.current) {
@@ -89,7 +122,13 @@ export function GameMenu() {
     isAdvancingRef.current = true;
 
     try {
-      await advanceTurn(daysToAdvance);
+      if (isFinishSelected && gameState.simulationId !== null) {
+        await finishGame();
+        navigate(`/game/${gameState.simulationId}/summary`);
+        return;
+      }
+
+      await advanceTurn(Math.min(daysToAdvance, maxDaysToAdvance));
     } finally {
       isAdvancingRef.current = false;
     }
@@ -98,7 +137,18 @@ export function GameMenu() {
   const handleDaysChange = (event: ChangeEvent<HTMLInputElement>) => {
     const value = Number(event.target.value);
 
-    setDaysToAdvance(Number.isFinite(value) ? Math.max(1, value) : 1);
+    if (!Number.isFinite(value)) {
+      setDaysToAdvance(1);
+      return;
+    }
+
+    const normalizedValue = Math.max(1, Math.trunc(value));
+    const clampedValue =
+      maxDaysToAdvance > 0
+        ? Math.min(maxDaysToAdvance, normalizedValue)
+        : normalizedValue;
+
+    setDaysToAdvance(clampedValue);
   };
 
   return (
@@ -194,21 +244,22 @@ export function GameMenu() {
                     id="next-turn-days"
                     type="number"
                     min={1}
+                    max={maxDaysToAdvance || 1}
                     step={1}
                     value={daysToAdvance}
                     onChange={handleDaysChange}
                     className="form-control form-control-sm text-center"
                     style={{ width: 64 }}
-                    disabled={!isGameReady}
+                    disabled={!canAdvance}
                   />
                   <span className="small text-muted pr-4">days</span>
                   <button
                     type="button"
-                    className="ms-auto inline-flex items-center gap-2 rounded-md border border-white/40 bg-white/[0.03] px-3 py-1 text-sm font-medium text-gray-100 transition hover:border-white/70 hover:bg-white/10 disabled:border-gray-600 disabled:text-gray-500 disabled:opacity-70"
+                    className="ms-auto inline-flex min-w-[100px] items-center justify-center gap-2 rounded-md border border-white/40 bg-white/[0.03] px-2 py-1 text-sm font-medium text-gray-100 transition hover:border-white/70 hover:bg-white/10 disabled:border-gray-600 disabled:text-gray-500 disabled:opacity-70"
                     onClick={handleNextTurn}
                     disabled={!canAdvance}
                   >
-                    <span>Next</span>
+                    <span>{isFinishSelected ? 'Finish' : 'Next'}</span>
                     <span
                       aria-hidden="true"
                       style={{
