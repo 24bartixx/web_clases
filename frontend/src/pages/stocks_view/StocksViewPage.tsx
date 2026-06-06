@@ -1,26 +1,12 @@
 import {
-  MDBBtn,
-  MDBCol,
   MDBContainer,
   MDBIcon,
-  MDBRow,
   MDBSpinner,
   MDBTable,
   MDBTableBody,
   MDBTableHead,
-  MDBTypography,
 } from 'mdb-react-ui-kit';
-import {
-  mapPriceDtoToPrice,
-  mapStockDetailsDtoToStockDetails,
-  mapStockDtoToStock,
-  Price,
-  PriceDto,
-  Stock,
-  StockDetails,
-  StockDetailsDto,
-  StockDto,
-} from '../../types';
+import { Stock, StockDetails } from '../../types';
 
 import {
   useReactTable,
@@ -34,41 +20,21 @@ import { StockItemView } from './StockItemView';
 import { useLocation, useNavigate } from 'react-router';
 import { Key, useEffect, useMemo } from 'react';
 import { InfoModal } from '../../components/InfoModal';
-import {
-  addDaysToDateOnly,
-  calculatePriceMetrics,
-  PriceMetrics,
-  toDateOnly,
-} from '../../utils';
-import { useQuery } from '@tanstack/react-query';
+import { PriceMetrics } from '../../utils';
 import { useGame } from '../../contexts/GameContext';
-import { apiUrl } from '../../utils/apiUrl';
 
 // prettier-ignore
 type RowData = Stock &StockDetails & PriceMetrics & { volume: number };
-type FinancialData = {
-  stocks: Stock[];
-  stocksDetails: Record<Stock['ticker'], StockDetails>;
-  pricesRange: Record<Stock['ticker'], Price[]>;
-};
-// prettier-ignore
-const getPricesFromRange = (priceRange: Price[] | undefined): { todayPrice: Price | undefined; yesterdayPrice: Price | undefined } => {
-  if (!priceRange || priceRange.length === 0) {
-    return { todayPrice: undefined, yesterdayPrice: undefined };
-  }
-  const todayPrice = priceRange[priceRange.length - 1];
-  const yesterdayPrice = priceRange.length > 1 ? priceRange[priceRange.length - 2] : undefined;
-  return { todayPrice, yesterdayPrice };
-};
 
 export function StocksViewPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { gameState, resumeGame } = useGame();
 
-  const currentDate = toDateOnly(gameState.currentDate ?? gameState.startDate);
-  const startDate = currentDate ? addDaysToDateOnly(currentDate, -3) : null;
-  const finishDate = currentDate ? addDaysToDateOnly(currentDate, 1) : null;
+  const simulationPositions = useMemo(
+    () => gameState.stockPositions ?? [],
+    [gameState.stockPositions],
+  );
 
   const resumeSimulationId =
     typeof location.state?.resumeSimulationId === 'number'
@@ -86,100 +52,17 @@ export function StocksViewPage() {
     resumeGame(resumeSimulationId);
   }, [gameState.simulationId, resumeGame, resumeSimulationId]);
 
-  const loadData = async (skip: number): Promise<FinancialData> => {
-    if (startDate === null || finishDate === null) {
-      return { stocks: [], stocksDetails: {}, pricesRange: {} };
-    }
-
-    const stocksResponse = await fetch(
-      apiUrl(`/api/stocks/?skip=${skip}&limit=20`),
-    );
-    if (!stocksResponse.ok) throw new Error(`Status: ${stocksResponse.status}`);
-    const stocksRowData: StockDto[] = await stocksResponse.json();
-
-    const detailsRowData: Record<StockDto['ticker'], StockDetailsDto> = {};
-    const pricesRowData: Record<StockDto['ticker'], PriceDto[]> = {};
-
-    for (const s of stocksRowData) {
-      try {
-        const detailsRes = await fetch(
-          apiUrl(`/api/stocks/${s.ticker}/details`),
-        );
-        if (!detailsRes.ok) throw new Error(`Failed for ${s.ticker}`);
-        const detailsData = await detailsRes.json();
-        detailsRowData[s.ticker] = detailsData;
-
-        const pricesRes = await fetch(
-          apiUrl(
-            `/api/stocks/${s.ticker}/prices?start=${startDate}&finish=${finishDate}&interval=1d`,
-          ),
-        );
-        if (!pricesRes.ok) throw new Error(`Failed for ${s.ticker}`);
-        const pricesData = await pricesRes.json();
-        pricesRowData[s.ticker] = pricesData;
-      } catch (err) {
-        console.error(`${s.ticker}:`, err);
-        throw err;
-      }
-    }
-
-    const stocks: Stock[] = stocksRowData.map(mapStockDtoToStock);
-
-    const stocksDetails: Record<Stock['ticker'], StockDetails> =
-      Object.fromEntries(
-        Object.entries(detailsRowData).map(([ticker, data]) => [
-          ticker,
-          mapStockDetailsDtoToStockDetails(data),
-        ]),
-      );
-
-    const pricesRange: Record<Stock['ticker'], Price[]> = Object.fromEntries(
-      Object.entries(pricesRowData).map(([ticker, data]) => [
-        ticker,
-        data.map((value) => mapPriceDtoToPrice(value)),
-      ]),
-    );
-
-    return { stocks, stocksDetails, pricesRange };
-  };
-
-  // prettier-ignore
-  const {data: financialData, isLoading, error} = useQuery<FinancialData, Error>({
-    queryKey: [process.env.REACT_APP_STOCKS_VIEW_CACHE_KEY, currentDate],
-    queryFn: () => loadData(0),
-    enabled: currentDate !== null,
-
-    staleTime: 60 * 1000,
-    gcTime: 5 * 60 * 1000,
-  });
-
   const tableData: RowData[] = useMemo(() => {
-    if (
-      !financialData ||
-      !financialData.stocks ||
-      !financialData.stocksDetails ||
-      !financialData.pricesRange
-    )
-      return [];
-
-    return financialData.stocks.map((stock: Stock) => {
-      const prices = getPricesFromRange(
-        financialData.pricesRange[stock.ticker],
-      );
-      const volume = prices.todayPrice?.volume || 0;
-      const metrics = calculatePriceMetrics(
-        prices.todayPrice?.open,
-        prices.yesterdayPrice?.open,
-      );
-
+    return simulationPositions.map((position) => {
       return {
-        ...stock,
-        ...financialData.stocksDetails[stock.ticker],
-        ...metrics,
-        volume: volume,
+        ...position.stock,
+        currentPrice: position.currentPrice,
+        priceChange: position.priceChange,
+        priceChangePercent: position.priceChangePercent,
+        volume: position.volume,
       };
     });
-  }, [financialData, getPricesFromRange, calculatePriceMetrics]);
+  }, [simulationPositions]);
 
   const columnHelper = createColumnHelper<RowData>();
 
@@ -238,8 +121,11 @@ export function StocksViewPage() {
   });
 
   const handleClick = (ticker: string) => navigate(`/trading-view/${ticker}`);
+  const isResumingGame =
+    resumeSimulationId !== null &&
+    gameState.simulationId !== resumeSimulationId;
 
-  if (isLoading) {
+  if (isResumingGame || gameState.status === 'loading') {
     return (
       <MDBContainer className="d-flex justify-content-center align-items-center vh-100">
         <MDBSpinner grow color="primary" className="mb-3"></MDBSpinner>
@@ -250,13 +136,7 @@ export function StocksViewPage() {
     );
   }
 
-  if (
-    error ||
-    !financialData ||
-    !financialData.stocks ||
-    !financialData.stocksDetails ||
-    !financialData.pricesRange
-  ) {
+  if (gameState.status === 'error' || gameState.stockPositions === null) {
     return (
       <InfoModal
         open={true}

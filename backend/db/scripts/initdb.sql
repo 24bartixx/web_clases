@@ -36,7 +36,12 @@ CREATE TABLE "positions" (
   "position_id" integer PRIMARY KEY,
   "simulation_id" integer NOT NULL,
   "stock_id" integer NOT NULL,
-  "amount" decimal(14,2) NOT NULL DEFAULT 0
+  "amount" decimal(14,2) NOT NULL DEFAULT 0,
+  "current_price" decimal(12,2),
+  "previous_price" decimal(12,2),
+  "price_change" decimal(12,2),
+  "price_change_percent" decimal(12,4),
+  "volume" decimal(20,2)
 );
 
 CREATE TABLE "transactions" (
