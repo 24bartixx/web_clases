@@ -1,12 +1,10 @@
-import { useEffect, useRef, HTMLAttributes, useCallback } from 'react';
+import { useEffect, useRef, HTMLAttributes, useCallback, useMemo } from 'react';
 import {
   createChart,
   ColorType,
   CandlestickSeries,
   HistogramSeries,
   IChartApi,
-  CandlestickData,
-  HistogramData,
   LineStyle,
   CrosshairMode,
   PriceScaleMode,
@@ -36,25 +34,29 @@ export interface TradingChartProps extends HTMLAttributes<HTMLDivElement> {
 export const TradingChart = ({priceRange, period = {amount: 0, unit: TimeUnit.All}, ...rest}: TradingChartProps) => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
+  const candleSeriesRef = useRef<any>(null);
+  const volumeSeriesRef = useRef<any>(null);
+  const lastAppliedPeriodKeyRef = useRef<string | null>(null);
+  const hasAppliedInitialRangeRef = useRef(false);
    
   const getCssVar = (variable: string) => {
     return getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
   };
 
-  const candleSeriesData = priceRange.map(price => ({
+  const candleSeriesData = useMemo(() => priceRange.map(price => ({
     time: toTimestamp(price.priceDate),
     value: price.volume,
     open: price.open,
     high: price.high,
     low: price.low,
     close: price.close,
-  }));
+  })), [priceRange]);
 
-  const volumeSeriesData = priceRange.map(price => ({
+  const volumeSeriesData = useMemo(() => priceRange.map(price => ({
   time: toTimestamp(price.priceDate),
   value: price.volume,    
   color: price.close >= price.open ? getCssVar('--bs-candle-up-color') : getCssVar('--bs-candle-down-color')
-}));
+})), [priceRange]);
 
 
   
@@ -64,15 +66,15 @@ export const TradingChart = ({priceRange, period = {amount: 0, unit: TimeUnit.Al
 
     const { amount, unit } = period;
 
-    const firstTime: UTCTimestamp = toTimestamp(candleSeriesData[0].time);
-    const lastTime: UTCTimestamp = toTimestamp(candleSeriesData[candleSeriesData.length - 1].time);
+    const firstTime = candleSeriesData[0].time as UTCTimestamp;
+    const lastTime = candleSeriesData[candleSeriesData.length - 1].time as UTCTimestamp;
 
     if (unit === TimeUnit.All) {
       chart.timeScale().setVisibleRange({ from: firstTime, to: lastTime });
       return;
     }
 
-    const startDate = new Date(lastTime * 1000);
+    const startDate = new Date(Number(lastTime) * 1000);
 
     switch (unit) {
       case TimeUnit.Day:
@@ -175,8 +177,7 @@ export const TradingChart = ({priceRange, period = {amount: 0, unit: TimeUnit.Al
       }, 
       visible: true,
     });
-
-    candleSeries.setData(candleSeriesData);
+    candleSeriesRef.current = candleSeries;
 
     const volumeSeries = chart.addSeries(HistogramSeries, {
 			priceFormat: {
@@ -197,10 +198,7 @@ export const TradingChart = ({priceRange, period = {amount: 0, unit: TimeUnit.Al
 			},
 			visible: true, 
 		});
-
-    volumeSeries.setData(volumeSeriesData);
-
-    setViewRange(period);
+    volumeSeriesRef.current = volumeSeries;
 
     const handleResize = () => {
 			if (chartContainerRef.current) {
@@ -216,7 +214,41 @@ export const TradingChart = ({priceRange, period = {amount: 0, unit: TimeUnit.Al
     return () => {
       window.removeEventListener('resize', handleResize);
       chart.remove();
+      chartRef.current = null;
+      candleSeriesRef.current = null;
+      volumeSeriesRef.current = null;
+      lastAppliedPeriodKeyRef.current = null;
+      hasAppliedInitialRangeRef.current = false;
     };
-  }, [volumeSeriesData, candleSeriesData]);
+  }, []);
+
+  useEffect(() => {
+    const chart = chartRef.current;
+
+    if (!chart || !candleSeriesRef.current || !volumeSeriesRef.current) {
+      return;
+    }
+
+    const periodKey = `${period.unit}:${period.amount}`;
+    const shouldApplyPeriodRange =
+      !hasAppliedInitialRangeRef.current ||
+      lastAppliedPeriodKeyRef.current !== periodKey;
+    const visibleRange = chart.timeScale().getVisibleRange();
+
+    candleSeriesRef.current.setData(candleSeriesData);
+    volumeSeriesRef.current.setData(volumeSeriesData);
+
+    if (shouldApplyPeriodRange) {
+      setViewRange(period);
+      hasAppliedInitialRangeRef.current = true;
+      lastAppliedPeriodKeyRef.current = periodKey;
+      return;
+    }
+
+    if (visibleRange !== null) {
+      chart.timeScale().setVisibleRange(visibleRange);
+    }
+  }, [candleSeriesData, period, setViewRange, volumeSeriesData]);
+
   return <div ref={chartContainerRef} {...rest} />;
 };

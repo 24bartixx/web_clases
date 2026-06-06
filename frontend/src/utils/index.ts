@@ -1,4 +1,9 @@
 export { calculatePriceMetrics }from './price';
 export type { PriceMetrics } from './price';
 
-export { addDaysToDateOnly, toDateOnly, toTimestamp } from './time';
+export {
+  addDaysToDateOnly,
+  addMonthsToDateOnly,
+  toDateOnly,
+  toTimestamp,
+} from './time';
