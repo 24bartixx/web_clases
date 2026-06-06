@@ -15,7 +15,6 @@ CREATE TABLE "users" (
 CREATE TABLE "simulations" (
   "simulation_id" integer PRIMARY KEY,
   "initial_balance" decimal(12,2) NOT NULL,
-  "current_balance" decimal(12,2) NOT NULL,
   "start_date" timestamp NOT NULL,
   "current_date" timestamp NOT NULL,
   "finish_date" timestamp NOT NULL DEFAULT (now()),
@@ -55,6 +54,8 @@ CREATE TABLE "simulation_history" (
   "history_id" integer PRIMARY KEY,
   "simulation_id" integer NOT NULL,
   "balance" decimal(12,2) NOT NULL,
+  "profit_loss" decimal(12,2) NOT NULL DEFAULT 0,
+  "available_funds" decimal(12,2) NOT NULL DEFAULT 0,
   "timestamp" timestamp NOT NULL DEFAULT (now()),
   "created_at" timestamp NOT NULL DEFAULT (now())
 );

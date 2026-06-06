@@ -6,7 +6,9 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from models.enums import TransactionType
+from models.position import Position
 from models.simulation import Simulation
+from models.simulation_history import SimulationHistory
 from models.transaction import Transaction
 from repositories import transaction_repository
 from schemas.transaction_schema import TransactionCreate
@@ -73,11 +75,42 @@ def create_transaction(db: Session, transaction_data: TransactionCreate):
 
     transaction = Transaction(**transaction_data.model_dump())
     transaction_value = transaction_data.price * transaction_data.amount
+    latest_history = _get_latest_simulation_history(db, transaction_data.simulation_id)
+
+    if latest_history is None:
+        latest_history = SimulationHistory(
+            simulation_id=transaction_data.simulation_id,
+            balance=simulation.initial_balance,
+            profit_loss=0,
+            available_funds=simulation.initial_balance,
+            timestamp=simulation.current_date,
+        )
+        db.add(latest_history)
+
+    position = _get_position_by_stock_simulation(
+        db,
+        stock_id=transaction_data.stock_id,
+        simulation_id=transaction_data.simulation_id,
+    )
+
+    if position is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Position not found for transaction stock and simulation.",
+        )
 
     if transaction_data.transaction_type == TransactionType.buy:
-        simulation.current_balance -= transaction_value
+        latest_history.available_funds -= transaction_value
+        position.amount += transaction_data.amount
     else:
-        simulation.current_balance += transaction_value
+        if position.amount < transaction_data.amount:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Cannot sell more stock than currently held.",
+            )
+
+        latest_history.available_funds += transaction_value
+        position.amount -= transaction_data.amount
 
     simulation.updated_at = datetime.now()
     db.add(transaction)
@@ -93,6 +126,27 @@ def create_transaction(db: Session, transaction_data: TransactionCreate):
 
     db.refresh(transaction)
     return transaction
+
+
+def _get_position_by_stock_simulation(
+    db: Session,
+    stock_id: int,
+    simulation_id: int,
+):
+    statement = select(Position).where(
+        Position.stock_id == stock_id,
+        Position.simulation_id == simulation_id,
+    )
+    return db.scalars(statement).one_or_none()
+
+
+def _get_latest_simulation_history(db: Session, simulation_id: int):
+    statement = (
+        select(SimulationHistory)
+        .where(SimulationHistory.simulation_id == simulation_id)
+        .order_by(SimulationHistory.timestamp.desc(), SimulationHistory.history_id.desc())
+    )
+    return db.scalars(statement).first()
 
 
 def delete_transaction(db: Session, transaction_id: int):

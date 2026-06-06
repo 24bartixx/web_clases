@@ -3,13 +3,12 @@ export interface SimulationPreview {
   initialBalance: number;
   currentBalance: number;
   startDate: string;
-  finishDate: string | null;
+  finishedAt: string | null;
 }
 
 export interface SimulationDto {
   initial_balance: string;
   start_date: string;
-  finish_date: string | null;
   user_id: number;
   simulation_id: number;
   current_balance: string;
@@ -27,6 +26,6 @@ export function mapSimulationDtoToSimulationPreview(
     initialBalance: Number(dto.initial_balance),
     currentBalance: Number(dto.current_balance),
     startDate: dto.start_date,
-    finishDate: dto.finish_date,
+    finishedAt: dto.finished_at,
   };
 }

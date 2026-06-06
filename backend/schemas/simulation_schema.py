@@ -1,7 +1,7 @@
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from models.enums import TransactionType
 
@@ -22,7 +22,6 @@ class SimulationCreate(BaseModel):
 
 class SimulationUpdate(BaseModel):
     initial_balance: Decimal | None = None
-    current_balance: Decimal | None = None
     start_date: datetime | None = None
     current_date: datetime | None = None
     finish_date: datetime | None = None
@@ -30,11 +29,17 @@ class SimulationUpdate(BaseModel):
     finished_at: datetime | None = None
 
 
+class SimulationAdvanceTurn(BaseModel):
+    days: int = Field(ge=1)
+
+
 class SimulationRead(SimulationBase):
     model_config = ConfigDict(from_attributes=True)
 
     simulation_id: int
     current_balance: Decimal
+    available_funds: Decimal
+    profit_loss: Decimal
     current_date: datetime
     finish_date: datetime
     finished_at: datetime | None
@@ -74,5 +79,6 @@ class SimulationTransactionRead(BaseModel):
 
 
 class SimulationDetailRead(SimulationRead):
+    trading_dates: list[date]
     positions: list[SimulationPositionRead]
     transactions: list[SimulationTransactionRead]

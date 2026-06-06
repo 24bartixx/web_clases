@@ -1,17 +1,18 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useCallback, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
 import { GameState, initialGameState } from '../types/GameState';
 import { mapSimulationDetailToGameState } from '../mappers/simulationMapper';
 import { createTransaction } from '../api/transactionsApi';
 import {
+  advanceSimulationTurn,
   createSimulation,
   getSimulation,
-  updateSimulationCurrentDate,
 } from '../api/simulationApi';
 
 interface GameContextType {
   gameState: GameState;
   createGame: (params: CreateGameParams) => Promise<void>;
+  resumeGame: (simulationId: number) => Promise<void>;
   makeTransaction: (params: MakeTransactionParams) => Promise<void>;
   advanceTurn: (days: number) => Promise<void>;
 }
@@ -32,19 +33,6 @@ interface MakeTransactionParams {
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
-
-const parseDateOnly = (dateValue: string) => {
-  const [year, month, day] = dateValue.slice(0, 10).split('-').map(Number);
-  return new Date(year, month - 1, day);
-};
-
-const toDateOnlyString = (date: Date) => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-
-  return `${year}-${month}-${day}`;
-};
 
 export function GameProvider({ children }: { children: ReactNode }) {
   const [gameState, setGameState] = useState<GameState>(initialGameState);
@@ -73,6 +61,29 @@ export function GameProvider({ children }: { children: ReactNode }) {
       }));
     }
   };
+
+  const resumeGame = useCallback(async (simulationId: number) => {
+    setGameState((currentGameState) => ({
+      ...currentGameState,
+      status: 'loading',
+      error: null,
+    }));
+
+    try {
+      const simulation = await getSimulation(simulationId);
+      setGameState(mapSimulationDetailToGameState(simulation));
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to resume game';
+
+      console.error('Failed to resume game', error);
+      setGameState((currentGameState) => ({
+        ...currentGameState,
+        status: 'error',
+        error: errorMessage,
+      }));
+    }
+  }, []);
 
   const makeTransaction = async (params: MakeTransactionParams) => {
     const simulationId = gameState.simulationId;
@@ -124,9 +135,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
   const advanceTurn = async (days: number) => {
     const simulationId = gameState.simulationId;
-    const currentDate = gameState.currentDate ?? gameState.startDate;
 
-    if (simulationId === null || currentDate === null) {
+    if (simulationId === null) {
       setGameState((currentGameState) => ({
         ...currentGameState,
         status: 'error',
@@ -136,15 +146,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }
 
     const daysToAdvance = Math.max(1, Math.trunc(days));
-    const nextDate = parseDateOnly(currentDate);
-    nextDate.setDate(nextDate.getDate() + daysToAdvance);
-
-    if (gameState.finishDate !== null) {
-      const finishDate = parseDateOnly(gameState.finishDate);
-      if (nextDate > finishDate) {
-        nextDate.setTime(finishDate.getTime());
-      }
-    }
 
     setGameState((currentGameState) => ({
       ...currentGameState,
@@ -153,9 +154,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }));
 
     try {
-      await updateSimulationCurrentDate(simulationId, toDateOnlyString(nextDate));
-
-      const simulation = await getSimulation(simulationId);
+      const simulation = await advanceSimulationTurn(simulationId, daysToAdvance);
       const updatedGameState = mapSimulationDetailToGameState(simulation);
 
       setGameState((currentGameState) => ({
@@ -177,7 +176,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
   return (
     <GameContext.Provider
-      value={{ gameState, createGame, makeTransaction, advanceTurn }}
+      value={{ gameState, createGame, resumeGame, makeTransaction, advanceTurn }}
     >
       {children}
     </GameContext.Provider>

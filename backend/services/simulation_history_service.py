@@ -70,6 +70,8 @@ def update_history_entry(
 ):
     history_entry = get_history_entry(db, history_id)
     history_entry.balance = history_data.balance
+    history_entry.profit_loss = history_data.profit_loss
+    history_entry.available_funds = history_data.available_funds
     history_entry.timestamp = history_data.timestamp
 
     try:

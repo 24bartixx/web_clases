@@ -31,11 +31,18 @@ import {
 } from '@tanstack/react-table';
 
 import { StockItemView } from './StockItemView';
-import { useNavigate, useParams } from 'react-router';
-import { Key, useEffect, useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router';
+import { Key, useEffect, useMemo } from 'react';
 import { InfoModal } from '../../components/InfoModal';
-import { calculatePriceMetrics, PriceMetrics } from '../../utils';
+import {
+  addDaysToDateOnly,
+  calculatePriceMetrics,
+  PriceMetrics,
+  toDateOnly,
+} from '../../utils';
 import { useQuery } from '@tanstack/react-query';
+import { useGame } from '../../contexts/GameContext';
+import { apiUrl } from '../../utils/apiUrl';
 
 // prettier-ignore
 type RowData = Stock &StockDetails & PriceMetrics & { volume: number };
@@ -56,16 +63,36 @@ const getPricesFromRange = (priceRange: Price[] | undefined): { todayPrice: Pric
 
 export function StocksViewPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { gameState, resumeGame } = useGame();
 
-  const [currentDate, setCurrentDate] = useState<Date>(new Date('2025-02-02'));
+  const currentDate = toDateOnly(gameState.currentDate ?? gameState.startDate);
+  const startDate = currentDate ? addDaysToDateOnly(currentDate, -3) : null;
+  const finishDate = currentDate ? addDaysToDateOnly(currentDate, 1) : null;
 
-  const prevDate = new Date(currentDate);
-  prevDate.setDate(prevDate.getDate() - 3);
-  prevDate.setHours(0, 0, 0, 0);
+  const resumeSimulationId =
+    typeof location.state?.resumeSimulationId === 'number'
+      ? location.state.resumeSimulationId
+      : null;
+
+  useEffect(() => {
+    if (
+      resumeSimulationId === null ||
+      gameState.simulationId === resumeSimulationId
+    ) {
+      return;
+    }
+
+    resumeGame(resumeSimulationId);
+  }, [gameState.simulationId, resumeGame, resumeSimulationId]);
 
   const loadData = async (skip: number): Promise<FinancialData> => {
+    if (startDate === null || finishDate === null) {
+      return { stocks: [], stocksDetails: {}, pricesRange: {} };
+    }
+
     const stocksResponse = await fetch(
-      `http://localhost:8000/api/stocks/?skip=${skip}&limit=20`,
+      apiUrl(`/api/stocks/?skip=${skip}&limit=20`),
     );
     if (!stocksResponse.ok) throw new Error(`Status: ${stocksResponse.status}`);
     const stocksRowData: StockDto[] = await stocksResponse.json();
@@ -73,20 +100,19 @@ export function StocksViewPage() {
     const detailsRowData: Record<StockDto['ticker'], StockDetailsDto> = {};
     const pricesRowData: Record<StockDto['ticker'], PriceDto[]> = {};
 
-    const start = prevDate.toISOString().split('T')[0];
-    const finish = currentDate.toISOString().split('T')[0];
-
     for (const s of stocksRowData) {
       try {
         const detailsRes = await fetch(
-          `http://localhost:8000/api/stocks/${s.ticker}/details`,
+          apiUrl(`/api/stocks/${s.ticker}/details`),
         );
         if (!detailsRes.ok) throw new Error(`Failed for ${s.ticker}`);
         const detailsData = await detailsRes.json();
         detailsRowData[s.ticker] = detailsData;
 
         const pricesRes = await fetch(
-          `http://localhost:8000/api/stocks/${s.ticker}/prices?start=${start}&finish=${finish}&interval=1d`,
+          apiUrl(
+            `/api/stocks/${s.ticker}/prices?start=${startDate}&finish=${finishDate}&interval=1d`,
+          ),
         );
         if (!pricesRes.ok) throw new Error(`Failed for ${s.ticker}`);
         const pricesData = await pricesRes.json();
@@ -119,8 +145,9 @@ export function StocksViewPage() {
 
   // prettier-ignore
   const {data: financialData, isLoading, error} = useQuery<FinancialData, Error>({
-    queryKey: [process.env.REACT_APP_STOCKS_VIEW_CACHE_KEY],
+    queryKey: [process.env.REACT_APP_STOCKS_VIEW_CACHE_KEY, currentDate],
     queryFn: () => loadData(0),
+    enabled: currentDate !== null,
 
     staleTime: 60 * 1000,
     gcTime: 5 * 60 * 1000,
@@ -141,8 +168,8 @@ export function StocksViewPage() {
       );
       const volume = prices.todayPrice?.volume || 0;
       const metrics = calculatePriceMetrics(
-        prices.todayPrice?.close,
-        prices.yesterdayPrice?.close,
+        prices.todayPrice?.open,
+        prices.yesterdayPrice?.open,
       );
 
       return {

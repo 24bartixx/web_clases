@@ -1,6 +1,6 @@
-import { MDBBadge, MDBBtn, MDBListGroupItem } from 'mdb-react-ui-kit';
+import { MDBListGroupItem } from 'mdb-react-ui-kit';
 import { useNavigate } from 'react-router-dom';
-import { SimulationPreview } from '../../types/Simulation';
+import type { SimulationPreview } from '../../types/Simulation';
 
 type PreviousGameProps = {
   simulation: SimulationPreview;
@@ -8,12 +8,24 @@ type PreviousGameProps = {
 
 export function PreviousGame({ simulation }: PreviousGameProps) {
   const navigate = useNavigate();
+
+  const handleClick = () => {
+    if (simulation.finishedAt === null) {
+      navigate('/stocks-view', {
+        state: { resumeSimulationId: simulation.id },
+      });
+      return;
+    }
+
+    navigate('/summary');
+  };
+
   return (
     <MDBListGroupItem
       noBorders
       style={{ backgroundColor: 'transparent' }}
       className="d-flex justify-content gap-2 align-items-center"
-      onClick={() => navigate('/summary')}
+      onClick={handleClick}
     >
       <div>
         <div className="round-square">
@@ -31,7 +43,8 @@ export function PreviousGame({ simulation }: PreviousGameProps) {
           Liczba transakcji: 123
         </span>
         <span className="text-muted" style={{ fontSize: '10px' }}>
-          Przedział czasowy: {simulation.startDate} - {simulation.finishDate}
+          Przedział czasowy: {simulation.startDate} -{' '}
+          {simulation.finishedAt ?? 'w trakcie'}
         </span>
       </div>
       <div className="flex-grow-1"></div>

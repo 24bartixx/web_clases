@@ -31,6 +31,8 @@ export interface SimulationDetailResponse {
   simulation_id: number;
   initial_balance: NumericResponseValue;
   current_balance: NumericResponseValue;
+  available_funds: NumericResponseValue;
+  profit_loss: NumericResponseValue;
   start_date: string;
   current_date: string;
   finish_date: string | null;
@@ -38,6 +40,7 @@ export interface SimulationDetailResponse {
   user_id: number;
   created_at: string;
   updated_at: string;
+  trading_dates: string[];
   positions: SimulationPositionResponse[];
   transactions: SimulationTransactionResponse[];
 }
@@ -49,9 +52,12 @@ export const mapSimulationDetailToGameState = (
   status: 'ready',
   initialBalance: Number(simulation.initial_balance),
   currentBalance: Number(simulation.current_balance),
+  availableFunds: Number(simulation.available_funds),
+  profitLoss: Number(simulation.profit_loss),
   startDate: simulation.start_date,
   currentDate: simulation.current_date,
   finishDate: simulation.finish_date,
+  tradingDates: simulation.trading_dates,
   stockPositions: simulation.positions.map((position) => ({
     positionId: position.position_id,
     stockId: position.stock_id,
