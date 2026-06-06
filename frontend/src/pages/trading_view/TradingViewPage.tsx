@@ -482,9 +482,9 @@ export function TradingViewPage() {
     return (
       <InfoModal
         open={true}
-        title="Błąd"
-        bodyText="Nie udało się znaleźć takiej akcji. Zostaniesz przekierowany na stronę główną."
-        btnText="Zamknij"
+        title="Error"
+        bodyText="Could not find this stock. You will be redirected to the home page."
+        btnText="Close"
         onClose={() => navigate('/')}
         onConfirm={() => navigate('/')}
       />
@@ -660,7 +660,7 @@ export function TradingViewPage() {
                             tag="h6"
                             className="fw-semibold m-0 lh-1"
                           >
-                            Wszystko
+                            All
                           </MDBTypography>
                         </MDBTabsLink>
                       </MDBTabsItem>
@@ -668,7 +668,6 @@ export function TradingViewPage() {
                   </MDBCol>
                   <MDBCol fill size="auto" className="d-flex">
                     <MDBTypography tag="h6" className="fw-semibold m-0 lh-1">
-                      {/* nie wiem  */}
                     </MDBTypography>
                   </MDBCol>
                 </MDBRow>
@@ -691,7 +690,7 @@ export function TradingViewPage() {
                           tag="p"
                           className="fs-6 fw-semibold m-0 lh-1"
                         >
-                          Kup
+                          Buy
                         </MDBTypography>
                       </MDBTabsLink>
                     </MDBTabsItem>
@@ -706,7 +705,7 @@ export function TradingViewPage() {
                           className="fs-6 fw-semibold m-0 lh-1"
                           style={{ fontSize: '16px' }}
                         >
-                          Sprzedaj
+                          Sell
                         </MDBTypography>
                       </MDBTabsLink>
                     </MDBTabsItem>
@@ -728,7 +727,7 @@ export function TradingViewPage() {
                         {...field}
                         name="buy-amount"
                         iconSrc={stockImg}
-                        label="Kupujesz"
+                        label="You buy"
                         placeholder="0"
                       />
                     )}
@@ -741,7 +740,7 @@ export function TradingViewPage() {
                         {...field}
                         name="buy-total"
                         iconSrc={moneyImg}
-                        label="Spędzisz"
+                        label="You spend"
                         placeholder="0.00"
                       />
                     )}
@@ -751,7 +750,7 @@ export function TradingViewPage() {
                     className="w-100 rounded-3 p-3"
                   >
                     <MDBTypography tag="h6" className="fw-semibold m-0 lh-1">
-                      Kup
+                      Buy
                     </MDBTypography>
                   </MDBBtn>
                 </form>
@@ -771,7 +770,7 @@ export function TradingViewPage() {
                         {...field}
                         name="sell-amount"
                         iconSrc={stockImg}
-                        label="Sprzedajesz"
+                        label="You sell"
                         placeholder="0"
                       />
                     )}
@@ -784,7 +783,7 @@ export function TradingViewPage() {
                         {...field}
                         name="sell-total"
                         iconSrc={moneyImg}
-                        label="Zarobisz"
+                        label="You receive"
                         placeholder="0.00"
                       />
                     )}
@@ -794,7 +793,7 @@ export function TradingViewPage() {
                     className="btn btn-primary w-100 rounded-3 p-3"
                   >
                     <MDBTypography tag="h6" className="fw-semibold m-0 lh-1">
-                      Sprzedaj
+                      Sell
                     </MDBTypography>
                   </button>
                 </form>

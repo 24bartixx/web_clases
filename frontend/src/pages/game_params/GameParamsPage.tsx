@@ -87,19 +87,18 @@ export function GameParamsPage() {
         finishDate: dateToDateString(gameParams.endDate),
       });
 
-      alert('Gra została utworzona!');
       navigate(`/game/${simulation.simulation_id}/stocks-view`);
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : 'Nieznany błąd';
-      alert('Nie udało się utworzyć gry: ' + errorMessage);
+        error instanceof Error ? error.message : 'Unknown error';
+      alert('Could not create game: ' + errorMessage);
     }
   };
 
   return (
     <div className="container py-5 game-params-page">
-      <h1>Nowa gra!</h1>
-      <h4 className="mb-4">Ustal parametry rozgrywki</h4>
+      <h1>New game</h1>
+      <h4 className="mb-4">Set game parameters</h4>
 
       <MDBValidation
         onSubmit={onSubmit}
@@ -114,7 +113,7 @@ export function GameParamsPage() {
           onChange={onChange}
           id="validationCustom01"
           required
-          label="Określ budżet startowy (PLN)"
+          label="Set starting budget (USD)"
         />
 
         <CompanyMultiSelect
@@ -134,7 +133,7 @@ export function GameParamsPage() {
             }
           }}
           size="lg"
-          label="Data rozpoczęcia gry"
+          label="Game start date"
         />
 
         <MDBInput
@@ -147,7 +146,7 @@ export function GameParamsPage() {
             }
           }}
           size="lg"
-          label="Data zakończenia gry"
+          label="Game end date"
         />
 
         <div className="col-12">

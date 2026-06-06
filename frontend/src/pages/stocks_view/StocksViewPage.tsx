@@ -122,9 +122,9 @@ export function StocksViewPage() {
     return (
       <InfoModal
         open={true}
-        title="Błąd"
-        bodyText="Nie udało się znaleźć takiej akcji. Zostaniesz przekierowany na stronę główną."
-        btnText="Zamknij"
+        title="Error"
+        bodyText="Could not find this stock. You will be redirected to the home page."
+        btnText="Close"
         onClose={() => navigate('/')}
         onConfirm={() => navigate('/')}
       />

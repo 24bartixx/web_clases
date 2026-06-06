@@ -21,12 +21,12 @@ export function LoginPage() {
           body: JSON.stringify({ access_token: accessToken }),
         });
         if (!response.ok) {
-          throw new Error('Błąd podczas logowania');
+          throw new Error('Login failed');
         }
         // Backend sets httpOnly cookie, redirect to home
         navigate('/');
       } catch (error) {
-        console.error('Błąd logowania:', error);
+        console.error('Login error:', error);
       }
     },
     onError: () => {
@@ -37,7 +37,7 @@ export function LoginPage() {
   return (
     <div className="d-flex justify-content-center align-items-center vh-100">
       <div className="d-flex flex-column align-items-center justify-content-center gap-3">
-        <h2 className="mb-1">Zaloguj się</h2>
+        <h2 className="mb-1">Sign in with Google</h2>
         <MDBBtn
           rounded
           className="mx-2 rounded-pill"
@@ -45,7 +45,7 @@ export function LoginPage() {
           onClick={() => login()}
         >
           <MDBIcon fab icon="google" />
-          &nbsp; Zaloguj się Google
+          &nbsp; Sign in with Google
         </MDBBtn>
       </div>
     </div>

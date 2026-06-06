@@ -69,21 +69,21 @@ export const StockDetailsModal = ({
           <MDBModalBody className="d-flex flex-column gap-4">
             <div className="">
               <MDBTypography tag="h6" className="fw-bold opacity-50">
-                Opis
+                Description
               </MDBTypography>
-              <p>{stockDetails.description || 'Brak'}</p>
+              <p>{stockDetails.description || 'None'}</p>
             </div>
             <hr />
             <MDBRow className="align-items-center justify-content-start g-3">
               <MDBCol size="6" lg="4">
                 <MDBTypography tag="h6" className="fw-bold opacity-50">
-                  Łączna liczba akcji
+                  Shares outstanding
                 </MDBTypography>
                 <p className="fs-5">{stockDetails.sharesOutstanding || '-'}</p>
               </MDBCol>
               <MDBCol size="6" lg="4">
                 <MDBTypography tag="h6" className="fw-bold opacity-50">
-                  Akcje w obrocie (Float)
+                  Float shares
                 </MDBTypography>
                 <p className="fs-5">{stockDetails.floatShares|| '-'}</p>
               </MDBCol>
@@ -92,19 +92,19 @@ export const StockDetailsModal = ({
             <MDBRow className="">
               <MDBCol size="6" lg="4">
                 <MDBTypography tag="h6" className="fw-bold opacity-50">
-                  Kraj
+                  Country
                 </MDBTypography>
                 <p>{stockDetails.country || '–'}</p>
               </MDBCol>
               <MDBCol size="6" lg="4">
                 <MDBTypography tag="h6" className="fw-bold opacity-50">
-                  Waluta
+                  Currency
                 </MDBTypography>
                 <p>{stockDetails.currency}</p>
               </MDBCol>
               <MDBCol size="6" lg="4">
                 <MDBTypography tag="h6" className="fw-bold opacity-50">
-                  Strona www
+                  Website
                 </MDBTypography>
                 <a
                   href={stockDetails.website || '#'}
@@ -121,7 +121,7 @@ export const StockDetailsModal = ({
             <MDBRow className="g-3">
               <MDBCol size="6">
                 <MDBTypography tag="h6" className="fw-bold opacity-50">
-                  Aktualna cena
+                  Current price
                 </MDBTypography>
                 <p className="fs-5 fw-bold">
                   {price} {stockDetails.currency}
@@ -129,7 +129,7 @@ export const StockDetailsModal = ({
               </MDBCol>
               <MDBCol size="6">
                 <MDBTypography tag="h6" className="fw-bold opacity-50">
-                  Zmiana
+                  Change
                 </MDBTypography>
                 <MDBTypography
                   tag="p"

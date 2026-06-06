@@ -66,7 +66,7 @@ export function HomePage() {
           className="d-flex flex-column align-items-start gap-2"
         >
           <h1 style={{ fontWeight: '600' }}>
-            Cześć {userInfo?.first_name || 'Chess Bro'}!
+            Hello {userInfo?.first_name || 'Chess Bro'}!
           </h1>
           <MDBBtn
             rounded
@@ -74,7 +74,7 @@ export function HomePage() {
             size="lg"
             onClick={() => navigate('/game-params')}
           >
-            Rozpocznij nową grę!
+            New game
           </MDBBtn>
         </MDBCol>
 
@@ -91,9 +91,9 @@ export function HomePage() {
 
       <MDBRow>
         <MDBCol>
-          <h1 className="mb-3">Historia poprzednich rozgrywek</h1>
+          <h1 className="mb-3">Games</h1>
           {userSimulationsPreviews.length === 0 ? (
-            <p>Nie masz jeszcze żadnych rozgrywek. Zacznij nową grę!</p>
+            <p>No games yet... Start a new game!</p>
           ) : (
             <MDBListGroup>
               {userSimulationsPreviews.map((simulation) => (
