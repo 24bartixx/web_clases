@@ -21,6 +21,11 @@ class Position(Base):
     amount: Mapped[Decimal] = mapped_column(
         Numeric(14, 2), nullable=False, server_default="0"
     )
+    current_price: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
+    previous_price: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
+    price_change: Mapped[Decimal | None] = mapped_column(Numeric(12, 2))
+    price_change_percent: Mapped[Decimal | None] = mapped_column(Numeric(12, 4))
+    volume: Mapped[Decimal | None] = mapped_column(Numeric(20, 2))
 
     simulation = relationship("Simulation", back_populates="positions")
     stock = relationship("Stock", back_populates="positions")

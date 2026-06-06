@@ -3,16 +3,28 @@ import type { GameState } from '../types/GameState';
 type NumericResponseValue = number | string;
 
 interface SimulationStockResponse {
+  stock_id: number;
   ticker: string;
   company_name: string | null;
   sector: string | null;
   industry: string | null;
+  description: string | null;
+  sharesOutstanding: number | null;
+  floatShares: number | null;
+  country: string | null;
+  currency: string | null;
+  website: string | null;
 }
 
 interface SimulationPositionResponse {
   position_id: number;
   stock_id: number;
   amount: NumericResponseValue;
+  current_price: NumericResponseValue | null;
+  previous_price: NumericResponseValue | null;
+  price_change: NumericResponseValue | null;
+  price_change_percent: NumericResponseValue | null;
+  volume: NumericResponseValue | null;
   stock: SimulationStockResponse;
 }
 
@@ -62,13 +74,24 @@ export const mapSimulationDetailToGameState = (
     positionId: position.position_id,
     stockId: position.stock_id,
     stock: {
-      stockId: position.stock_id,
+      stockId: position.stock.stock_id,
       ticker: position.stock.ticker,
       companyName: position.stock.company_name ?? '',
       sector: position.stock.sector ?? '',
       industry: position.stock.industry ?? '',
+      description: position.stock.description ?? '',
+      sharesOutstanding: position.stock.sharesOutstanding ?? 0,
+      floatShares: position.stock.floatShares ?? 0,
+      country: position.stock.country ?? '',
+      currency: position.stock.currency ?? '',
+      website: position.stock.website ?? '',
     },
     amount: Number(position.amount),
+    currentPrice: Number(position.current_price ?? 0),
+    previousPrice: Number(position.previous_price ?? 0),
+    priceChange: Number(position.price_change ?? 0),
+    priceChangePercent: Number(position.price_change_percent ?? 0),
+    volume: Number(position.volume ?? 0),
     transactions: simulation.transactions
       .filter((transaction) => transaction.stock_id === position.stock_id)
       .map((transaction) => ({

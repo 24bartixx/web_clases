@@ -50,10 +50,17 @@ class SimulationRead(SimulationBase):
 class SimulationStockRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
+    stock_id: int
     ticker: str
     company_name: str | None
     sector: str | None
     industry: str | None
+    description: str | None = None
+    sharesOutstanding: int | None = None
+    floatShares: int | None = None
+    country: str | None = None
+    currency: str | None = None
+    website: str | None = None
 
 
 class SimulationPositionRead(BaseModel):
@@ -62,6 +69,11 @@ class SimulationPositionRead(BaseModel):
     position_id: int
     stock_id: int
     amount: Decimal
+    current_price: Decimal | None = None
+    previous_price: Decimal | None = None
+    price_change: Decimal | None = None
+    price_change_percent: Decimal | None = None
+    volume: Decimal | None = None
     stock: SimulationStockRead
 
 

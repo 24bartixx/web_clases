@@ -60,6 +60,8 @@ def get_simulation_detail(db: Session, simulation_id: int):
             detail="Simulation not found",
         )
     
+    _attach_position_price_metrics(db, simulation)
+    _attach_stock_details(db, simulation)
     return _attach_trading_dates(simulation)
 
 
@@ -122,6 +124,9 @@ def create_simulation(db: Session, simulation_data: SimulationCreate, user_id: i
                     amount=0,
                 )
             )
+
+        db.flush()
+        _update_position_price_metrics(db, simulation_id, start_date)
 
         db.commit()
     except IntegrityError as exc:
@@ -267,6 +272,7 @@ def advance_turn(
 
     simulation.current_date = next_date
     simulation.updated_at = datetime.now()
+    _update_position_price_metrics(db, simulation_id, next_date)
 
     try:
         db.commit()
@@ -389,6 +395,112 @@ def _attach_trading_dates(simulation: Simulation):
         simulation.finish_date.date(),
     )
     return simulation
+
+
+def _update_position_price_metrics(
+    db: Session,
+    simulation_id: int,
+    current_date: datetime,
+):
+    positions = db.scalars(
+        select(Position)
+        .options(selectinload(Position.stock))
+        .where(Position.simulation_id == simulation_id)
+        .order_by(Position.position_id)
+    ).all()
+    _set_position_price_metrics(db, positions, current_date)
+
+
+def _attach_position_price_metrics(db: Session, simulation: Simulation):
+    _set_position_price_metrics(db, simulation.positions, simulation.current_date)
+
+
+def _set_position_price_metrics(
+    db: Session,
+    positions: list[Position],
+    current_date: datetime,
+):
+    current_day = stock_service.get_trading_date_on_or_before(current_date.date())
+    previous_day = _get_previous_trading_date(current_day)
+    start_day = previous_day or current_day
+    finish_day = current_day + timedelta(days=1)
+
+    for position in positions:
+        if position.stock is None:
+            continue
+
+        prices = stock_service.get_stock_prices(
+            db,
+            position.stock.ticker,
+            start=start_day,
+            finish=finish_day,
+            interval="1d",
+        )
+        prices_by_date = {price["price_date"].date(): price for price in prices}
+        current_price_row = prices_by_date.get(current_day)
+
+        if current_price_row is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Missing open price for {position.stock.ticker} on {current_day}.",
+            )
+
+        current_price = Decimal(str(current_price_row["open"]))
+        previous_price = None
+
+        if previous_day is not None and prices_by_date.get(previous_day) is not None:
+            previous_price = Decimal(str(prices_by_date[previous_day]["open"]))
+
+        price_change = (
+            current_price - previous_price
+            if previous_price is not None
+            else Decimal("0")
+        )
+        price_change_percent = (
+            (price_change / previous_price) * Decimal("100")
+            if previous_price not in (None, Decimal("0"))
+            else Decimal("0")
+        )
+
+        position.current_price = current_price
+        position.previous_price = previous_price
+        position.price_change = price_change
+        position.price_change_percent = price_change_percent
+        position.volume = Decimal(str(current_price_row["volume"]))
+
+
+def _get_previous_trading_date(current_day: date):
+    trading_dates = stock_service.get_trading_dates(
+        current_day - timedelta(days=14),
+        current_day,
+    )
+    previous_dates = [
+        trading_date for trading_date in trading_dates if trading_date < current_day
+    ]
+
+    if not previous_dates:
+        return None
+
+    return previous_dates[-1]
+
+
+def _attach_stock_details(db: Session, simulation: Simulation):
+    details_by_ticker = {}
+
+    for position in simulation.positions:
+        stock = position.stock
+
+        if stock is None:
+            continue
+
+        if stock.ticker not in details_by_ticker:
+            details_by_ticker[stock.ticker] = stock_service.get_stock_details(
+                db,
+                stock.ticker,
+            )
+
+        for field, value in details_by_ticker[stock.ticker].items():
+            setattr(stock, field, value)
 
 
 def delete_simulation(db: Session, simulation_id: int):
