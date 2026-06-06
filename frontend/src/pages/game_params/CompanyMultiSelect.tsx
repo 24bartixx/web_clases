@@ -34,41 +34,17 @@ export function CompanyMultiSelect({
 
   return (
     <div>
-      <div>
-        {selectedIds.map((id) => {
-          const company = allCompanies.find((c) => c.stockId === id);
-          return (
-            <MDBBadge
-              className="m-2 px-3 selected-stock-badge"
-              key={id}
-              pill
-              style={{ cursor: 'pointer', userSelect: 'none' }}
-              onClick={(e: React.MouseEvent<HTMLElement>) => {
-                e.stopPropagation();
-                onRemove(id);
-              }}
-            >
-              <span>{company?.companyName}</span>
-              {company?.ticker && (
-                <span className="ms-2 selected-stock-badge__ticker">
-                  {company.ticker}
-                </span>
-              )}
-              <MDBIcon fas size="sm" />
-            </MDBBadge>
-          );
-        })}
-      </div>
-      <MDBDropdown className="mt-2">
+      <MDBDropdown className="mt-2 w-100">
         {/* Replace the default <button> with a <div> and remove button styling. */}
         <MDBDropdownToggle
           tag="div"
-          className="bg-transparent shadow-none p-0 border-0 hide-dropdown-caret"
+          className="w-100 bg-transparent shadow-none p-0 border-0 hide-dropdown-caret"
           style={{ cursor: 'text' }}
         >
           <MDBInput
             label="Search company..."
             type="text"
+            size="lg"
             value={searchTerm}
             onChange={(e: {
               target: { value: React.SetStateAction<string> };
@@ -77,8 +53,8 @@ export function CompanyMultiSelect({
           />
         </MDBDropdownToggle>
 
-        <MDBDropdownMenu className="w-110">
-          <div style={{ maxHeight: '100px', overflowY: 'auto' }}>
+        <MDBDropdownMenu className="w-100">
+          <div style={{ maxHeight: '280px', overflowY: 'auto' }}>
             {filteredCompanies.length > 0 ? (
               filteredCompanies.map((company) => (
                 <MDBDropdownItem
@@ -107,6 +83,36 @@ export function CompanyMultiSelect({
           </div>
         </MDBDropdownMenu>
       </MDBDropdown>
+      <div className="selected-stock-list">
+        {selectedIds.map((id) => {
+          const company = allCompanies.find((c) => c.stockId === id);
+          return (
+            <MDBBadge
+              className="selected-stock-badge"
+              key={id}
+              pill
+              style={{ cursor: 'pointer', userSelect: 'none' }}
+              onClick={(e: React.MouseEvent<HTMLElement>) => {
+                e.stopPropagation();
+                onRemove(id);
+              }}
+            >
+              <span>{company?.companyName}</span>
+              {company?.ticker && (
+                <span className="selected-stock-badge__ticker">
+                  {company.ticker}
+                </span>
+              )}
+              <MDBIcon
+                fas
+                icon="times"
+                size="sm"
+                className="selected-stock-badge__remove"
+              />
+            </MDBBadge>
+          );
+        })}
+      </div>
     </div>
   );
 }

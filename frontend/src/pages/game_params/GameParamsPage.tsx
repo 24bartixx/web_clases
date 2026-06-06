@@ -96,13 +96,14 @@ export function GameParamsPage() {
   };
 
   return (
-    <div className="container py-5 game-params-page">
+    <div className="container min-vh-100 py-5 game-params-page d-flex flex-column align-items-center justify-content-center">
       <h1>New game</h1>
       <h4 className="mb-4">Set game parameters</h4>
 
       <MDBValidation
         onSubmit={onSubmit}
-        className="col-md-4 d-flex flex-column gap-4 mt-16 "
+        className="w-100 d-flex flex-column gap-4 mt-4"
+        style={{ maxWidth: '560px' }}
       >
         <MDBInput
           type="number"
@@ -116,6 +117,38 @@ export function GameParamsPage() {
           label="Set starting budget (USD)"
         />
 
+        <div className="d-flex flex-column flex-md-row gap-4">
+          <MDBInput
+            type="date"
+            value={dateToDateString(gameParams.startDate)}
+            onChange={(e) => {
+              const date = new Date(e.target.value);
+              if (!isNaN(date.getTime())) {
+                setGameParams({ ...gameParams, startDate: date });
+              }
+            }}
+            size="lg"
+            label="Game start date"
+            className="w-100"
+          />
+
+          <MDBInput
+            type="date"
+            value={dateToDateString(gameParams.endDate)}
+            onChange={(e) => {
+              const date = new Date(e.target.value);
+              if (!isNaN(date.getTime())) {
+                setGameParams({ ...gameParams, endDate: date });
+              }
+            }}
+            size="lg"
+            label="Game end date"
+            className="w-100"
+          />
+        </div>
+
+        <div className="game-params-divider" />
+
         <CompanyMultiSelect
           allCompanies={stocks}
           selectedIds={gameParams.selectedStockIds}
@@ -123,34 +156,18 @@ export function GameParamsPage() {
           onRemove={handleRemove}
         />
 
-        <MDBInput
-          type="date"
-          value={dateToDateString(gameParams.startDate)}
-          onChange={(e) => {
-            const date = new Date(e.target.value);
-            if (!isNaN(date.getTime())) {
-              setGameParams({ ...gameParams, startDate: date });
-            }
-          }}
-          size="lg"
-          label="Game start date"
-        />
-
-        <MDBInput
-          type="date"
-          value={dateToDateString(gameParams.endDate)}
-          onChange={(e) => {
-            const date = new Date(e.target.value);
-            if (!isNaN(date.getTime())) {
-              setGameParams({ ...gameParams, endDate: date });
-            }
-          }}
-          size="lg"
-          label="Game end date"
-        />
-
-        <div className="col-12">
-          <MDBBtn type="submit">Submit form</MDBBtn>
+        <div className="col-12 mt-4 d-flex flex-column flex-md-row gap-3">
+          <MDBBtn
+            type="button"
+            color="link"
+            className="w-100 !border !border-[var(--bs-primary)] !bg-transparent !text-[var(--bs-primary)] !no-underline hover:!bg-[var(--bs-primary)] hover:!text-[var(--bs-primary-text-emphasis)] hover:!no-underline"
+            onClick={() => navigate('/')}
+          >
+            Back
+          </MDBBtn>
+          <MDBBtn type="submit" className="w-100">
+            Submit form
+          </MDBBtn>
         </div>
       </MDBValidation>
     </div>
