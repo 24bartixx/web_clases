@@ -1,5 +1,6 @@
 import {
   MDBBtn,
+  MDBIcon,
   MDBListGroup,
   MDBContainer,
   MDBRow,
@@ -16,6 +17,7 @@ import {
   mapSimulationDtoToSimulationPreview,
   SimulationPreview,
 } from '../../types/Simulation';
+import './HomePage.css';
 
 export function HomePage() {
   const navigate = useNavigate();
@@ -59,33 +61,33 @@ export function HomePage() {
   }, []);
 
   return (
-    <MDBContainer className="py-5">
-      <MDBRow className="align-items-center justify-content-center gx-5 mb-7">
-        <MDBCol
-          size="auto"
-          className="d-flex flex-column align-items-start gap-2"
-        >
-          <h1 style={{ fontWeight: '600' }}>
-            Hello {userInfo?.first_name || 'Chess Bro'}!
-          </h1>
+    <MDBContainer className="pt-3 pb-5">
+      <MDBRow className="home-hero align-items-center g-4 mb-5">
+        <MDBCol size="12" className="home-hero__copy">
+          <p className="home-hero__eyebrow">Trading dashboard</p>
+          <div className="home-hero__title-row">
+            <div className="home-hero__avatar">
+              <img
+                src={userInfo?.picture || defaultAvatar}
+                className="img-fluid rounded-circle"
+                alt="User Avatar"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+            <h1 className="home-hero__title">
+              Hello, {userInfo?.first_name || 'Chess Bro'}!
+            </h1>
+          </div>
+          <p className="home-hero__subtitle">Start a new simulation</p>
           <MDBBtn
             rounded
-            className="p-lg-4 rounded-pill"
+            className="home-hero__button"
             size="lg"
             onClick={() => navigate('/game-params')}
           >
+            <MDBIcon fas icon="plus" className="me-3" />
             New game
           </MDBBtn>
-        </MDBCol>
-
-        <MDBCol size="auto">
-          <img
-            src={userInfo?.picture || defaultAvatar}
-            className="img-fluid rounded-circle"
-            style={{ width: '150px', height: '150px', objectFit: 'cover' }}
-            alt="User Avatar"
-            referrerPolicy="no-referrer"
-          />
         </MDBCol>
       </MDBRow>
 
