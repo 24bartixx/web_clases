@@ -17,8 +17,8 @@ import {
 } from '@tanstack/react-table';
 
 import { StockItemView } from './StockItemView';
-import { useLocation, useNavigate } from 'react-router';
-import { Key, useEffect, useMemo } from 'react';
+import { useNavigate, useParams } from 'react-router';
+import { Key, useMemo } from 'react';
 import { InfoModal } from '../../components/InfoModal';
 import { PriceMetrics } from '../../utils';
 import { useGame } from '../../contexts/GameContext';
@@ -28,29 +28,13 @@ type RowData = Stock &StockDetails & PriceMetrics & { volume: number };
 
 export function StocksViewPage() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { gameState, resumeGame } = useGame();
+  const { simulationId } = useParams<{ simulationId: string }>();
+  const { gameState } = useGame();
 
   const simulationPositions = useMemo(
     () => gameState.stockPositions ?? [],
     [gameState.stockPositions],
   );
-
-  const resumeSimulationId =
-    typeof location.state?.resumeSimulationId === 'number'
-      ? location.state.resumeSimulationId
-      : null;
-
-  useEffect(() => {
-    if (
-      resumeSimulationId === null ||
-      gameState.simulationId === resumeSimulationId
-    ) {
-      return;
-    }
-
-    resumeGame(resumeSimulationId);
-  }, [gameState.simulationId, resumeGame, resumeSimulationId]);
 
   const tableData: RowData[] = useMemo(() => {
     return simulationPositions.map((position) => {
@@ -120,12 +104,10 @@ export function StocksViewPage() {
     getSortedRowModel: getSortedRowModel(),
   });
 
-  const handleClick = (ticker: string) => navigate(`/trading-view/${ticker}`);
-  const isResumingGame =
-    resumeSimulationId !== null &&
-    gameState.simulationId !== resumeSimulationId;
+  const handleClick = (ticker: string) =>
+    navigate(`/game/${simulationId}/trading-view/${ticker}`);
 
-  if (isResumingGame || gameState.status === 'loading') {
+  if (gameState.status === 'loading') {
     return (
       <MDBContainer className="d-flex justify-content-center align-items-center vh-100">
         <MDBSpinner grow color="primary" className="mb-3"></MDBSpinner>
