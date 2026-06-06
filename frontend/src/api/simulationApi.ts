@@ -1,5 +1,10 @@
 import { apiUrl } from '../config/api';
 import type { SimulationDetailResponse } from '../mappers/simulationMapper';
+import {
+  mapSimulationDtoToSimulationPreview,
+  type SimulationDto,
+  type SimulationPreview,
+} from '../types/Simulation';
 import { auth_fetch } from '../utils/auth_fetch';
 
 export type CreateSimulationRequest = {
@@ -9,7 +14,10 @@ export type CreateSimulationRequest = {
   finishDate: string;
 };
 
-const readErrorMessage = async (response: Response, fallbackMessage: string) => {
+const readErrorMessage = async (
+  response: Response,
+  fallbackMessage: string,
+) => {
   const errorMessage = await response.text();
   return errorMessage || fallbackMessage;
 };
@@ -39,13 +47,28 @@ export async function createSimulation(
   return response.json();
 }
 
+export async function getSimulationList(): Promise<SimulationPreview[]> {
+  const response = await auth_fetch(apiUrl('/simulation/'));
+
+  if (!response.ok) {
+    throw new Error(
+      await readErrorMessage(response, 'Failed to get simulations'),
+    );
+  }
+
+  const data: SimulationDto[] = await response.json();
+  return data.map(mapSimulationDtoToSimulationPreview);
+}
+
 export async function getSimulation(
   simulationId: number,
 ): Promise<SimulationDetailResponse> {
   const response = await auth_fetch(apiUrl(`/simulation/${simulationId}`));
 
   if (!response.ok) {
-    throw new Error(await readErrorMessage(response, 'Failed to get simulation'));
+    throw new Error(
+      await readErrorMessage(response, 'Failed to get simulation'),
+    );
   }
 
   return response.json();
@@ -88,6 +111,8 @@ export async function finishSimulation(
   });
 
   if (!response.ok) {
-    throw new Error(await readErrorMessage(response, 'Failed to finish simulation'));
+    throw new Error(
+      await readErrorMessage(response, 'Failed to finish simulation'),
+    );
   }
 }
