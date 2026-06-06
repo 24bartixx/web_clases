@@ -39,12 +39,31 @@ def update_simulation_history(db: Session, simulation_history: SimulationHistory
 def update_simulation_history_based_on_simulation_id(db: Session, history_id: int, simulation_id: int):
     simulation_history: SimulationHistory = db.get(SimulationHistory, history_id)
     simulation: Simulation = db.get(Simulation, simulation_id)
+    latest_history = _get_latest_simulation_history(db, simulation_id)
 
-    simulation_history.balance = simulation.current_balance
+    balance = latest_history.balance if latest_history is not None else simulation.initial_balance
+    available_funds = (
+        latest_history.available_funds
+        if latest_history is not None
+        else simulation.initial_balance
+    )
+
+    simulation_history.balance = balance
+    simulation_history.profit_loss = balance - simulation.initial_balance
+    simulation_history.available_funds = available_funds
     simulation_history.timestamp = simulation.updated_at
 
     db.flush()
     return simulation_history
+
+
+def _get_latest_simulation_history(db: Session, simulation_id: int):
+    statement = (
+        select(SimulationHistory)
+        .where(SimulationHistory.simulation_id == simulation_id)
+        .order_by(SimulationHistory.timestamp.desc(), SimulationHistory.history_id.desc())
+    )
+    return db.scalars(statement).first()
 
 def delete_simulation_history(db: Session, history_id: int):
     simulation_history = db.get(SimulationHistory, history_id)

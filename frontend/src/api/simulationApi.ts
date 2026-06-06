@@ -51,23 +51,26 @@ export async function getSimulation(
   return response.json();
 }
 
-export async function updateSimulationCurrentDate(
+export async function advanceSimulationTurn(
   simulationId: number,
-  currentDate: string,
-): Promise<void> {
-  const response = await auth_fetch(apiUrl(`/simulation/${simulationId}`), {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
+  days: number,
+): Promise<SimulationDetailResponse> {
+  const response = await auth_fetch(
+    apiUrl(`/simulation/${simulationId}/advance-turn`),
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ days }),
     },
-    body: JSON.stringify({
-      current_date: currentDate,
-    }),
-  });
+  );
 
   if (!response.ok) {
     throw new Error(
-      await readErrorMessage(response, 'Failed to update simulation date'),
+      await readErrorMessage(response, 'Failed to advance simulation turn'),
     );
   }
+
+  return response.json();
 }

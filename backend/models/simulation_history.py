@@ -16,6 +16,12 @@ class SimulationHistory(Base):
         nullable=False,
     )
     balance: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
+    profit_loss: Mapped[Decimal] = mapped_column(
+        Numeric(12, 2), nullable=False, server_default="0"
+    )
+    available_funds: Mapped[Decimal] = mapped_column(
+        Numeric(12, 2), nullable=False, server_default="0"
+    )
     timestamp: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, server_default=func.now()
     )

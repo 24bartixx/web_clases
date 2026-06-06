@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import type { ChangeEvent } from 'react';
 import { MDBTypography } from 'mdb-react-ui-kit';
 import logo from '../assets/logo.png';
@@ -34,38 +34,14 @@ const formatDate = (dateValue: string | null) => {
   return Number.isNaN(date.getTime()) ? '--' : dateFormatter.format(date);
 };
 
-const toDateOnlyString = (date: Date) => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-
-  return `${year}-${month}-${day}`;
-};
-
 export function GameMenu() {
   const { gameState, advanceTurn } = useGame();
   const [daysToAdvance, setDaysToAdvance] = useState(1);
+  const isAdvancingRef = useRef(false);
 
-  const holdingsValue = useMemo(() => {
-    if (gameState.stockPositions === null) {
-      return 0;
-    }
-
-    return gameState.stockPositions.reduce((total, position) => {
-      const prices = gameState.pricesByStockId[position.stockId] ?? [];
-      const latestPrice = prices.at(-1)?.close ?? 0;
-
-      return total + position.amount * latestPrice;
-    }, 0);
-  }, [gameState.pricesByStockId, gameState.stockPositions]);
-
-  const availableFunds = gameState.currentBalance;
-  const accountBalance =
-    availableFunds === null ? null : availableFunds + holdingsValue;
-  const profitLoss =
-    accountBalance === null || gameState.initialBalance === null
-      ? null
-      : accountBalance - gameState.initialBalance;
+  const availableFunds = gameState.availableFunds;
+  const accountBalance = gameState.currentBalance;
+  const profitLoss = gameState.profitLoss;
   const profitLossPercent =
     profitLoss === null ||
     gameState.initialBalance === null ||
@@ -74,41 +50,47 @@ export function GameMenu() {
       : (profitLoss / gameState.initialBalance) * 100;
 
   const isGameReady = gameState.simulationId !== null;
-  const isAdvancing = gameState.status === 'loading';
   const isAtFinish =
     gameState.currentDate !== null &&
     gameState.finishDate !== null &&
     parseDateOnly(gameState.currentDate) >= parseDateOnly(gameState.finishDate);
-  const canAdvance = isGameReady && !isAdvancing && !isAtFinish;
+  const canAdvance = isGameReady && !isAtFinish;
   const profitLossClass =
     profitLoss === null || profitLoss >= 0
       ? 'text-price-up'
       : 'text-price-down';
   const displayedDate = gameState.currentDate ?? gameState.startDate;
-  const nextDate = useMemo(() => {
-    if (displayedDate === null) {
-      return null;
+  const nextRoundLabel = useMemo(() => {
+    if (gameState.currentDate === null) {
+      return '--';
     }
 
-    const date = parseDateOnly(displayedDate);
-    date.setDate(date.getDate() + Math.max(1, Math.trunc(daysToAdvance)));
+    const currentDate = gameState.currentDate.slice(0, 10);
+    const tradingDates = gameState.tradingDates.filter(
+      (tradingDate) => tradingDate > currentDate,
+    );
+    const daysToSkip = Math.max(1, Math.trunc(daysToAdvance));
+    const targetTradingDate = tradingDates[daysToSkip - 1];
 
-    if (gameState.finishDate !== null) {
-      const finishDate = parseDateOnly(gameState.finishDate);
-      if (date > finishDate) {
-        date.setTime(finishDate.getTime());
-      }
+    if (targetTradingDate === undefined) {
+      return '--';
     }
 
-    return toDateOnlyString(date);
-  }, [daysToAdvance, displayedDate, gameState.finishDate]);
+    return formatDate(targetTradingDate);
+  }, [daysToAdvance, gameState.currentDate, gameState.tradingDates]);
 
   const handleNextTurn = async () => {
-    if (!canAdvance) {
+    if (!canAdvance || isAdvancingRef.current) {
       return;
     }
 
-    await advanceTurn(daysToAdvance);
+    isAdvancingRef.current = true;
+
+    try {
+      await advanceTurn(daysToAdvance);
+    } finally {
+      isAdvancingRef.current = false;
+    }
   };
 
   const handleDaysChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -196,7 +178,7 @@ export function GameMenu() {
                       Next round
                     </MDBTypography>
                     <MDBTypography tag="p" className="fw-semibold mb-0">
-                      {formatDate(nextDate)}
+                      {nextRoundLabel}
                     </MDBTypography>
                   </div>
                 </div>
@@ -211,7 +193,7 @@ export function GameMenu() {
                     onChange={handleDaysChange}
                     className="form-control form-control-sm text-center"
                     style={{ width: 64 }}
-                    disabled={!isGameReady || isAdvancing}
+                    disabled={!isGameReady}
                   />
                   <span className="small text-muted pr-4">days</span>
                   <button
@@ -220,7 +202,7 @@ export function GameMenu() {
                     onClick={handleNextTurn}
                     disabled={!canAdvance}
                   >
-                    <span>{isAdvancing ? 'Loading' : 'Next'}</span>
+                    <span>Next</span>
                     <span
                       aria-hidden="true"
                       style={{

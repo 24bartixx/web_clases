@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 from io import StringIO
 
 from fastapi import HTTPException, status
@@ -12,6 +12,7 @@ from repositories import stock_repository
 
 
 SP500_WIKI_URL = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
+MARKET_CALENDAR_TICKER = "SPY"
 YFINANCE_INTERVALS = {
     "1m",
     "2m",
@@ -27,6 +28,92 @@ YFINANCE_INTERVALS = {
     "1mo",
     "3mo",
 }
+
+
+def get_next_trading_date(current_date: date, days: int = 1):
+    days = max(1, days)
+    include_start = not is_trading_date(current_date)
+    return _get_nth_trading_date(current_date, days, include_start=include_start)
+
+
+def get_trading_date_on_or_after(current_date: date):
+    return _get_nth_trading_date(current_date, 1, include_start=True)
+
+
+def get_trading_date_on_or_before(current_date: date):
+    lookback_start = current_date - timedelta(days=14)
+
+    for _ in range(10):
+        trading_dates = _get_market_trading_dates(
+            lookback_start,
+            current_date + timedelta(days=1),
+        )
+        valid_dates = [trading_date for trading_date in trading_dates if trading_date <= current_date]
+
+        if valid_dates:
+            return valid_dates[-1]
+
+        lookback_start -= timedelta(days=30)
+
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail=f"No trading date found on or before {current_date}.",
+    )
+
+
+def get_trading_dates(start: date, finish: date):
+    if finish < start:
+        return []
+
+    return _get_market_trading_dates(start, finish + timedelta(days=1))
+
+
+def is_trading_date(current_date: date):
+    return current_date in _get_market_trading_dates(
+        current_date,
+        current_date + timedelta(days=1),
+    )
+
+
+def _get_nth_trading_date(
+    start_date: date,
+    days: int,
+    include_start: bool,
+):
+    search_start = start_date
+    remaining_days = days
+
+    for _ in range(10):
+        search_finish = search_start + timedelta(days=max(14, remaining_days * 4 + 7))
+        trading_dates = _get_market_trading_dates(search_start, search_finish)
+
+        if not include_start:
+            trading_dates = [
+                trading_date for trading_date in trading_dates if trading_date > start_date
+            ]
+
+        if len(trading_dates) >= remaining_days:
+            return trading_dates[remaining_days - 1]
+
+        remaining_days -= len(trading_dates)
+        search_start = search_finish
+        include_start = True
+
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail=f"Could not find next trading date from {start_date}.",
+    )
+
+
+def _get_market_trading_dates(start: date, finish: date):
+    history = yf.Ticker(MARKET_CALENDAR_TICKER).history(
+        start=start.isoformat(),
+        end=finish.isoformat(),
+        interval="1d",
+        timeout=20,
+    )
+
+    return sorted({price_date.date() for price_date in history.index})
 
 
 def get_stocks(db: Session, skip: int = 0, limit: int = 100):

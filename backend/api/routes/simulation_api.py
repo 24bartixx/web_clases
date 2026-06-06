@@ -5,6 +5,7 @@ from core.auth import get_current_user
 from db.database import get_db
 from models.user import User
 from schemas.simulation_schema import (
+    SimulationAdvanceTurn,
     SimulationCreate,
     SimulationDetailRead,
     SimulationRead,
@@ -58,6 +59,15 @@ def update_simulation(
     db: Session = Depends(get_db),
 ):
     return simulation_service.update_simulation(db, simulation_id, simulation_data)
+
+
+@router.post("/{simulation_id}/advance-turn", response_model=SimulationDetailRead)
+def advance_turn(
+    simulation_id: int,
+    turn_data: SimulationAdvanceTurn,
+    db: Session = Depends(get_db),
+):
+    return simulation_service.advance_turn(db, simulation_id, turn_data)
 
 
 @router.delete("/")

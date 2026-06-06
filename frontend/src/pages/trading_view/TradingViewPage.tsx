@@ -14,7 +14,7 @@ import { TimeUnit, TradingChart, TradingChartPeriod } from './TradingChart';
 import stockImg from '../../assets/stock-30.png';
 import moneyImg from '../../assets/money-30.png';
 import { AmountInput } from './AmountInput';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Controller, useForm } from 'react-hook-form';
 import { CompanyDetailsModal } from './stockDetailsModal';
@@ -31,7 +31,7 @@ import {
 } from '../../types';
 import { InfoModal } from '../../components/InfoModal';
 import { apiUrl } from '../../utils/apiUrl';
-import { calculatePriceMetrics } from '../../utils';
+import { addDaysToDateOnly, calculatePriceMetrics, toDateOnly } from '../../utils';
 import { useGame } from '../../contexts/GameContext';
 
 enum TradeSideKey {
@@ -69,7 +69,7 @@ export function TradingViewPage() {
   const [activeTradeSide, setActiveTradeSide] = useState<TradeSideKey>(TradeSideKey.Buy,);
   const [activePeriod, setActivePeriod] = useState<PeriodKey>(PeriodKey.M1);
   const [isCompanyDetailsOpen, setIsCompanyDetailsOpen] = useState(false);
-  const { makeTransaction } = useGame();
+  const { gameState, makeTransaction } = useGame();
 
   const navigate = useNavigate();
   const { ticker } = useParams<{ ticker: string }>();
@@ -78,11 +78,16 @@ export function TradingViewPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  const [currentDate, setCurrentDate] = useState('2020-02-01');
-
   const [stock, setStock] = useState<Stock | null>(null);
   const [stockDetails, setStockDetails] = useState<StockDetails | null>(null);
   const [priceRange, setPriceRange] = useState<Price[] | null>(null);
+
+  const simulationDate = gameState.currentDate ?? gameState.startDate;
+  const simulationDateOnly = toDateOnly(simulationDate);
+  const simulationStartDateOnly = toDateOnly(gameState.startDate) ?? simulationDateOnly;
+  const priceFinishDateOnly = simulationDateOnly
+    ? addDaysToDateOnly(simulationDateOnly, 1)
+    : null;
 
   const buyForm = useForm<SellOrBuyForm>({
     defaultValues: {
@@ -118,6 +123,16 @@ export function TradingViewPage() {
         setLoading(true);
         setError(null);
 
+        if (
+          !cleanTicker ||
+          !simulationDate ||
+          !simulationDateOnly ||
+          !simulationStartDateOnly ||
+          !priceFinishDateOnly
+        ) {
+          throw new Error('Simulation is not loaded');
+        }
+
         const stockResponse = await fetch(apiUrl(`/api/stocks/${cleanTicker}`));
 
         if (!stockResponse.ok) {
@@ -137,7 +152,7 @@ export function TradingViewPage() {
 
         const priceResponse = await fetch(
           apiUrl(
-            `/api/stocks/${cleanTicker}/prices?start=${'2024-12-15'}&interval=1d`,
+            `/api/stocks/${cleanTicker}/prices?start=${simulationStartDateOnly}&finish=${priceFinishDateOnly}&interval=1d`,
           ),
         );
 
@@ -160,15 +175,33 @@ export function TradingViewPage() {
     };
 
     loadData();
-  }, [ticker]);
+  }, [
+    cleanTicker,
+    priceFinishDateOnly,
+    simulationDate,
+    simulationDateOnly,
+    simulationStartDateOnly,
+  ]);
+
+  const currentPriceIndex = useMemo(() => {
+    if (!priceRange || priceRange.length === 0) {
+      return -1;
+    }
+
+    const exactIndex = priceRange.findIndex(
+      (price) => toDateOnly(price.priceDate) === simulationDateOnly,
+    );
+
+    return exactIndex >= 0 ? exactIndex : priceRange.length - 1;
+  }, [priceRange, simulationDateOnly]);
 
   const todayPrice: number =
-    priceRange && priceRange.length > 0
-      ? priceRange[priceRange.length - 1].close
+    priceRange && currentPriceIndex >= 0
+      ? priceRange[currentPriceIndex].open
       : 0;
   const yesterdayPrice =
-    priceRange && priceRange.length > 1
-      ? priceRange[priceRange.length - 2].close
+    priceRange && currentPriceIndex > 0
+      ? priceRange[currentPriceIndex - 1].open
       : undefined;
 
   const { currentPrice, priceChange, priceChangePercent } =
@@ -217,28 +250,28 @@ export function TradingViewPage() {
   }, [sellAmount, sellTotal, sellForm.setValue]);
 
   const onBuySubmit = async (data: SellOrBuyForm) => {
-    if (!stock) {
+    if (!stock || !simulationDate) {
       return;
     }
 
     await makeTransaction({
       stockId: stock.stockId,
       transactionType: 'buy',
-      transactionTime: currentDate,
+      transactionTime: simulationDate,
       price: currentPrice,
       amount: data.amount,
     });
   };
 
   const onSellSubmit = async (data: SellOrBuyForm) => {
-    if (!stock) {
+    if (!stock || !simulationDate) {
       return;
     }
 
     await makeTransaction({
       stockId: stock.stockId,
       transactionType: 'sell',
-      transactionTime: currentDate,
+      transactionTime: simulationDate,
       price: currentPrice,
       amount: data.amount,
     });
