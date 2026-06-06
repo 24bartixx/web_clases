@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
 import { GameState, initialGameState } from '../types/GameState';
 import { mapSimulationDetailToGameState } from '../mappers/simulationMapper';
+import type { SimulationDetailResponse } from '../mappers/simulationMapper';
 import { createTransaction } from '../api/transactionsApi';
 import {
   advanceSimulationTurn,
@@ -11,7 +12,7 @@ import {
 
 interface GameContextType {
   gameState: GameState;
-  createGame: (params: CreateGameParams) => Promise<void>;
+  createGame: (params: CreateGameParams) => Promise<SimulationDetailResponse>;
   resumeGame: (simulationId: number) => Promise<void>;
   makeTransaction: (params: MakeTransactionParams) => Promise<void>;
   advanceTurn: (days: number) => Promise<void>;
@@ -49,6 +50,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     try {
       const data = await createSimulation(params);
       setGameState(mapSimulationDetailToGameState(data));
+      return data;
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Failed to create game';
@@ -59,6 +61,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
         status: 'error',
         error: errorMessage,
       }));
+      throw error;
     }
   };
 

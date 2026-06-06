@@ -22,7 +22,7 @@ interface GameParams {
 export function GameParamsPage() {
   const navigate = useNavigate();
 
-  const { gameState, createGame } = useGame();
+  const { createGame } = useGame();
   const [stocks, setStocks] = useState<StockMinimal[]>([]);
 
   const [gameParams, setGameParams] = useState<GameParams>({
@@ -79,18 +79,20 @@ export function GameParamsPage() {
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    await createGame({
-      startingBudget: gameParams.budget,
-      stockIds: gameParams.selectedStockIds,
-      startDate: dateToDateString(gameParams.startDate),
-      finishDate: dateToDateString(gameParams.endDate),
-    });
+    try {
+      const simulation = await createGame({
+        startingBudget: gameParams.budget,
+        stockIds: gameParams.selectedStockIds,
+        startDate: dateToDateString(gameParams.startDate),
+        finishDate: dateToDateString(gameParams.endDate),
+      });
 
-    if (gameState.error) {
-      alert('Nie udało się utworzyć gry: ' + gameState.error);
-    } else {
       alert('Gra została utworzona!');
-      navigate('/stocks-view');
+      navigate(`/game/${simulation.simulation_id}/stocks-view`);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Nieznany błąd';
+      alert('Nie udało się utworzyć gry: ' + errorMessage);
     }
   };
 

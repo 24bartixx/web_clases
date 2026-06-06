@@ -1,10 +1,9 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { Navigate, createBrowserRouter } from 'react-router-dom';
 import { HomePage } from '../pages/home/HomePage';
 import { LoginPage } from '../pages/login/LoginPage';
 import { PortfolioPage } from '../pages/portfolio/PortfolioPage';
 import { TradingViewPage } from '../pages/trading_view/TradingViewPage';
 import { GameParamsPage } from '../pages/game_params/GameParamsPage';
-import { GameProvider } from '../contexts/GameContext';
 import { GameProviderLayout } from '../layouts/GameProviderLayout';
 import { StocksViewPage } from '../pages/stocks_view/StocksViewPage';
 import { GameProcessLayout } from '../layouts/GameProcessLayout';
@@ -31,18 +30,27 @@ export const router = createBrowserRouter([
         element: <GameParamsPage />,
       },
       {
+        path: '/game',
+        element: <Navigate to="/" replace />,
+      },
+      {
+        path: '/game/:simulationId',
         element: <GameProcessLayout />,
         children: [
           {
-            path: '/portfolio',
+            index: true,
+            element: <Navigate to="stocks-view" replace />,
+          },
+          {
+            path: 'portfolio',
             element: <PortfolioPage />,
           },
           {
-            path: '/stocks-view',
+            path: 'stocks-view',
             element: <StocksViewPage />,
           },
           {
-            path: '/trading-view/:ticker',
+            path: 'trading-view/:ticker',
             element: <TradingViewPage />,
           },
         ],

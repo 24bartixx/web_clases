@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from 'react';
 import type { ChangeEvent } from 'react';
 import { MDBTypography } from 'mdb-react-ui-kit';
+import { useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import nextIcon from '../assets/next.svg';
 import { useGame } from '../contexts/GameContext';
@@ -36,6 +37,7 @@ const formatDate = (dateValue: string | null) => {
 
 export function GameMenu() {
   const { gameState, advanceTurn } = useGame();
+  const navigate = useNavigate();
   const [daysToAdvance, setDaysToAdvance] = useState(1);
   const isAdvancingRef = useRef(false);
 
@@ -103,7 +105,11 @@ export function GameMenu() {
     <header className="border-bottom shadow-sm">
       <div className="container py-3">
         <div className="d-flex flex-column flex-xl-row align-items-stretch align-items-xl-center justify-content-between gap-3">
-          <div className="d-flex align-items-center gap-4">
+          <button
+            type="button"
+            className="d-flex align-items-center gap-4 border-0 bg-transparent p-0 text-start text-reset"
+            onClick={() => navigate('/')}
+          >
             <img
               src={logo}
               alt="Chess Bross Trading logo"
@@ -119,7 +125,7 @@ export function GameMenu() {
                 {isGameReady ? 'Trading session' : 'No active game'}
               </MDBTypography>
             </div>
-          </div>
+          </button>
 
           <div className="d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center gap-4">
             <div className="flex flex-col min-w-[320px] gap-2">

@@ -11,9 +11,7 @@ export function PreviousGame({ simulation }: PreviousGameProps) {
 
   const handleClick = () => {
     if (simulation.finishedAt === null) {
-      navigate('/stocks-view', {
-        state: { resumeSimulationId: simulation.id },
-      });
+      navigate(`/game/${simulation.id}/stocks-view`);
       return;
     }
 
