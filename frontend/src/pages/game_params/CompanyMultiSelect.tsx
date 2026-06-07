@@ -14,6 +14,7 @@ import { StockMinimal } from '../../types';
 interface CompanyMultiSelectProps {
   allCompanies: StockMinimal[];
   selectedIds: number[];
+  isInvalid?: boolean;
   onSelect: (id: number) => void;
   onRemove: (id: number) => void;
 }
@@ -21,6 +22,7 @@ interface CompanyMultiSelectProps {
 export function CompanyMultiSelect({
   allCompanies,
   selectedIds,
+  isInvalid = false,
   onSelect,
   onRemove,
 }: CompanyMultiSelectProps) {
@@ -46,6 +48,7 @@ export function CompanyMultiSelect({
             type="text"
             size="lg"
             value={searchTerm}
+            className={isInvalid ? 'is-invalid' : ''}
             onChange={(e: {
               target: { value: React.SetStateAction<string> };
             }) => setSearchTerm(e.target.value)}
@@ -83,36 +86,38 @@ export function CompanyMultiSelect({
           </div>
         </MDBDropdownMenu>
       </MDBDropdown>
-      <div className="selected-stock-list">
-        {selectedIds.map((id) => {
-          const company = allCompanies.find((c) => c.stockId === id);
-          return (
-            <MDBBadge
-              className="selected-stock-badge"
-              key={id}
-              pill
-              style={{ cursor: 'pointer', userSelect: 'none' }}
-              onClick={(e: React.MouseEvent<HTMLElement>) => {
-                e.stopPropagation();
-                onRemove(id);
-              }}
-            >
-              <span>{company?.companyName}</span>
-              {company?.ticker && (
-                <span className="selected-stock-badge__ticker">
-                  {company.ticker}
-                </span>
-              )}
-              <MDBIcon
-                fas
-                icon="times"
-                size="sm"
-                className="selected-stock-badge__remove"
-              />
-            </MDBBadge>
-          );
-        })}
-      </div>
+      {selectedIds.length > 0 && (
+        <div className="selected-stock-list">
+          {selectedIds.map((id) => {
+            const company = allCompanies.find((c) => c.stockId === id);
+            return (
+              <MDBBadge
+                className="selected-stock-badge"
+                key={id}
+                pill
+                style={{ cursor: 'pointer', userSelect: 'none' }}
+                onClick={(e: React.MouseEvent<HTMLElement>) => {
+                  e.stopPropagation();
+                  onRemove(id);
+                }}
+              >
+                <span>{company?.companyName}</span>
+                {company?.ticker && (
+                  <span className="selected-stock-badge__ticker">
+                    {company.ticker}
+                  </span>
+                )}
+                <MDBIcon
+                  fas
+                  icon="times"
+                  size="sm"
+                  className="selected-stock-badge__remove"
+                />
+              </MDBBadge>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

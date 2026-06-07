@@ -1,4 +1,4 @@
-import { MDBBtn, MDBInput, MDBValidation } from 'mdb-react-ui-kit';
+import { MDBBtn, MDBInput } from 'mdb-react-ui-kit';
 import { CompanyMultiSelect } from './CompanyMultiSelect';
 import { useEffect, useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
@@ -25,6 +25,7 @@ export function GameParamsPage() {
 
   const { createGame } = useGame();
   const [stocks, setStocks] = useState<StockMinimal[]>([]);
+  const [showValidationErrors, setShowValidationErrors] = useState(false);
 
   const [gameParams, setGameParams] = useState<GameParams>({
     simulationName: '',
@@ -85,9 +86,22 @@ export function GameParamsPage() {
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    const simulationName = gameParams.simulationName.trim();
+    const hasValidationErrors =
+      simulationName.length === 0 ||
+      gameParams.budget < 1 ||
+      gameParams.selectedStockIds.length === 0;
+
+    setShowValidationErrors(hasValidationErrors);
+
+    if (hasValidationErrors) {
+      return;
+    }
+
     try {
       const simulation = await createGame({
-        simulationName: gameParams.simulationName.trim(),
+        simulationName,
         startingBudget: gameParams.budget,
         stockIds: gameParams.selectedStockIds,
         startDate: dateToDateString(gameParams.startDate),
@@ -102,25 +116,40 @@ export function GameParamsPage() {
     }
   };
 
+  const isSimulationNameInvalid =
+    showValidationErrors && gameParams.simulationName.trim().length === 0;
+  const isBudgetInvalid = showValidationErrors && gameParams.budget < 1;
+  const isCompanySelectionInvalid =
+    showValidationErrors && gameParams.selectedStockIds.length === 0;
+
   return (
     <div className="container min-vh-100 py-5 game-params-page d-flex flex-column align-items-center justify-content-center">
       <h1>New game</h1>
       <h4 className="mb-4">Set game parameters</h4>
 
-      <MDBValidation
+      <form
+        noValidate
         onSubmit={onSubmit}
         className="w-100 d-flex flex-column gap-4 mt-4"
         style={{ maxWidth: '560px' }}
       >
-        <MDBInput
-          type="text"
-          value={gameParams.simulationName}
-          name="simulationName"
-          size="lg"
-          maxLength={255}
-          onChange={onChange}
-          label="Your simulation name"
-        />
+        <div>
+          <MDBInput
+            type="text"
+            value={gameParams.simulationName}
+            name="simulationName"
+            size="lg"
+            maxLength={255}
+            onChange={onChange}
+            label="Your simulation name"
+            className={isSimulationNameInvalid ? 'is-invalid' : ''}
+          />
+          {isSimulationNameInvalid && (
+            <p className="game-params-field-error">
+              Simulation name is required.
+            </p>
+          )}
+        </div>
 
         <MDBInput
           type="number"
@@ -130,8 +159,8 @@ export function GameParamsPage() {
           min={1}
           onChange={onChange}
           id="validationCustom01"
-          required
           label="Starting budget (USD)"
+          className={isBudgetInvalid ? 'is-invalid' : ''}
         />
 
         <div className="d-flex flex-column flex-md-row gap-4">
@@ -166,12 +195,20 @@ export function GameParamsPage() {
 
         <div className="game-params-divider" />
 
-        <CompanyMultiSelect
-          allCompanies={stocks}
-          selectedIds={gameParams.selectedStockIds}
-          onSelect={handleSelect}
-          onRemove={handleRemove}
-        />
+        <div>
+          <CompanyMultiSelect
+            allCompanies={stocks}
+            selectedIds={gameParams.selectedStockIds}
+            isInvalid={isCompanySelectionInvalid}
+            onSelect={handleSelect}
+            onRemove={handleRemove}
+          />
+          {isCompanySelectionInvalid && (
+            <p className="game-params-field-error">
+              Select at least one company.
+            </p>
+          )}
+        </div>
 
         <div className="col-12 mt-4 d-flex flex-column flex-md-row gap-3">
           <MDBBtn
@@ -188,7 +225,7 @@ export function GameParamsPage() {
             Submit form
           </MDBBtn>
         </div>
-      </MDBValidation>
+      </form>
     </div>
   );
 }

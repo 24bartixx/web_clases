@@ -21,6 +21,55 @@
   color: #fff;
 }
 
+.game-params-page .was-validated .form-control:valid,
+.game-params-page .form-control.is-valid {
+  background-image: none !important;
+  border-color: rgba(222, 227, 230, 0.75) !important;
+  box-shadow: none !important;
+  padding-right: 0.75rem !important;
+}
+
+.game-params-page .was-validated .form-control:valid:focus,
+.game-params-page .form-control.is-valid:focus {
+  border-color: #fff !important;
+  box-shadow: none !important;
+}
+
+.game-params-page .was-validated .form-control:valid ~ .form-label,
+.game-params-page .form-control.is-valid ~ .form-label {
+  color: #fff !important;
+}
+
+.game-params-page .was-validated .form-control:valid ~ .form-notch .form-notch-leading,
+.game-params-page .was-validated .form-control:valid ~ .form-notch .form-notch-middle,
+.game-params-page .was-validated .form-control:valid ~ .form-notch .form-notch-trailing,
+.game-params-page .form-control.is-valid ~ .form-notch .form-notch-leading,
+.game-params-page .form-control.is-valid ~ .form-notch .form-notch-middle,
+.game-params-page .form-control.is-valid ~ .form-notch .form-notch-trailing {
+  border-color: rgba(222, 227, 230, 0.75) !important;
+}
+
+.game-params-page .was-validated .form-control:valid:focus ~ .form-notch .form-notch-leading,
+.game-params-page .was-validated .form-control:valid:focus ~ .form-notch .form-notch-middle,
+.game-params-page .was-validated .form-control:valid:focus ~ .form-notch .form-notch-trailing,
+.game-params-page .form-control.is-valid:focus ~ .form-notch .form-notch-leading,
+.game-params-page .form-control.is-valid:focus ~ .form-notch .form-notch-middle,
+.game-params-page .form-control.is-valid:focus ~ .form-notch .form-notch-trailing {
+  border-color: #fff !important;
+  box-shadow: none !important;
+}
+
+.game-params-page .form-outline .form-control.is-invalid {
+  margin-bottom: 0 !important;
+}
+
+.game-params-field-error {
+  color: var(--bs-form-invalid-color);
+  font-size: 0.875rem;
+  line-height: 1.25;
+  margin: 0.5rem 0 0 0.25rem;
+}
+
 .game-params-divider {
   border-top: 1px solid rgba(222, 227, 230, 0.22);
   margin: 0.25rem 0;
