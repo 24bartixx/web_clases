@@ -93,6 +93,9 @@ def create_simulation(db: Session, simulation_data: SimulationCreate, user_id: i
 
     create_data["start_date"] = start_date
     create_data["current_date"] = start_date
+    use_default_simulation_name = not create_data.get("simulation_name")
+    if use_default_simulation_name:
+        create_data["simulation_name"] = "New simulation"
     if finish_date is not None:
         create_data["finish_date"] = finish_date
     create_data["user_id"] = user_id
@@ -106,6 +109,9 @@ def create_simulation(db: Session, simulation_data: SimulationCreate, user_id: i
     try:
         db.flush()
         simulation_id = simulation.simulation_id
+        if use_default_simulation_name:
+            simulation.simulation_name = f"Simulation #{simulation_id}"
+
         db.add(
             SimulationHistory(
                 simulation_id=simulation_id,
@@ -178,6 +184,8 @@ def update_simulation(
 ):
     simulation = get_simulation(db, simulation_id)
     update_data = simulation_data.model_dump(exclude_unset=True)
+    if update_data.get("simulation_name") is None:
+        update_data.pop("simulation_name", None)
 
     for field, value in update_data.items():
         setattr(simulation, field, value)

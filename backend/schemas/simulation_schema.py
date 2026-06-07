@@ -7,6 +7,7 @@ from models.enums import TransactionType
 
 
 class SimulationBase(BaseModel):
+    simulation_name: str
     initial_balance: Decimal
     start_date: datetime
     finish_date: datetime | None = None
@@ -14,6 +15,7 @@ class SimulationBase(BaseModel):
 
 
 class SimulationCreate(BaseModel):
+    simulation_name: str | None = None
     initial_balance: Decimal
     start_date: datetime
     finish_date: datetime | None = None
@@ -21,6 +23,7 @@ class SimulationCreate(BaseModel):
 
 
 class SimulationUpdate(BaseModel):
+    simulation_name: str | None = None
     initial_balance: Decimal | None = None
     start_date: datetime | None = None
     current_date: datetime | None = None

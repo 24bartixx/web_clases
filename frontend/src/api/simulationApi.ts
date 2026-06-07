@@ -8,6 +8,7 @@ import {
 import { auth_fetch } from '../utils/auth_fetch';
 
 export type CreateSimulationRequest = {
+  simulationName: string;
   startingBudget: number;
   stockIds: number[];
   startDate: string;
@@ -31,6 +32,7 @@ export async function createSimulation(
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
+      simulation_name: simulation.simulationName || null,
       initial_balance: simulation.startingBudget,
       start_date: simulation.startDate || null,
       finish_date: simulation.finishDate || null,

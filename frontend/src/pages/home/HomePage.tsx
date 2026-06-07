@@ -8,7 +8,7 @@ import {
 } from 'mdb-react-ui-kit';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PreviousGame } from './PreviousGame';
+import { GameListItem } from '../../components/GameListItem';
 import { getSimulationList } from '../../api/simulationApi';
 import { getUserInfo } from '../../api/userApi';
 import type { UserInfo } from '../../api/userApi';
@@ -96,7 +96,7 @@ export function HomePage() {
             ) : (
               <MDBListGroup className="d-flex flex-column gap-3 bg-transparent">
                 {userSimulationsPreviews.map((simulation) => (
-                  <PreviousGame key={simulation.id} simulation={simulation} />
+                  <GameListItem key={simulation.id} simulation={simulation} />
                 ))}
               </MDBListGroup>
             )}

@@ -13,6 +13,7 @@ import type { StockMinimal } from '../../types';
 registerLocale('pl', pl);
 
 interface GameParams {
+  simulationName: string;
   budget: number;
   startDate: Date;
   endDate: Date;
@@ -26,6 +27,7 @@ export function GameParamsPage() {
   const [stocks, setStocks] = useState<StockMinimal[]>([]);
 
   const [gameParams, setGameParams] = useState<GameParams>({
+    simulationName: '',
     budget: 1000_000,
     startDate: new Date(2024, 0, 1),
     endDate: new Date(2026, 0, 1),
@@ -74,13 +76,18 @@ export function GameParamsPage() {
   };
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setGameParams({ ...gameParams, [e.target.name]: Number(e.target.value) });
+    const value =
+      e.target.name === 'simulationName'
+        ? e.target.value
+        : Number(e.target.value);
+    setGameParams({ ...gameParams, [e.target.name]: value });
   };
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       const simulation = await createGame({
+        simulationName: gameParams.simulationName.trim(),
         startingBudget: gameParams.budget,
         stockIds: gameParams.selectedStockIds,
         startDate: dateToDateString(gameParams.startDate),
@@ -105,6 +112,16 @@ export function GameParamsPage() {
         className="w-100 d-flex flex-column gap-4 mt-4"
         style={{ maxWidth: '560px' }}
       >
+        <MDBInput
+          type="text"
+          value={gameParams.simulationName}
+          name="simulationName"
+          size="lg"
+          maxLength={255}
+          onChange={onChange}
+          label="Simulation name"
+        />
+
         <MDBInput
           type="number"
           value={gameParams.budget}

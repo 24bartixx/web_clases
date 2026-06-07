@@ -1,7 +1,7 @@
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import DateTime, ForeignKey, Numeric, func
+from sqlalchemy import DateTime, ForeignKey, Numeric, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db.base import Base
@@ -11,6 +11,7 @@ class Simulation(Base):
     __tablename__ = "simulations"
 
     simulation_id: Mapped[int] = mapped_column(primary_key=True)
+    simulation_name: Mapped[str] = mapped_column(String(255), nullable=False)
     initial_balance: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
     start_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     current_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
