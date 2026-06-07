@@ -21,6 +21,7 @@ interface GameContextType {
 }
 
 interface CreateGameParams {
+  simulationName: string;
   startingBudget: number;
   stockIds: number[];
   startDate: string;

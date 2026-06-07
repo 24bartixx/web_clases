@@ -1,5 +1,6 @@
 export interface SimulationPreview {
   id: number;
+  simulationName: string;
   initialBalance: number;
   currentBalance: number;
   availableFunds: number;
@@ -13,6 +14,7 @@ export interface SimulationPreview {
 }
 
 export interface SimulationDto {
+  simulation_name: string;
   initial_balance: string;
   start_date: string;
   finish_date: string | null;
@@ -32,6 +34,7 @@ export function mapSimulationDtoToSimulationPreview(
 ): SimulationPreview {
   return {
     id: dto.simulation_id,
+    simulationName: dto.simulation_name,
     initialBalance: Number(dto.initial_balance),
     currentBalance: Number(dto.current_balance),
     availableFunds: Number(dto.available_funds),
