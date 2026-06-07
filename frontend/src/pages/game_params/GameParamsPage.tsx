@@ -119,7 +119,7 @@ export function GameParamsPage() {
           size="lg"
           maxLength={255}
           onChange={onChange}
-          label="Simulation name"
+          label="Your simulation name"
         />
 
         <MDBInput
@@ -131,7 +131,7 @@ export function GameParamsPage() {
           onChange={onChange}
           id="validationCustom01"
           required
-          label="Set starting budget (USD)"
+          label="Starting budget (USD)"
         />
 
         <div className="d-flex flex-column flex-md-row gap-4">
@@ -176,13 +176,15 @@ export function GameParamsPage() {
         <div className="col-12 mt-4 d-flex flex-column flex-md-row gap-3">
           <MDBBtn
             type="button"
-            color="link"
-            className="w-100 !border !border-[var(--bs-primary)] !bg-transparent !text-[var(--bs-primary)] !no-underline hover:!bg-[var(--bs-primary)] hover:!text-[var(--bs-primary-text-emphasis)] hover:!no-underline"
+            className="w-100 !min-h-[3rem] !rounded-full !border !border-white/70 !bg-transparent !px-6 !text-sm !font-bold !uppercase !text-white !shadow-none !no-underline transition hover:!border-white hover:!bg-white/10 hover:!text-white hover:!shadow-none hover:!no-underline focus:!shadow-none"
             onClick={() => navigate('/')}
           >
             Back
           </MDBBtn>
-          <MDBBtn type="submit" className="w-100">
+          <MDBBtn
+            type="submit"
+            className="w-100 !min-h-[3rem] !rounded-full !border !border-[rgb(222,227,230)] !bg-[rgb(222,227,230)] !px-6 !text-sm !font-bold !uppercase !text-[rgb(15,20,22)] !shadow-none transition hover:!border-white hover:!bg-white hover:!text-[rgb(15,20,22)] hover:!shadow-none focus:!shadow-none"
+          >
             Submit form
           </MDBBtn>
         </div>
