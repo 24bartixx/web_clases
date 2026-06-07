@@ -152,7 +152,7 @@ export function GameMenu() {
   };
 
   return (
-    <header className="border-bottom shadow-sm">
+    <header className="sticky top-0 z-50 border-bottom bg-body shadow-sm">
       <div className="container py-3">
         <div className="d-flex flex-column flex-xl-row align-items-stretch align-items-xl-center justify-content-between gap-3">
           <button
