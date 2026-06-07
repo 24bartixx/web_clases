@@ -122,6 +122,10 @@
   box-shadow: none !important;
 }
 
+.home-page-section .list-group-item .text-danger {
+  color: rgb(255, 68, 68) !important;
+}
+
 @keyframes home-button-float {
   0%,
   100% {
