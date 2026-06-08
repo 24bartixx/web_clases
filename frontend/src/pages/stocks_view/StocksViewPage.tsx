@@ -86,7 +86,7 @@ export function StocksViewPage() {
         header: createSortableHeader('Change'),
       }),
       columnHelper.accessor('volume', {
-        header: createSortableHeader('Vol'),
+        header: createSortableHeader('Volume'),
       }),
       columnHelper.accessor('industry', {
         header: createSortableHeader('Industry'),

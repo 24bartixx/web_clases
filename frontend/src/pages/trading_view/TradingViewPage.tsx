@@ -628,30 +628,58 @@ export function TradingViewPage() {
       <MDBContainer className="d-flex flex-column gap-3">
         <div className="border-bottom">
           <MDBRow className="align-items-center justify-content-between ">
-            <MDBCol size="auto">
-              <MDBRow className="align-items-end g-2">
+            <MDBCol size="auto" className="mb-3">
+              <MDBRow className="align-items-center g-2">
                 <MDBCol size="auto">
-                  <button
-                    className="btn p-0 m-0 border-0"
-                    onClick={() => setIsCompanyDetailsOpen(true)}
-                  >
-                    <MDBTypography tag="h2" className="fw-bold">
-                      {stock.ticker}
-                    </MDBTypography>
-                  </button>
-                </MDBCol>
-                <MDBCol size="auto">
-                  <MDBTypography tag="h5" className="opacity-50">
-                    {stock.companyName}
-                  </MDBTypography>
+                  <div className="d-flex align-items-center">
+                    <button
+                      className="btn p-0 m-0 border-0 me-4"
+                      onClick={() => navigate(-1)}
+                      aria-label="Go back"
+                    >
+                      <MDBTypography tag="h2" className="m-0 fw-semibold">
+                        ←
+                      </MDBTypography>
+                    </button>
+
+                    <div
+                      aria-hidden="true"
+                      className="vr me-3 align-self-stretch"
+                      style={{ opacity: 0.08 }}
+                    />
+
+                    <div className="d-flex flex-column">
+                      <button
+                        className="btn p-0 m-0 border-0 text-start"
+                        onClick={() => setIsCompanyDetailsOpen(true)}
+                      >
+                        <MDBTypography tag="h2" className="fw-bold m-0">
+                          {stock.ticker}
+                        </MDBTypography>
+                      </button>
+
+                      <MDBTypography
+                        tag="h5"
+                        className="opacity-50 m-0 mt-1"
+                        style={{ maxWidth: '100%', overflowWrap: 'anywhere' }}
+                      >
+                        {stock.companyName}
+                      </MDBTypography>
+
+                      <MDBTypography
+                        tag="p"
+                        className="small text-muted mt-2 m-0"
+                      >
+                        <span style={{ opacity: 0.75 }}>{stock.sector}</span>
+                        <span className="mx-2" style={{ opacity: 0.45 }}>
+                          •
+                        </span>
+                        <span style={{ opacity: 0.75 }}>{stock.industry}</span>
+                      </MDBTypography>
+                    </div>
+                  </div>
                 </MDBCol>
               </MDBRow>
-
-              <MDBCol size="auto">
-                <MDBTypography tag="p" className="fs-6 opacity-50">
-                  {stock.sector} / {stock.industry}
-                </MDBTypography>
-              </MDBCol>
             </MDBCol>
 
             <MDBCol size="auto">
