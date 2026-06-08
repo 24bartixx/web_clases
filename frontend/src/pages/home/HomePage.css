@@ -123,7 +123,12 @@
 }
 
 .home-page-section .list-group-item .text-danger {
-  color: rgb(255, 68, 68) !important;
+  color: var(--bs-price-down-color) !important;
+}
+
+.game-list-item__delete-button:hover,
+.game-list-item__delete-button:focus {
+  color: var(--app-danger-action) !important;
 }
 
 @keyframes home-button-float {

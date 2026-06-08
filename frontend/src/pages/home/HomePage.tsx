@@ -9,7 +9,7 @@ import {
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GameListItem } from '../../components/GameListItem';
-import { getSimulationList } from '../../api/simulationApi';
+import { deleteSimulation, getSimulationList } from '../../api/simulationApi';
 import { getUserInfo } from '../../api/userApi';
 import type { UserInfo } from '../../api/userApi';
 import type { SimulationPreview } from '../../types/Simulation';
@@ -55,6 +55,18 @@ export function HomePage() {
 
     fetchUserSimulationsPreviews();
   }, []);
+
+  const handleDeleteSimulation = async (simulationId: number) => {
+    try {
+      await deleteSimulation(simulationId);
+      setUserSimulationsPreviews((simulations) =>
+        simulations.filter((simulation) => simulation.id !== simulationId),
+      );
+    } catch (error) {
+      console.error('Failed to delete simulation:', error);
+      alert('Could not delete game.');
+    }
+  };
 
   return (
     <MDBContainer fluid className="pt-3 pb-5 px-0">
@@ -105,7 +117,11 @@ export function HomePage() {
             ) : (
               <MDBListGroup className="d-flex flex-column gap-3 bg-transparent">
                 {userSimulationsPreviews.map((simulation) => (
-                  <GameListItem key={simulation.id} simulation={simulation} />
+                  <GameListItem
+                    key={simulation.id}
+                    simulation={simulation}
+                    onDelete={handleDeleteSimulation}
+                  />
                 ))}
               </MDBListGroup>
             )}

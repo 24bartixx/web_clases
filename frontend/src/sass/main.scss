@@ -96,6 +96,10 @@ $candle-down-color: rgb(163, 30, 30);
   --app-card-shadow: 0 1.25rem 3rem rgba(0, 0, 0, 0.34), 0 0 1rem rgba(222, 227, 230, 0.08);
   --app-button-primary-bg: #{$gray-100};
   --app-button-primary-text: #{$surface};
+  --app-danger-action: rgb(165, 52, 52);
+  --app-danger-action-hover: rgb(186, 64, 64);
+  --app-danger-action-text: rgb(255, 232, 232);
+  --app-danger-action-shadow: rgba(165, 52, 52, 0.24);
 }
 
 .text-price-up {
