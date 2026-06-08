@@ -33,7 +33,6 @@ import { apiUrl } from '../../utils/apiUrl';
 import {
   addDaysToDateOnly,
   addMonthsToDateOnly,
-  calculatePriceMetrics,
   toDateOnly,
 } from '../../utils';
 import { useGame } from '../../contexts/GameContext';
@@ -143,6 +142,11 @@ export function TradingViewPage() {
   const [stock, setStock] = useState<Stock | null>(null);
   const [stockDetails, setStockDetails] = useState<StockDetails | null>(null);
   const [priceRange, setPriceRange] = useState<Price[] | null>(null);
+  
+  const currentPosition = useMemo(
+    () => gameState.stockPositions?.find(pos => pos.stock.ticker === cleanTicker),
+    [gameState.stockPositions, cleanTicker]
+  );
   const [oldestFetchedDate, setOldestFetchedDate] = useState<string | null>(
     null,
   );
@@ -466,45 +470,9 @@ export function TradingViewPage() {
     };
   }, [cleanTicker, finishDateOnly, hasFetchedAllAhead, newestFetchedDate]);
 
-  const currentPriceIndex = useMemo(() => {
-    if (!priceRange || priceRange.length === 0) {
-      return -1;
-    }
-
-    const exactIndex = priceRange.findIndex(
-      (price) => toDateOnly(price.priceDate) === simulationDateOnly,
-    );
-
-    if (exactIndex >= 0) {
-      return exactIndex;
-    }
-
-    for (let index = priceRange.length - 1; index >= 0; index -= 1) {
-      const priceDate = toDateOnly(priceRange[index].priceDate);
-
-      if (
-        priceDate !== null &&
-        simulationDateOnly !== null &&
-        priceDate <= simulationDateOnly
-      ) {
-        return index;
-      }
-    }
-
-    return -1;
-  }, [priceRange, simulationDateOnly]);
-
-  const todayPrice: number =
-    priceRange && currentPriceIndex >= 0
-      ? priceRange[currentPriceIndex].open
-      : 0;
-  const yesterdayPrice =
-    priceRange && currentPriceIndex > 0
-      ? priceRange[currentPriceIndex - 1].open
-      : undefined;
-
-  const { currentPrice, priceChange, priceChangePercent } =
-    calculatePriceMetrics(todayPrice, yesterdayPrice);
+  const currentPrice = currentPosition?.currentPrice ?? 0;
+  const priceChange = currentPosition?.priceChange ?? 0;
+  const priceChangePercent = currentPosition?.priceChangePercent ?? 0;
 
   const visiblePriceRange = useMemo(() => {
     if (!priceRange || simulationDateOnly === null) {
@@ -550,8 +518,14 @@ export function TradingViewPage() {
       if (Number(buyAmount) !== newAmount) {
         buyForm.setValue('amount', newAmount);
       }
+    } else {
+      // not focused — keep user's amount and update total according to new price
+      const newTotal = Number(buyAmount) * currentPrice;
+      if (Number(buyTotal) !== newTotal) {
+        buyForm.setValue('total', newTotal);
+      }
     }
-  }, [buyAmount, buyTotal, buyForm.setValue]);
+  }, [buyAmount, buyTotal, buyForm.setValue, currentPrice]);
 
   const sellAmount = sellForm.watch('amount');
   const sellTotal = sellForm.watch('total');
@@ -571,8 +545,13 @@ export function TradingViewPage() {
       if (Number(sellAmount) !== newAmount) {
         sellForm.setValue('amount', newAmount);
       }
+    } else {
+      const newTotal = Number(sellAmount) * currentPrice;
+      if (Number(sellTotal) !== newTotal) {
+        sellForm.setValue('total', newTotal);
+      }
     }
-  }, [sellAmount, sellTotal, sellForm.setValue]);
+  }, [sellAmount, sellTotal, currentPrice, sellForm.setValue]);
 
   const onBuySubmit = async (data: SellOrBuyForm) => {
     if (!stock || !simulationDate) {
