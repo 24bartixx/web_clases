@@ -10,6 +10,7 @@ import { useGame } from '../../contexts/GameContext';
 import { useNavigate } from 'react-router-dom';
 import { getStocks } from '../../api/stocksApi';
 import type { StockMinimal } from '../../types';
+import { CustomLoading } from '../../components/Common/CustomLoading';
 registerLocale('pl', pl);
 
 interface GameParams {
@@ -26,6 +27,7 @@ export function GameParamsPage() {
   const { createGame } = useGame();
   const [stocks, setStocks] = useState<StockMinimal[]>([]);
   const [showValidationErrors, setShowValidationErrors] = useState(false);
+  const [isCreatingSimulation, setIsCreatingSimulation] = useState(false);
 
   const [gameParams, setGameParams] = useState<GameParams>({
     simulationName: '',
@@ -87,6 +89,10 @@ export function GameParamsPage() {
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    if (isCreatingSimulation) {
+      return;
+    }
+
     const simulationName = gameParams.simulationName.trim();
     const hasValidationErrors =
       simulationName.length === 0 ||
@@ -98,6 +104,8 @@ export function GameParamsPage() {
     if (hasValidationErrors) {
       return;
     }
+
+    setIsCreatingSimulation(true);
 
     try {
       const simulation = await createGame({
@@ -113,6 +121,7 @@ export function GameParamsPage() {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
       alert('Could not create game: ' + errorMessage);
+      setIsCreatingSimulation(false);
     }
   };
 
@@ -124,108 +133,116 @@ export function GameParamsPage() {
 
   return (
     <div className="container min-vh-100 py-5 game-params-page d-flex flex-column align-items-center justify-content-center">
-      <h1>New game</h1>
-      <h4 className="mb-4">Set game parameters</h4>
+      <h1>{isCreatingSimulation ? 'Creating a new game...' : 'New game'}</h1>
+      {!isCreatingSimulation && (
+        <h4 className="mb-4">Set game parameters</h4>
+      )}
 
-      <form
-        noValidate
-        onSubmit={onSubmit}
-        className="w-100 d-flex flex-column gap-4 mt-4"
-        style={{ maxWidth: '560px' }}
-      >
-        <div>
+      {isCreatingSimulation ? (
+        <div className="d-flex justify-content-center py-5">
+          <CustomLoading />
+        </div>
+      ) : (
+        <form
+          noValidate
+          onSubmit={onSubmit}
+          className="w-100 d-flex flex-column gap-4 mt-4"
+          style={{ maxWidth: '560px' }}
+        >
+          <div>
+            <MDBInput
+              type="text"
+              value={gameParams.simulationName}
+              name="simulationName"
+              size="lg"
+              maxLength={255}
+              onChange={onChange}
+              label="Your simulation name"
+              className={isSimulationNameInvalid ? 'is-invalid' : ''}
+            />
+            {isSimulationNameInvalid && (
+              <p className="game-params-field-error">
+                Simulation name is required.
+              </p>
+            )}
+          </div>
+
           <MDBInput
-            type="text"
-            value={gameParams.simulationName}
-            name="simulationName"
+            type="number"
+            value={gameParams.budget}
+            name="budget"
             size="lg"
-            maxLength={255}
+            min={1}
             onChange={onChange}
-            label="Your simulation name"
-            className={isSimulationNameInvalid ? 'is-invalid' : ''}
-          />
-          {isSimulationNameInvalid && (
-            <p className="game-params-field-error">
-              Simulation name is required.
-            </p>
-          )}
-        </div>
-
-        <MDBInput
-          type="number"
-          value={gameParams.budget}
-          name="budget"
-          size="lg"
-          min={1}
-          onChange={onChange}
-          id="validationCustom01"
-          label="Starting budget (USD)"
-          className={isBudgetInvalid ? 'is-invalid' : ''}
-        />
-
-        <div className="d-flex flex-column flex-md-row gap-4">
-          <MDBInput
-            type="date"
-            value={dateToDateString(gameParams.startDate)}
-            onChange={(e) => {
-              const date = new Date(e.target.value);
-              if (!isNaN(date.getTime())) {
-                setGameParams({ ...gameParams, startDate: date });
-              }
-            }}
-            size="lg"
-            label="Game start date"
-            className="w-100"
+            id="validationCustom01"
+            label="Starting budget (USD)"
+            className={isBudgetInvalid ? 'is-invalid' : ''}
           />
 
-          <MDBInput
-            type="date"
-            value={dateToDateString(gameParams.endDate)}
-            onChange={(e) => {
-              const date = new Date(e.target.value);
-              if (!isNaN(date.getTime())) {
-                setGameParams({ ...gameParams, endDate: date });
-              }
-            }}
-            size="lg"
-            label="Game end date"
-            className="w-100"
-          />
-        </div>
+          <div className="d-flex flex-column flex-md-row gap-4">
+            <MDBInput
+              type="date"
+              value={dateToDateString(gameParams.startDate)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                const date = new Date(e.target.value);
+                if (!isNaN(date.getTime())) {
+                  setGameParams({ ...gameParams, startDate: date });
+                }
+              }}
+              size="lg"
+              label="Game start date"
+              className="w-100"
+            />
 
-        <div className="game-params-divider" />
+            <MDBInput
+              type="date"
+              value={dateToDateString(gameParams.endDate)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                const date = new Date(e.target.value);
+                if (!isNaN(date.getTime())) {
+                  setGameParams({ ...gameParams, endDate: date });
+                }
+              }}
+              size="lg"
+              label="Game end date"
+              className="w-100"
+            />
+          </div>
 
-        <div>
-          <CompanyMultiSelect
-            allCompanies={stocks}
-            selectedIds={gameParams.selectedStockIds}
-            isInvalid={isCompanySelectionInvalid}
-            onSelect={handleSelect}
-            onRemove={handleRemove}
-          />
-          {isCompanySelectionInvalid && (
-            <p className="game-params-field-error">
-              Select at least one company.
-            </p>
-          )}
-        </div>
+          <div className="game-params-divider" />
 
-        <div className="col-12 mt-4 d-flex flex-column flex-md-row gap-3">
-          <MDBBtn
-            type="button"
-            className="w-100 !min-h-[3rem] !rounded-full !border !border-white/70 !bg-transparent !px-6 !text-sm !font-bold !uppercase !text-white !shadow-none !no-underline transition hover:!border-white hover:!bg-white/10 hover:!text-white hover:!shadow-none hover:!no-underline focus:!shadow-none"
-            onClick={() => navigate('/')}
-          >
-            Back
-          </MDBBtn>
-          <MDBBtn
-            type="submit"
-            className="w-100 !min-h-[3rem] !rounded-full !border !border-[rgb(222,227,230)] !bg-[rgb(222,227,230)] !px-6 !text-sm !font-bold !uppercase !text-[rgb(15,20,22)] !shadow-none transition hover:!border-white hover:!bg-white hover:!text-[rgb(15,20,22)] hover:!shadow-none focus:!shadow-none"
-          >
-            Submit form
-          </MDBBtn>
-        </div>
-      </form>
+          <div>
+            <CompanyMultiSelect
+              allCompanies={stocks}
+              selectedIds={gameParams.selectedStockIds}
+              isInvalid={isCompanySelectionInvalid}
+              onSelect={handleSelect}
+              onRemove={handleRemove}
+            />
+            {isCompanySelectionInvalid && (
+              <p className="game-params-field-error">
+                Select at least one company.
+              </p>
+            )}
+          </div>
+
+          <div className="col-12 mt-4 d-flex flex-column flex-md-row gap-3">
+            <MDBBtn
+              type="button"
+              className="w-100 !min-h-[3rem] !rounded-full !border !border-white/70 !bg-transparent !px-6 !text-sm !font-bold !uppercase !text-white !shadow-none !no-underline transition hover:!border-white hover:!bg-white/10 hover:!text-white hover:!shadow-none hover:!no-underline focus:!shadow-none"
+              onClick={() => navigate('/')}
+            >
+              Back
+            </MDBBtn>
+            <MDBBtn
+              type="submit"
+              className="w-100 !min-h-[3rem] !rounded-full !border !border-[rgb(222,227,230)] !bg-[rgb(222,227,230)] !px-6 !text-sm !font-bold !uppercase !text-[rgb(15,20,22)] !shadow-none transition hover:!border-white hover:!bg-white hover:!text-[rgb(15,20,22)] hover:!shadow-none focus:!shadow-none"
+            >
+              Submit form
+            </MDBBtn>
+          </div>
+        </form>
+      )}
     </div>
   );
 }

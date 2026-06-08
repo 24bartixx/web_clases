@@ -4,7 +4,6 @@ import {
   MDBCol,
   MDBContainer,
   MDBRow,
-  MDBSpinner,
   MDBTabs,
   MDBTabsItem,
   MDBTabsLink,
@@ -38,6 +37,7 @@ import {
   toDateOnly,
 } from '../../utils';
 import { useGame } from '../../contexts/GameContext';
+import { CustomLoading } from '../../components/Common/CustomLoading';
 
 enum TradeSideKey {
   Buy = 'buy',
@@ -122,7 +122,9 @@ export function TradingViewPage() {
   const [stock, setStock] = useState<Stock | null>(null);
   const [stockDetails, setStockDetails] = useState<StockDetails | null>(null);
   const [priceRange, setPriceRange] = useState<Price[] | null>(null);
-  const [oldestFetchedDate, setOldestFetchedDate] = useState<string | null>(null);
+  const [oldestFetchedDate, setOldestFetchedDate] = useState<string | null>(
+    null,
+  );
   const [hasFetchedAllBack, setHasFetchedAllBack] = useState(false);
   const isFetchingOlderPricesRef = useRef(false);
   const olderPriceFetchKeyRef = useRef<string | null>(null);
@@ -296,7 +298,10 @@ export function TradingViewPage() {
         }
 
         setPriceRange((currentPrices) => {
-          const mergedPrices = mergePriceRanges(currentPrices ?? [], olderPrices);
+          const mergedPrices = mergePriceRanges(
+            currentPrices ?? [],
+            olderPrices,
+          );
           const nextOldestDate = getOldestPriceDate(mergedPrices);
 
           if (nextOldestDate === oldestFetchedDate) {
@@ -325,11 +330,7 @@ export function TradingViewPage() {
     return () => {
       isCancelled = true;
     };
-  }, [
-    cleanTicker,
-    hasFetchedAllBack,
-    oldestFetchedDate,
-  ]);
+  }, [cleanTicker, hasFetchedAllBack, oldestFetchedDate]);
 
   const currentPriceIndex = useMemo(() => {
     if (!priceRange || priceRange.length === 0) {
@@ -469,12 +470,9 @@ export function TradingViewPage() {
 
   if (loading) {
     return (
-      <MDBContainer className="d-flex justify-content-center align-items-center vh-100">
-        <MDBSpinner grow color="primary" className="mb-3"></MDBSpinner>
-        <MDBSpinner grow color="primary" className="mb-3"></MDBSpinner>
-        <MDBSpinner grow color="primary" className="mb-3"></MDBSpinner>
-        <MDBSpinner grow color="primary" className="mb-3"></MDBSpinner>
-      </MDBContainer>
+      <div className="flex-grow-1 d-flex justify-content-center align-items-center">
+        <CustomLoading />
+      </div>
     );
   }
 
@@ -667,8 +665,10 @@ export function TradingViewPage() {
                     </MDBTabs>
                   </MDBCol>
                   <MDBCol fill size="auto" className="d-flex">
-                    <MDBTypography tag="h6" className="fw-semibold m-0 lh-1">
-                    </MDBTypography>
+                    <MDBTypography
+                      tag="h6"
+                      className="fw-semibold m-0 lh-1"
+                    ></MDBTypography>
                   </MDBCol>
                 </MDBRow>
               </div>

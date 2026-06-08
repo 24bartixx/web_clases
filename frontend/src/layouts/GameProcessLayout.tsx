@@ -3,6 +3,7 @@ import { MDBContainer, MDBSpinner } from 'mdb-react-ui-kit';
 import { Navigate, Outlet, useParams } from 'react-router';
 import { GameMenu } from '../menus/gameMenu';
 import { useGame } from '../contexts/GameContext';
+import { CustomLoading } from '../components/Common/CustomLoading';
 
 export function GameProcessLayout() {
   const { simulationId } = useParams<{ simulationId: string }>();
@@ -36,29 +37,27 @@ export function GameProcessLayout() {
 
   if (!isLoadedSimulation && gameState.status !== 'error') {
     return (
-      <>
+      <div className="min-vh-100 d-flex flex-column">
         <GameMenu />
-        <MDBContainer className="d-flex justify-content-center align-items-center vh-100">
-          <MDBSpinner grow color="primary" className="mb-3"></MDBSpinner>
-          <MDBSpinner grow color="primary" className="mb-3"></MDBSpinner>
-          <MDBSpinner grow color="primary" className="mb-3"></MDBSpinner>
-          <MDBSpinner grow color="primary" className="mb-3"></MDBSpinner>
-        </MDBContainer>
-      </>
+        <main className="flex-grow-1 d-flex flex-column">
+          <MDBContainer className="flex-grow-1 d-flex justify-content-center align-items-center">
+            <CustomLoading />
+          </MDBContainer>
+        </main>
+      </div>
     );
   }
 
-  if (
-    isLoadedSimulation &&
-    gameState.finishedAt !== null
-  ) {
+  if (isLoadedSimulation && gameState.finishedAt !== null) {
     return <Navigate to={`/game/${parsedSimulationId}/summary`} replace />;
   }
 
   return (
-    <>
+    <div className="min-vh-100 d-flex flex-column">
       <GameMenu />
-      <Outlet />
-    </>
+      <main className="flex-grow-1 d-flex flex-column">
+        <Outlet />
+      </main>
+    </div>
   );
 }

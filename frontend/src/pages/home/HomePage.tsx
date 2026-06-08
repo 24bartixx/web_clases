@@ -13,6 +13,7 @@ import { getSimulationList } from '../../api/simulationApi';
 import { getUserInfo } from '../../api/userApi';
 import type { UserInfo } from '../../api/userApi';
 import type { SimulationPreview } from '../../types/Simulation';
+import { CustomLoading } from '../../components/Common/CustomLoading';
 import logo from '../../assets/logo.png';
 import './HomePage.css';
 
@@ -23,6 +24,7 @@ export function HomePage() {
   const [userSimulationsPreviews, setUserSimulationsPreviews] = useState<
     SimulationPreview[]
   >([]);
+  const [areSimulationsLoading, setAreSimulationsLoading] = useState(true);
 
   const defaultAvatar =
     'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png';
@@ -41,10 +43,13 @@ export function HomePage() {
 
   useEffect(() => {
     const fetchUserSimulationsPreviews = async () => {
+      setAreSimulationsLoading(true);
       try {
         setUserSimulationsPreviews(await getSimulationList());
       } catch (error) {
         console.error('Failed to fetch simulations:', error);
+      } finally {
+        setAreSimulationsLoading(false);
       }
     };
 
@@ -91,7 +96,11 @@ export function HomePage() {
         <MDBCol className="px-0">
           <div className="home-page-section">
             <h1 className="mb-3">Games</h1>
-            {userSimulationsPreviews.length === 0 ? (
+            {areSimulationsLoading ? (
+              <div className="d-flex justify-content-center py-5">
+                <CustomLoading />
+              </div>
+            ) : userSimulationsPreviews.length === 0 ? (
               <p>No games yet... Start a new game!</p>
             ) : (
               <MDBListGroup className="d-flex flex-column gap-3 bg-transparent">

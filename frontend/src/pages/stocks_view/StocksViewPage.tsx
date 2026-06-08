@@ -1,7 +1,6 @@
 import {
   MDBContainer,
   MDBIcon,
-  MDBSpinner,
   MDBTable,
   MDBTableBody,
   MDBTableHead,
@@ -22,6 +21,7 @@ import { Key, useMemo } from 'react';
 import { InfoModal } from '../../components/InfoModal';
 import { PriceMetrics } from '../../utils';
 import { useGame } from '../../contexts/GameContext';
+import { CustomLoading } from '../../components/Common/CustomLoading';
 
 // prettier-ignore
 type RowData = Stock &StockDetails & PriceMetrics & { volume: number };
@@ -109,12 +109,9 @@ export function StocksViewPage() {
 
   if (gameState.status === 'loading') {
     return (
-      <MDBContainer className="d-flex justify-content-center align-items-center vh-100">
-        <MDBSpinner grow color="primary" className="mb-3"></MDBSpinner>
-        <MDBSpinner grow color="primary" className="mb-3"></MDBSpinner>
-        <MDBSpinner grow color="primary" className="mb-3"></MDBSpinner>
-        <MDBSpinner grow color="primary" className="mb-3"></MDBSpinner>
-      </MDBContainer>
+      <div className="flex-grow-1 d-flex justify-content-center align-items-center">
+        <CustomLoading />
+      </div>
     );
   }
 
