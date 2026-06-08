@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { apiUrl } from '../../utils/apiUrl';
+import { CustomLoading } from '../../components/Common/CustomLoading';
 
 export function AuthCallback() {
   const { provider } = useParams();
@@ -23,5 +24,9 @@ export function AuthCallback() {
     }
   }, [provider, searchParams, navigate]);
 
-  return <div>Logging in with {provider}, please wait...</div>;
+  return (
+    <div className="min-vh-100 d-flex align-items-center justify-content-center">
+      <CustomLoading />
+    </div>
+  );
 }

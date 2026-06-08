@@ -1,7 +1,7 @@
 import { MDBSpinner } from 'mdb-react-ui-kit';
 
 export function CustomLoading() {
-  const spinnerStyle = { color: 'rgb(222, 227, 230)' };
+  const spinnerStyle = { color: 'var(--app-text-primary)' };
 
   return (
     <div className="d-flex align-items-center justify-content-center gap-2">

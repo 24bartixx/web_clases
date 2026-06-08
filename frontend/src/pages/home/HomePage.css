@@ -42,7 +42,7 @@
 
 .home-hero__brand {
   align-items: center;
-  color: rgb(222, 227, 230);
+  color: var(--app-text-primary);
   display: flex;
   font-size: 1rem;
   font-weight: 700;
@@ -64,7 +64,7 @@
 }
 
 .home-hero__eyebrow {
-  color: rgb(137, 146, 150);
+  color: var(--app-text-muted);
   font-size: 0.85rem;
   font-weight: 700;
   letter-spacing: 0;
@@ -80,7 +80,7 @@
 }
 
 .home-hero__title {
-  color: rgb(222, 227, 230);
+  color: var(--app-text-primary);
   font-size: 4rem;
   font-weight: 700;
   line-height: 1.05;
@@ -88,7 +88,7 @@
 }
 
 .home-hero__subtitle {
-  color: rgb(137, 146, 150);
+  color: var(--app-text-muted);
   font-size: 1.15rem;
   line-height: 1.55;
   margin-bottom: 2rem;
@@ -97,10 +97,10 @@
 
 .home-hero__button {
   align-items: center;
-  background-color: rgb(222, 227, 230) !important;
-  border: 1px solid rgb(222, 227, 230) !important;
+  background-color: var(--app-button-primary-bg) !important;
+  border: 1px solid var(--app-button-primary-bg) !important;
   border-radius: 999px !important;
-  color: rgb(15, 20, 22) !important;
+  color: var(--app-button-primary-text) !important;
   display: inline-flex;
   font-size: 0.95rem !important;
   font-weight: 700 !important;
@@ -118,7 +118,7 @@
 .home-hero__button:focus {
   background-color: rgb(255, 255, 255) !important;
   border-color: rgb(255, 255, 255) !important;
-  color: rgb(15, 20, 22) !important;
+  color: var(--app-button-primary-text) !important;
   box-shadow: none !important;
 }
 
@@ -138,7 +138,7 @@
 }
 
 .home-hero__avatar {
-  border: 1px solid rgba(222, 227, 230, 0.22);
+  border: 1px solid var(--app-border-muted);
   border-radius: 999px;
   box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.24);
   flex: 0 0 auto;
