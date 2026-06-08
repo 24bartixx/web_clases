@@ -183,6 +183,7 @@ export function TradingViewPage() {
   }, [gameState.tradingDates, simulationDateOnly]);
 
   const buyForm = useForm<SellOrBuyForm>({
+    mode: 'onChange',
     defaultValues: {
       amount: NaN,
       total: NaN,
@@ -190,6 +191,7 @@ export function TradingViewPage() {
   });
 
   const sellForm = useForm<SellOrBuyForm>({
+    mode: 'onChange',
     defaultValues: {
       amount: NaN,
       total: NaN,
@@ -506,26 +508,30 @@ export function TradingViewPage() {
   useEffect(() => {
     if (!currentPrice) return;
 
+    const { errors } = buyForm.formState;
     const activeName = document.activeElement?.getAttribute('name');
 
     if (activeName === 'buy-amount') {
+      if (Number(buyAmount) < 0) return;
       const newTotal = Number(buyAmount) * currentPrice;
       if (Number(buyTotal) !== newTotal) {
         buyForm.setValue('total', newTotal);
       }
     } else if (activeName === 'buy-total') {
+      if (Number(buyTotal) < 0) return;
       const newAmount = Number((Number(buyTotal) / currentPrice).toFixed(6));
       if (Number(buyAmount) !== newAmount) {
-        buyForm.setValue('amount', newAmount);
+        buyForm.setValue('amount', newAmount, { shouldValidate: true });
       }
     } else {
       // not focused — keep user's amount and update total according to new price
+      if (Number(buyAmount) < 0) return;
       const newTotal = Number(buyAmount) * currentPrice;
       if (Number(buyTotal) !== newTotal) {
         buyForm.setValue('total', newTotal);
       }
     }
-  }, [buyAmount, buyTotal, buyForm.setValue, currentPrice]);
+  }, [buyAmount, buyTotal, buyForm, currentPrice]);
 
   const sellAmount = sellForm.watch('amount');
   const sellTotal = sellForm.watch('total');
@@ -533,25 +539,29 @@ export function TradingViewPage() {
   useEffect(() => {
     if (!currentPrice) return;
 
+    const { errors } = sellForm.formState;
     const activeName = document.activeElement?.getAttribute('name');
 
     if (activeName === 'sell-amount') {
+      if (Number(sellAmount) < 0) return;
       const newTotal = Number(sellAmount) * currentPrice;
       if (Number(sellTotal) !== newTotal) {
         sellForm.setValue('total', newTotal);
       }
     } else if (activeName === 'sell-total') {
+      if (Number(sellTotal) < 0) return;
       const newAmount = Number((Number(sellTotal) / currentPrice).toFixed(6));
       if (Number(sellAmount) !== newAmount) {
-        sellForm.setValue('amount', newAmount);
+        sellForm.setValue('amount', newAmount, { shouldValidate: true });
       }
     } else {
+      if (Number(sellAmount) < 0) return;
       const newTotal = Number(sellAmount) * currentPrice;
       if (Number(sellTotal) !== newTotal) {
         sellForm.setValue('total', newTotal);
       }
     }
-  }, [sellAmount, sellTotal, currentPrice, sellForm.setValue]);
+  }, [sellAmount, sellTotal, sellForm, currentPrice]);
 
   const onBuySubmit = async (data: SellOrBuyForm) => {
     if (!stock || !simulationDate) {
@@ -605,7 +615,7 @@ export function TradingViewPage() {
   return (
     <div
       className="container px-4 py-4 pb-4 my-3 border shadow-sm rounded-3"
-      style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }}
+      style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}
     >
       <MDBContainer className="gap-3 d-flex flex-column" style={{ flex: 1, overflow: 'auto', minHeight: 0 }}>
         <div className="border-bottom">
@@ -846,6 +856,7 @@ export function TradingViewPage() {
                         className="px-3 py-2"
                         onClick={() => handleTradeSideChange(TradeSideKey.Sell)}
                         active={activeTradeSide === TradeSideKey.Sell}
+                        // disabled={!currentPosition || currentPosition.amount === 0}
                       >
                         <MDBTypography
                           tag="p"
@@ -866,9 +877,24 @@ export function TradingViewPage() {
                         : 'none',
                   }}
                 >
+                  <div className="mt-2 text-center">
+                    <MDBTypography tag="h6" className="m-0 text-muted small lh-1">
+                      You have: {currentPosition?.amount?.toFixed(6) ?? 0} shares
+                    </MDBTypography>
+                  </div>
                   <Controller
                     name="amount"
                     control={buyForm.control}
+                    rules={{
+                      required: 'Amount is required',
+                      min: { value: 0.000001, message: 'Amount must be positive' },
+                      validate: value => {
+                        if (value * currentPrice > (gameState.availableFunds ?? 0)) {
+                          return "Not enough funds";
+                        }
+                        return true;
+                      }
+                    }}
                     render={({ field }) => (
                       <AmountInput
                         {...field}
@@ -895,6 +921,7 @@ export function TradingViewPage() {
                   <MDBBtn
                     onClick={buyForm.handleSubmit(onBuySubmit)}
                     className="p-3 w-100 rounded-3"
+                    disabled={!buyForm.formState.isValid || (gameState.availableFunds ?? 0) <= 0}
                   >
                     <MDBTypography tag="h6" className="m-0 fw-semibold lh-1">
                       Buy
@@ -909,9 +936,22 @@ export function TradingViewPage() {
                         : 'none',
                   }}
                 >
+                  <div className="mt-2 text-center">
+                    <MDBTypography tag="h6" className="m-0 text-muted small lh-1">
+                      You have: {currentPosition?.amount?.toFixed(6) ?? 0} shares
+                    </MDBTypography>
+                  </div>
                   <Controller
                     name="amount"
                     control={sellForm.control}
+                    rules={{
+                      required: 'Amount is required',
+                      min: { value: 0.000001, message: 'Amount must be positive' },
+                      max: {
+                        value: currentPosition?.amount ?? 0,
+                        message: "You don't have enough shares to sell",
+                      },
+                    }}
                     render={({ field }) => (
                       <AmountInput
                         {...field}
@@ -936,8 +976,10 @@ export function TradingViewPage() {
                     )}
                   />
                   <button
+                    type="button"
                     onClick={sellForm.handleSubmit(onSellSubmit)}
                     className="p-3 btn btn-primary w-100 rounded-3"
+                    disabled={!sellForm.formState.isValid || !currentPosition || currentPosition.amount === 0}
                   >
                     <MDBTypography tag="h6" className="m-0 fw-semibold lh-1">
                       Sell
