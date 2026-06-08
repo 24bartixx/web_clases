@@ -40,7 +40,8 @@ interface MakeTransactionParams {
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
-const toDateOnly = (dateValue: string | null) => dateValue?.slice(0, 10) ?? null;
+const toDateOnly = (dateValue: string | null) =>
+  dateValue?.slice(0, 10) ?? null;
 
 const addDaysToDateOnly = (dateValue: string, days: number) => {
   const [year, month, day] = dateValue.split('-').map(Number);
@@ -79,7 +80,9 @@ const getTargetTradingDate = (gameState: GameState, daysToAdvance: number) => {
 const fetchOpenPriceForDate = async (ticker: string, date: string) => {
   const finishDate = addDaysToDateOnly(date, 1);
   const response = await fetch(
-    apiUrl(`/stocks/${ticker}/prices?start=${date}&finish=${finishDate}&interval=1d`),
+    apiUrl(
+      `/stocks/${ticker}/prices?start=${date}&finish=${finishDate}&interval=1d`,
+    ),
   );
 
   if (!response.ok) {
@@ -112,7 +115,9 @@ const calculateEstimatedFinancials = async (
     return null;
   }
 
-  const openPositions = stockPositions.filter((position) => position.amount > 0);
+  const openPositions = stockPositions.filter(
+    (position) => position.amount > 0,
+  );
   const openPrices = await Promise.all(
     openPositions.map(async (position) => ({
       price: await fetchOpenPriceForDate(
@@ -246,10 +251,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       const simulation = await getSimulation(simulationId);
       const updatedGameState = mapSimulationDetailToGameState(simulation);
 
-      setGameState((currentGameState) => ({
-        ...updatedGameState,
-        pricesByStockId: currentGameState.pricesByStockId,
-      }));
+      setGameState(updatedGameState);
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Failed to create transaction';
@@ -311,14 +313,14 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      const simulation = await advanceSimulationTurn(simulationId, daysToAdvance);
+      const simulation = await advanceSimulationTurn(
+        simulationId,
+        daysToAdvance,
+      );
       canApplyEstimate = false;
       const updatedGameState = mapSimulationDetailToGameState(simulation);
 
-      setGameState((currentGameState) => ({
-        ...updatedGameState,
-        pricesByStockId: currentGameState.pricesByStockId,
-      }));
+      setGameState(updatedGameState);
     } catch (error) {
       canApplyEstimate = false;
       const errorMessage =
@@ -355,10 +357,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       const simulation = await getSimulation(simulationId);
       const updatedGameState = mapSimulationDetailToGameState(simulation);
 
-      setGameState((currentGameState) => ({
-        ...updatedGameState,
-        pricesByStockId: currentGameState.pricesByStockId,
-      }));
+      setGameState(updatedGameState);
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Failed to finish game';

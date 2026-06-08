@@ -103,6 +103,5 @@ export const mapSimulationDetailToGameState = (
         price: Number(transaction.price),
       })),
   })),
-  pricesByStockId: {},
   error: null,
 });
