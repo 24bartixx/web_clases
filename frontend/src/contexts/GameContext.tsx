@@ -1,6 +1,8 @@
-import { createContext, useCallback, useContext, useState } from 'react';
+import { createContext, useContext, useState, useRef, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import { GameState, initialGameState } from '../types/GameState';
+import type { ToastItemData, ToastPayload, ToastVariant } from '../components/Toast/ToastItem';
+import ToastsList from '../components/Toast/ToastsList';
 import { mapSimulationDetailToGameState } from '../mappers/simulationMapper';
 import type { SimulationDetailResponse } from '../mappers/simulationMapper';
 import { createTransaction } from '../api/transactionsApi';
@@ -20,6 +22,7 @@ interface GameContextType {
   makeTransaction: (params: MakeTransactionParams) => Promise<void>;
   advanceTurn: (days: number) => Promise<void>;
   finishGame: () => Promise<void>;
+  addToast: (toast: ToastPayload) => void;
 }
 
 interface CreateGameParams {
@@ -169,6 +172,17 @@ const calculateEstimatedFinancials = async (
 
 export function GameProvider({ children }: { children: ReactNode }) {
   const [gameState, setGameState] = useState<GameState>(initialGameState);
+  const [toasts, setToasts] = useState<ToastItemData[]>([]);
+  const toastIdRef = useRef(0);
+
+  const addToast = async (toast: ToastPayload) => {
+    toastIdRef.current += 1;
+    setToasts((prev) => [...prev, { ...toast, id: String(toastIdRef.current) }]);
+  };
+
+  const removeToast = useCallback((id: string) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  }, []);
 
   const createGame = async (params: CreateGameParams) => {
     console.log('createGame', params);
@@ -252,6 +266,12 @@ export function GameProvider({ children }: { children: ReactNode }) {
       const updatedGameState = mapSimulationDetailToGameState(simulation);
 
       setGameState(updatedGameState);
+
+      addToast({
+        title: 'Transaction Successful',
+        message: `Successfully ${params.transactionType === 'buy' ? 'bought' : 'sold'} ${params.amount} shares at $${params.price.toFixed(2)}.`,
+        variant: 'success',
+      });
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Failed to create transaction';
@@ -262,6 +282,12 @@ export function GameProvider({ children }: { children: ReactNode }) {
         status: 'error',
         error: errorMessage,
       }));
+
+      addToast({
+        title: 'Transaction Failed',
+        message: errorMessage,
+        variant: 'error',
+      });
     }
   };
 
@@ -382,9 +408,11 @@ export function GameProvider({ children }: { children: ReactNode }) {
         makeTransaction,
         advanceTurn,
         finishGame,
+        addToast,
       }}
     >
       {children}
+      <ToastsList toasts={toasts} onClose={removeToast} />
     </GameContext.Provider>
   );
 }
