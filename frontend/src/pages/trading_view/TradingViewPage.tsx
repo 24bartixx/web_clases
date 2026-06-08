@@ -87,6 +87,27 @@ const getOldestPriceDate = (prices: Price[]): string | null => {
   }, null);
 };
 
+const getNewestPriceDate = (prices: Price[]): string | null => {
+  if (prices.length === 0) {
+    return null;
+  }
+
+  return prices.reduce<string | null>((newestDate, price) => {
+    const priceDate = toDateOnly(price.priceDate);
+
+    if (priceDate === null) {
+      return newestDate;
+    }
+
+    return newestDate === null || priceDate > newestDate
+      ? priceDate
+      : newestDate;
+  }, null);
+};
+
+const minDateOnly = (left: string, right: string) =>
+  left <= right ? left : right;
+
 const mergePriceRanges = (currentPrices: Price[], newPrices: Price[]) => {
   const pricesByDate = new Map<string, Price>();
 
@@ -125,12 +146,19 @@ export function TradingViewPage() {
   const [oldestFetchedDate, setOldestFetchedDate] = useState<string | null>(
     null,
   );
+  const [newestFetchedDate, setNewestFetchedDate] = useState<string | null>(
+    null,
+  );
   const [hasFetchedAllBack, setHasFetchedAllBack] = useState(false);
+  const [hasFetchedAllAhead, setHasFetchedAllAhead] = useState(false);
   const isFetchingOlderPricesRef = useRef(false);
+  const isFetchingFuturePricesRef = useRef(false);
   const olderPriceFetchKeyRef = useRef<string | null>(null);
+  const futurePriceFetchKeyRef = useRef<string | null>(null);
 
   const simulationDate = gameState.currentDate ?? gameState.startDate;
   const simulationDateOnly = toDateOnly(simulationDate);
+  const finishDateOnly = toDateOnly(gameState.finishDate);
   const priceStartDateOnly = simulationDateOnly
     ? addMonthsToDateOnly(simulationDateOnly, -2)
     : null;
@@ -194,43 +222,56 @@ export function TradingViewPage() {
           throw new Error('Simulation is not loaded');
         }
 
-        const stockResponse = await fetch(apiUrl(`/api/stocks/${cleanTicker}`));
+        const [stockResponse, detailsResponse, priceResponse] =
+          await Promise.all([
+            fetch(apiUrl(`/api/stocks/${cleanTicker}`)),
+            fetch(apiUrl(`/api/stocks/${cleanTicker}/details`)),
+            fetch(
+              apiUrl(
+                `/api/stocks/${cleanTicker}/prices?start=${priceStartDateOnly}&finish=${priceFinishDateOnly}&interval=1d`,
+              ),
+            ),
+          ]);
 
         if (!stockResponse.ok) {
           throw new Error(`Status: ${stockResponse.status}`);
         }
 
-        const stockData: StockDto = await stockResponse.json();
-
-        const detailsResponse = await fetch(
-          apiUrl(`/api/stocks/${cleanTicker}/details`),
-        );
-
         if (!detailsResponse.ok) {
           throw new Error(`Status: ${detailsResponse.status})`);
         }
-        const detailsData: StockDetailsDto = await detailsResponse.json();
-
-        const priceResponse = await fetch(
-          apiUrl(
-            `/api/stocks/${cleanTicker}/prices?start=${priceStartDateOnly}&finish=${priceFinishDateOnly}&interval=1d`,
-          ),
-        );
 
         if (!priceResponse.ok) {
           throw new Error(`Status: ${priceResponse.status}`);
         }
 
-        const priceRangeData: PriceDto[] = await priceResponse.json();
+        const [stockData, detailsData, priceRangeData]: [
+          StockDto,
+          StockDetailsDto,
+          PriceDto[],
+        ] = await Promise.all([
+          stockResponse.json(),
+          detailsResponse.json(),
+          priceResponse.json(),
+        ]);
 
         const mappedPrices = priceRangeData.map((priceDto) =>
           mapPriceDtoToPrice(priceDto),
         );
+        const newestPriceDate = getNewestPriceDate(mappedPrices);
 
         olderPriceFetchKeyRef.current = null;
+        futurePriceFetchKeyRef.current = null;
         isFetchingOlderPricesRef.current = false;
+        isFetchingFuturePricesRef.current = false;
         setHasFetchedAllBack(mappedPrices.length === 0);
+        setHasFetchedAllAhead(
+          newestPriceDate === null ||
+            finishDateOnly === null ||
+            newestPriceDate >= finishDateOnly,
+        );
         setOldestFetchedDate(getOldestPriceDate(mappedPrices));
+        setNewestFetchedDate(newestPriceDate);
         setStock(mapStockDtoToStock(stockData));
         setStockDetails(mapStockDetailsDtoToStockDetails(detailsData));
         setPriceRange(mappedPrices);
@@ -242,13 +283,7 @@ export function TradingViewPage() {
     };
 
     loadData();
-  }, [
-    cleanTicker,
-    priceFinishDateOnly,
-    priceStartDateOnly,
-    simulationDate,
-    simulationDateOnly,
-  ]);
+  }, [cleanTicker, gameState.simulationId]);
 
   useEffect(() => {
     if (
@@ -331,6 +366,105 @@ export function TradingViewPage() {
       isCancelled = true;
     };
   }, [cleanTicker, hasFetchedAllBack, oldestFetchedDate]);
+
+  useEffect(() => {
+    if (
+      !cleanTicker ||
+      newestFetchedDate === null ||
+      finishDateOnly === null ||
+      hasFetchedAllAhead ||
+      isFetchingFuturePricesRef.current
+    ) {
+      return;
+    }
+
+    if (newestFetchedDate >= finishDateOnly) {
+      setHasFetchedAllAhead(true);
+      return;
+    }
+
+    const finishBoundaryDate = addDaysToDateOnly(finishDateOnly, 1);
+    const nextFinishDate = minDateOnly(
+      addMonthsToDateOnly(newestFetchedDate, 2),
+      finishBoundaryDate,
+    );
+    const fetchKey = `${cleanTicker}:${newestFetchedDate}:${nextFinishDate}`;
+
+    if (futurePriceFetchKeyRef.current === fetchKey) {
+      return;
+    }
+
+    let isCancelled = false;
+    futurePriceFetchKeyRef.current = fetchKey;
+    isFetchingFuturePricesRef.current = true;
+
+    const loadFuturePrices = async () => {
+      try {
+        const response = await fetch(
+          apiUrl(
+            `/api/stocks/${cleanTicker}/prices?start=${newestFetchedDate}&finish=${nextFinishDate}&interval=1d`,
+          ),
+        );
+
+        if (!response.ok) {
+          throw new Error(`Status: ${response.status}`);
+        }
+
+        const priceRangeData: PriceDto[] = await response.json();
+        const futurePrices = priceRangeData.map((priceDto) =>
+          mapPriceDtoToPrice(priceDto),
+        );
+
+        if (isCancelled) {
+          return;
+        }
+
+        if (futurePrices.length === 0) {
+          if (nextFinishDate >= finishBoundaryDate) {
+            setHasFetchedAllAhead(true);
+          } else {
+            setNewestFetchedDate(addDaysToDateOnly(nextFinishDate, -1));
+          }
+
+          return;
+        }
+
+        setPriceRange((currentPrices) => {
+          const mergedPrices = mergePriceRanges(
+            currentPrices ?? [],
+            futurePrices,
+          );
+          const nextNewestDate = getNewestPriceDate(mergedPrices);
+
+          if (nextNewestDate === null || nextNewestDate >= finishDateOnly) {
+            setHasFetchedAllAhead(true);
+          } else if (nextNewestDate === newestFetchedDate) {
+            setNewestFetchedDate(addDaysToDateOnly(nextFinishDate, -1));
+          } else {
+            setNewestFetchedDate(nextNewestDate);
+          }
+
+          return mergedPrices;
+        });
+      } catch (err) {
+        console.error(`Failed to load future prices for ${cleanTicker}`, err);
+
+        if (!isCancelled) {
+          setHasFetchedAllAhead(true);
+        }
+      } finally {
+        if (!isCancelled) {
+          isFetchingFuturePricesRef.current = false;
+        }
+      }
+    };
+
+    loadFuturePrices();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [cleanTicker, finishDateOnly, hasFetchedAllAhead, newestFetchedDate]);
 
   const currentPriceIndex = useMemo(() => {
     if (!priceRange || priceRange.length === 0) {

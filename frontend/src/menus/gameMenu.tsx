@@ -40,6 +40,7 @@ export function GameMenu() {
   const navigate = useNavigate();
   const [daysToAdvance, setDaysToAdvance] = useState(1);
   const isAdvancingRef = useRef(false);
+  const [isAdvancingTurn, setIsAdvancingTurn] = useState(false);
 
   const availableFunds = gameState.availableFunds;
   const accountBalance = gameState.currentBalance;
@@ -75,6 +76,7 @@ export function GameMenu() {
   const maxDaysToAdvance =
     gameState.currentDate !== null ? remainingTradingDateCount + 1 : 0;
   const canAdvance = isGameReady && maxDaysToAdvance > 0;
+  const isLoadingData = isAdvancingTurn;
   const isFinishSelected = canAdvance && daysToAdvance >= maxDaysToAdvance;
   const profitLossClass =
     profitLoss === null || profitLoss >= 0
@@ -115,11 +117,12 @@ export function GameMenu() {
   }, [maxDaysToAdvance]);
 
   const handleNextTurn = async () => {
-    if (!canAdvance || isAdvancingRef.current) {
+    if (!canAdvance || isAdvancingRef.current || isAdvancingTurn) {
       return;
     }
 
     isAdvancingRef.current = true;
+    setIsAdvancingTurn(true);
 
     try {
       if (isFinishSelected && gameState.simulationId !== null) {
@@ -131,6 +134,7 @@ export function GameMenu() {
       await advanceTurn(Math.min(daysToAdvance, maxDaysToAdvance));
     } finally {
       isAdvancingRef.current = false;
+      setIsAdvancingTurn(false);
     }
   };
 
@@ -257,20 +261,30 @@ export function GameMenu() {
                     type="button"
                     className="ms-auto inline-flex min-w-[100px] items-center justify-center gap-2 rounded-md border border-white/40 bg-white/[0.03] px-2 py-1 text-sm font-medium text-gray-100 transition hover:border-white/70 hover:bg-white/10 disabled:border-gray-600 disabled:text-gray-500 disabled:opacity-70"
                     onClick={handleNextTurn}
-                    disabled={!canAdvance}
+                    disabled={!canAdvance || isLoadingData}
                   >
-                    <span>{isFinishSelected ? 'Finish' : 'Next'}</span>
-                    <span
-                      aria-hidden="true"
-                      style={{
-                        width: 15,
-                        height: 15,
-                        backgroundColor: 'currentColor',
-                        display: 'inline-block',
-                        WebkitMask: `url(${nextIcon}) center / contain no-repeat`,
-                        mask: `url(${nextIcon}) center / contain no-repeat`,
-                      }}
-                    />
+                    {isLoadingData ? (
+                      <span
+                        aria-hidden="true"
+                        className="spinner-border spinner-border-sm text-white"
+                        role="status"
+                      />
+                    ) : (
+                      <>
+                        <span>{isFinishSelected ? 'Finish' : 'Next'}</span>
+                        <span
+                          aria-hidden="true"
+                          style={{
+                            width: 15,
+                            height: 15,
+                            backgroundColor: 'currentColor',
+                            display: 'inline-block',
+                            WebkitMask: `url(${nextIcon}) center / contain no-repeat`,
+                            mask: `url(${nextIcon}) center / contain no-repeat`,
+                          }}
+                        />
+                      </>
+                    )}
                   </button>
                 </div>
               </div>

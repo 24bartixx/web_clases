@@ -38,6 +38,7 @@ export const TradingChart = ({priceRange, period = {amount: 0, unit: TimeUnit.Al
   const volumeSeriesRef = useRef<any>(null);
   const lastAppliedPeriodKeyRef = useRef<string | null>(null);
   const hasAppliedInitialRangeRef = useRef(false);
+  const prevLastDataTimeRef = useRef<number | null>(null);
    
   const getCssVar = (variable: string) => {
     return getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
@@ -233,7 +234,6 @@ export const TradingChart = ({priceRange, period = {amount: 0, unit: TimeUnit.Al
     const shouldApplyPeriodRange =
       !hasAppliedInitialRangeRef.current ||
       lastAppliedPeriodKeyRef.current !== periodKey;
-    const visibleRange = chart.timeScale().getVisibleRange();
 
     candleSeriesRef.current.setData(candleSeriesData);
     volumeSeriesRef.current.setData(volumeSeriesData);
@@ -242,12 +242,44 @@ export const TradingChart = ({priceRange, period = {amount: 0, unit: TimeUnit.Al
       setViewRange(period);
       hasAppliedInitialRangeRef.current = true;
       lastAppliedPeriodKeyRef.current = periodKey;
+      prevLastDataTimeRef.current =
+        candleSeriesData.length > 0
+          ? (candleSeriesData[candleSeriesData.length - 1].time as number)
+          : null;
       return;
     }
 
-    if (visibleRange !== null) {
-      chart.timeScale().setVisibleRange(visibleRange);
+    const lastDataTime =
+      candleSeriesData.length > 0
+        ? (candleSeriesData[candleSeriesData.length - 1].time as number)
+        : null;
+
+    let visibleRight: number | null = null;
+    try {
+      const vr = chart.timeScale().getVisibleRange();
+      visibleRight = vr ? (vr.to as number) : null;
+    } catch (e) {
+      visibleRight = null;
     }
+
+    const prevLast = prevLastDataTimeRef.current;
+
+    if (lastDataTime !== null && prevLast !== null && lastDataTime > prevLast) {
+      if (visibleRight !== null && lastDataTime > visibleRight) {
+        chart.timeScale().scrollToRealTime();
+        prevLastDataTimeRef.current = lastDataTime;
+        return;
+      }
+    }
+
+    try {
+      const scrollPos = chart.timeScale().scrollPosition();
+      if (Math.abs(scrollPos) < 0.5) {
+        chart.timeScale().scrollToRealTime();
+      }
+    } catch (e) {}
+
+    prevLastDataTimeRef.current = lastDataTime;
   }, [candleSeriesData, period, setViewRange, volumeSeriesData]);
 
   return <div ref={chartContainerRef} {...rest} />;
