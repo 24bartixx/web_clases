@@ -10,7 +10,8 @@ class User(Base):
     __tablename__ = "users"
 
     user_id: Mapped[int] = mapped_column(primary_key=True)
-    google_id: Mapped[str | None] = mapped_column(String, unique=True)
+    email: Mapped[str] = mapped_column(String, unique=True, index=True, nullable=False)
+    oauth_id: Mapped[str | None] = mapped_column(String, unique=True, index=True, nullable=True) # Nowe pole
     first_name: Mapped[str] = mapped_column(String(255), nullable=False)
     last_name: Mapped[str] = mapped_column(String(255), nullable=False)
     picture: Mapped[str | None] = mapped_column(String)

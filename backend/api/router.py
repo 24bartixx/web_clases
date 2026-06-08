@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from api.routes import (
+    auth_api,
     position_api,
     simulation_api,
     simulation_history_api,
@@ -11,6 +12,12 @@ from api.routes import (
 )
 
 api_router = APIRouter()
+
+api_router.include_router(
+    auth_api.router,
+    prefix="/auth",
+    tags=["auth"],
+)
 
 api_router.include_router(
     simulation_api.router,

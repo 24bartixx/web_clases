@@ -72,7 +72,6 @@ def delete_users(
     return user_service.delete_users(db)
 
 
-# post due to security reasons
 @router.post("/login", response_model=UserRead)
 def login_user(
     user_login_data: UserLoginData,
@@ -81,7 +80,6 @@ def login_user(
 ):
     user_read = user_service.login_user(db, user_login_data.access_token)
     
-    # Set httpOnly cookie with token
     response.set_cookie(
         key="access_token",
         value=user_read.bearer_token,
@@ -92,6 +90,5 @@ def login_user(
         max_age=3600,
     )
     
-    # Return user without token in body
     user_read.bearer_token = None
     return user_read

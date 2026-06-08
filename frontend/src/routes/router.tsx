@@ -8,11 +8,17 @@ import { GameProviderLayout } from '../layouts/GameProviderLayout';
 import { StocksViewPage } from '../pages/stocks_view/StocksViewPage';
 import { GameProcessLayout } from '../layouts/GameProcessLayout';
 import { SummaryPage } from '../pages/summary/SummaryPage';
+import { AuthCallback } from '../pages/login/AuthCallback';
 
 export const router = createBrowserRouter([
   {
     path: '/login',
     element: <LoginPage />,
+  },
+  {
+    // :provider for both google and github
+    path: '/auth/callback/:provider',
+    element: <AuthCallback />,
   },
   {
     path: '/',
@@ -28,6 +34,10 @@ export const router = createBrowserRouter([
       {
         path: '/game',
         element: <Navigate to="/" replace />,
+      },
+      {
+        path: '/game/:simulationId/summary',
+        element: <SummaryPage />,
       },
       {
         path: '/game/:simulationId/summary',
