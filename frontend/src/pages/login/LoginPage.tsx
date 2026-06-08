@@ -9,14 +9,14 @@ export function LoginPage() {
 
       window.location.href = data.url;
     } catch (error) {
-      console.error(`Błąd inicjalizacji logowania przez ${provider}:`, error);
+      console.error(`Error initializing login with ${provider}:`, error);
     }
   };
 
   return (
     <div className="d-flex justify-content-center align-items-center vh-100">
       <div className="d-flex flex-column gap-3">
-        <h2>Zaloguj się przez:</h2>
+        <h2>Login with</h2>
 
         <MDBBtn
           rounded

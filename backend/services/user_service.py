@@ -159,7 +159,6 @@ def login_oauth_user(db: Session, provider: str, code: str) -> UserRead:
     if not provider_config:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Provider {provider} is not supported.")
 
-    # 1. Wymiana kodu na token
     payload = {
         "client_id": provider_config["client_id"],
         "client_secret": provider_config["client_secret"],
@@ -180,7 +179,6 @@ def login_oauth_user(db: Session, provider: str, code: str) -> UserRead:
     if not access_token:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid or expired code from {provider}.")
 
-    # 2. Pobranie danych profilu
     try:
         user_response = requests.get(provider_config["user_url"], headers={"Authorization": f"Bearer {access_token}"}, timeout=10)
     except requests.RequestException as exc:
@@ -193,7 +191,6 @@ def login_oauth_user(db: Session, provider: str, code: str) -> UserRead:
 
     profile = user_response.json()
 
-    # 3. Unifikacja danych dla Google i GitHub
     if provider_name == "google":
         raw_id = profile.get("sub")
         if not raw_id:
@@ -202,13 +199,12 @@ def login_oauth_user(db: Session, provider: str, code: str) -> UserRead:
         first_name = profile.get("given_name") or profile.get("name") or ""
         last_name = profile.get("family_name") or ""
         picture = profile.get("picture")
-    else:  # github
+    else: 
         raw_id = profile.get("id")
         if not raw_id:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="GitHub profile lacks 'id'.")
         email = profile.get("email")
         
-        # Obsługa ukrytego e-maila w GitHubie
         if not email:
             try:
                 email_res = requests.get("https://api.github.com/user/emails", headers={"Authorization": f"Bearer {access_token}"}, timeout=5)
@@ -233,12 +229,9 @@ def login_oauth_user(db: Session, provider: str, code: str) -> UserRead:
     statement = select(User).where(User.email == email)
     user = db.scalars(statement).one_or_none()
 
-    # Integracja z poprzednią bazą bez maili
     if user is None:
         statement = select(User).where(User.oauth_id == current_oauth_id)
         user = db.scalars(statement).one_or_none()
-
-
 
     if user is None:
         user = User(

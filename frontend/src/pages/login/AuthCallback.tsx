@@ -18,10 +18,10 @@ export function AuthCallback() {
         body: JSON.stringify({ code: code }),
       }).then((res) => {
         if (res.ok) navigate('/');
-        else console.error('Błąd uwierzytelniania na backendzie');
+        else console.error('Error authenticating on backend');
       });
     }
   }, [provider, searchParams, navigate]);
 
-  return <div>Trwa logowanie przez {provider}, proszę czekać...</div>;
+  return <div>Logging in with {provider}, please wait...</div>;
 }

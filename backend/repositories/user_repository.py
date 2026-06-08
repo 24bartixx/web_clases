@@ -10,15 +10,14 @@ def get_users(db: Session, skip: int = 0, limit: int = 100):
 def get_user_by_id(db: Session, user_id: int):
     return db.get(User, user_id)
 
-# Zmienione z get_user_by_google_id na uniwersalne oauth_id
 def get_user_by_oauth_id(db: Session, oauth_id: str):
     statement = select(User).where(User.oauth_id == oauth_id)
     return db.scalars(statement).one_or_none()
 
 def create_user(db: Session, user: UserCreate):
     user_db = User(
-        email=user.email,              # Nowe pole!
-        oauth_id=user.oauth_id,        # Zmienione z google_id
+        email=user.email,          
+        oauth_id=user.oauth_id,       
         first_name=user.first_name,
         last_name=user.last_name,
         picture=user.picture,
@@ -33,7 +32,6 @@ def update_user(db: Session, user_id: int, user: UserUpdate):
     if not user_db:
         return None
 
-    # Zmienione warunki dopasowane do nowych pól
     if user.email is not None:
         user_db.email = user.email
     if user.oauth_id is not None:

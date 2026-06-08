@@ -16,7 +16,8 @@ export const router = createBrowserRouter([
     element: <LoginPage />,
   },
   {
-    path: '/auth/callback/:provider', // :provider obsłuży zarówno 'google' jak i 'github'
+    // :provider for both google and github
+    path: '/auth/callback/:provider',
     element: <AuthCallback />,
   },
   {
