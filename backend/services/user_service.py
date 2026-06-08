@@ -2,11 +2,16 @@ from datetime import datetime, timedelta, timezone
 from fastapi import HTTPException, status
 import jwt
 import requests
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from core.config import settings
+from models.position import Position
+from models.simulation import Simulation
+from models.simulation_history import SimulationHistory
+from models.summary import Summary
+from models.transaction import Transaction
 from models.user import User
 from repositories import user_repository
 from schemas.user_schema import UserCreate, UserRead, UserUpdate
@@ -104,6 +109,7 @@ def update_user(db: Session, user_id: int, user_data: UserUpdate):
 
 def delete_user(db: Session, user_id: int):
     user = get_user(db, user_id)
+    _delete_user_related_records(db, user_id)
     db.delete(user)
     try:
         db.commit()
@@ -117,6 +123,7 @@ def delete_user(db: Session, user_id: int):
 
 def delete_users(db: Session):
     try:
+        _delete_user_related_records(db)
         deleted_count = user_repository.delete_users(db)
         db.commit()
     except IntegrityError as exc:
@@ -126,6 +133,23 @@ def delete_users(db: Session):
             detail="Could not delete users because related records exist.",
         ) from exc
     return {"deleted_count": deleted_count}
+
+
+def _delete_user_related_records(db: Session, user_id: int | None = None):
+    simulation_ids = select(Simulation.simulation_id)
+
+    if user_id is not None:
+        simulation_ids = simulation_ids.where(Simulation.user_id == user_id)
+
+    for model in (SimulationHistory, Summary, Transaction, Position):
+        db.execute(delete(model).where(model.simulation_id.in_(simulation_ids)))
+
+    simulation_delete = delete(Simulation)
+    if user_id is not None:
+        simulation_delete = simulation_delete.where(Simulation.user_id == user_id)
+
+    db.execute(simulation_delete)
+
 
 def get_oauth_authorization_url(provider: str) -> str:
     provider_name = provider.lower()
