@@ -68,14 +68,31 @@ export function HomePage() {
     }
   };
 
+  const handleLogout = () => {
+    // TODO: add backend logout endpoint to clear the httpOnly auth cookie.
+    navigate('/login');
+  };
+
   return (
     <MDBContainer fluid className="pt-3 pb-5 px-0">
       <MDBRow className="home-hero align-items-center g-0 mb-5 mx-0">
         <MDBCol size="12" className="home-hero__copy px-0">
           <div className="home-page-section home-page-section--hero">
-            <div className="home-hero__brand">
-              <img src={logo} alt="Chess Bross Trading logo" />
-              <span>Chess Bross Trading</span>
+            <div className="home-hero__top-row">
+              <div className="home-hero__brand">
+                <img src={logo} alt="Chess Bross Trading logo" />
+                <span>Chess Bross Trading</span>
+              </div>
+
+              <MDBBtn
+                color="light"
+                outline
+                className="home-hero__logout-btn"
+                onClick={handleLogout}
+              >
+                <MDBIcon fas icon="right-from-bracket" className="me-2" />
+                Log out
+              </MDBBtn>
             </div>
             <div className="home-hero__title-row">
               <div className="home-hero__avatar">
