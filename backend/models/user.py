@@ -18,5 +18,6 @@ class User(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, server_default=func.now()
     )
+    is_admin: Mapped[bool] = mapped_column(nullable=False, default=False)
 
     simulations = relationship("Simulation", back_populates="user")

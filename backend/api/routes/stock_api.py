@@ -3,6 +3,7 @@ from threading import Lock
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Query, status
 from fastapi.exceptions import HTTPException
+from models.user import User
 from sqlalchemy.orm import Session
 
 from db.database import SessionLocal, get_db
@@ -13,6 +14,7 @@ from schemas.stock_schema import (
     StockScrapeRequest,
 )
 from services import stock_service
+from core.auth import get_current_admin
 
 router = APIRouter()
 scraping_lock = Lock()
@@ -95,5 +97,6 @@ def _run_stock_scraping(limit: int | None = None):
 @router.delete("/")
 def delete_stocks(
     db: Session = Depends(get_db),
+    current_admin: User = Depends(get_current_admin),
 ):
     return stock_service.delete_stocks(db)
