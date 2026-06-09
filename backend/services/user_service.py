@@ -268,6 +268,14 @@ def login_oauth_user(db: Session, provider: str, code: str) -> UserRead:
         db.add(user)
     else:
         user.oauth_id = current_oauth_id
+        if picture:
+            user.picture = picture
+        
+        if first_name:
+            user.first_name = first_name
+
+        if last_name:
+            user.last_name = last_name
 
     try:
         db.commit()
