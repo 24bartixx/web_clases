@@ -33,3 +33,4 @@ class UserRead(BaseModel):
 
 class UserLoginData(BaseModel):
     code: str
+    state: str | None = None

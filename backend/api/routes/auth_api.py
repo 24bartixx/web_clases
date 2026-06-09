@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Cookie, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
 from core.config import settings
@@ -8,11 +8,18 @@ from schemas.user_schema import UserLoginData, UserRead
 from services import user_service
 
 router = APIRouter()
-
 @router.get("/authorize/{provider}")
-def authorize_provider(provider: str):
+def authorize_provider(provider: str, response: Response):
     try:
-        auth_url = user_service.get_oauth_authorization_url(provider)
+        auth_url, state = user_service.get_oauth_authorization_url(provider)
+        response.set_cookie(
+            key="oauth_state",
+            value=state,
+            httponly=True,
+            max_age=600,
+            samesite="lax",
+            path="/",
+        )
         return {"url": auth_url}
     except Exception as e:
         raise HTTPException(
@@ -21,13 +28,20 @@ def authorize_provider(provider: str):
         )
 
 @router.post("/callback/{provider}", response_model=UserRead)
-def login_user_callback(
+async def login_user_callback(
     provider: str,
     user_login_data: UserLoginData,
     response: Response,
     db: Session = Depends(get_db),
+    oauth_state: str | None = Cookie(None),
 ):
-    user_read = user_service.login_oauth_user(db, provider, user_login_data.code)
+    user_read = await user_service.login_oauth_user(
+        db=db, 
+        provider=provider, 
+        code=user_login_data.code,
+        state_from_url=user_login_data.state,
+        state_from_cookie=oauth_state 
+    )
     
     response.set_cookie(
         key="access_token",
@@ -38,6 +52,8 @@ def login_user_callback(
         samesite="lax",
         max_age=3600,
     )
+
+    response.delete_cookie(key="oauth_state", path="/")
 
     user_read.bearer_token = None
     return user_read

@@ -13,5 +13,7 @@ class Settings(BaseSettings):
     GITHUB_CLIENT_ID: str
     GITHUB_CLIENT_SECRET: str
 
+    GOOGLE_REDIRECT_URI: str = "http://localhost:3000/auth/callback/google"
+    GITHUB_REDIRECT_URI: str = "http://localhost:3000/auth/callback/github"
 
 settings = Settings()
