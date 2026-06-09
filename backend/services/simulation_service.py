@@ -31,8 +31,13 @@ def get_simulations(db: Session, skip: int = 0, limit: int = 100, user_id: int |
     return db.scalars(statement).all()
 
 
-def get_simulation(db: Session, simulation_id: int):
-    simulation = db.get(Simulation, simulation_id)
+def get_simulation(db: Session, simulation_id: int, user_id: int):
+    statement = select(Simulation).where(
+        Simulation.simulation_id == simulation_id,
+        Simulation.user_id == user_id
+    )
+    simulation = db.scalars(statement).one_or_none()
+
     if simulation is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -41,7 +46,7 @@ def get_simulation(db: Session, simulation_id: int):
     return simulation
 
 
-def get_simulation_detail(db: Session, simulation_id: int):
+def get_simulation_detail(db: Session, simulation_id: int, user_id: int):
     statement = (
         select(Simulation)
         .options(
@@ -49,7 +54,10 @@ def get_simulation_detail(db: Session, simulation_id: int):
             selectinload(Simulation.transactions).selectinload(Transaction.stock),
             selectinload(Simulation.history),
         )
-        .where(Simulation.simulation_id == simulation_id)
+        .where(
+            Simulation.simulation_id == simulation_id,
+            Simulation.user_id == user_id
+        )
     )
 
     simulation = db.scalars(statement).one_or_none()
@@ -142,7 +150,7 @@ def create_simulation(db: Session, simulation_data: SimulationCreate, user_id: i
             detail="Could not create simulation or default positions. Check related ids.",
         ) from exc
 
-    return get_simulation_detail(db, simulation_id)
+    return get_simulation_detail(db, simulation_id, user_id)
 
 
 def _validate_stock_ids(db: Session, stock_ids: list[int]):
@@ -181,8 +189,9 @@ def update_simulation(
     db: Session,
     simulation_id: int,
     simulation_data: SimulationUpdate,
+    user_id: int,
 ):
-    simulation = get_simulation(db, simulation_id)
+    simulation = get_simulation(db, simulation_id, user_id)
     update_data = simulation_data.model_dump(exclude_unset=True)
     if update_data.get("simulation_name") is None:
         update_data.pop("simulation_name", None)
@@ -209,8 +218,9 @@ def advance_turn(
     db: Session,
     simulation_id: int,
     turn_data: SimulationAdvanceTurn,
+    user_id: int,
 ):
-    simulation = get_simulation(db, simulation_id)
+    simulation = get_simulation(db, simulation_id, user_id)
     previous_date = simulation.current_date
 
     next_date = _replace_date(
@@ -224,7 +234,7 @@ def advance_turn(
         )
 
     if next_date <= previous_date:
-        return get_simulation_detail(db, simulation_id)
+        return get_simulation_detail(db, simulation_id, user_id)
 
     latest_history = _get_latest_simulation_history(db, simulation_id)
     available_funds = (
@@ -291,7 +301,7 @@ def advance_turn(
             detail="Could not advance simulation turn.",
         ) from exc
 
-    return get_simulation_detail(db, simulation_id)
+    return get_simulation_detail(db, simulation_id, user_id)
 
 
 def _get_advance_trading_dates(previous_date: datetime, next_date: datetime):
@@ -511,8 +521,9 @@ def _attach_stock_details(db: Session, simulation: Simulation):
             setattr(stock, field, value)
 
 
-def delete_simulation(db: Session, simulation_id: int):
-    simulation = get_simulation(db, simulation_id)
+def delete_simulation(db: Session, simulation_id: int, user_id: int):
+    simulation = get_simulation(db, simulation_id, user_id)
+
 
     _delete_simulation_related_records(db, simulation_id)
 
@@ -528,10 +539,10 @@ def delete_simulation(db: Session, simulation_id: int):
         ) from exc
 
 
-def delete_simulations(db: Session):
+def delete_simulations(db: Session, user_id: int):
     try:
-        _delete_simulation_related_records(db)
-        result = db.execute(delete(Simulation))
+        _delete_simulation_related_records(db, user_id=user_id)
+        result = db.execute(delete(Simulation).where(Simulation.user_id == user_id))
         db.commit()
     except IntegrityError as exc:
         db.rollback()
@@ -546,11 +557,15 @@ def delete_simulations(db: Session):
 def _delete_simulation_related_records(
     db: Session,
     simulation_id: int | None = None,
+    user_id: int | None = None,
 ):
     for model in (SimulationHistory, Summary, Transaction, Position):
         statement = delete(model)
 
         if simulation_id is not None:
             statement = statement.where(model.simulation_id == simulation_id)
+        elif user_id is not None:
+            sim_subquery = select(Simulation.simulation_id).where(Simulation.user_id == user_id)
+            statement = statement.where(model.simulation_id.in_(sim_subquery))
 
         db.execute(statement)

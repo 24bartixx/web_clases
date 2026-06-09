@@ -47,39 +47,44 @@ def create_simulation(
 @router.get("/{simulation_id}", response_model=SimulationDetailRead)
 def get_simulation(
     simulation_id: int,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    return simulation_service.get_simulation_detail(db, simulation_id)
+    return simulation_service.get_simulation_detail(db, simulation_id, current_user.user_id)
 
 
 @router.patch("/{simulation_id}", response_model=SimulationRead)
 def update_simulation(
     simulation_id: int,
     simulation_data: SimulationUpdate,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    return simulation_service.update_simulation(db, simulation_id, simulation_data)
+    return simulation_service.update_simulation(db, simulation_id, simulation_data, current_user.user_id)
 
 
 @router.post("/{simulation_id}/advance-turn", response_model=SimulationDetailRead)
 def advance_turn(
     simulation_id: int,
     turn_data: SimulationAdvanceTurn,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    return simulation_service.advance_turn(db, simulation_id, turn_data)
+    return simulation_service.advance_turn(db, simulation_id, turn_data, current_user.user_id)
 
 
 @router.delete("/")
 def delete_simulations(
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    return simulation_service.delete_simulations(db)
+    return simulation_service.delete_simulations(db, current_user.user_id)
 
 
 @router.delete("/{simulation_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_simulation(
     simulation_id: int,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    simulation_service.delete_simulation(db, simulation_id)
+    simulation_service.delete_simulation(db, simulation_id, current_user.user_id)
