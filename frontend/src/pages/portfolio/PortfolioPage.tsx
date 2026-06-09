@@ -435,11 +435,11 @@ export function PortfolioPage() {
                           }}
                           itemStyle={{ color: '#dee3e6' }}
                           labelStyle={{ color: '#b3cad4' }}
-                          formatter={(value) => [
+                          formatter={(value: any) => [
                             formatCurrency(Number(value ?? 0)),
                             'Balance',
                           ]}
-                          labelFormatter={(_label, payload) =>
+                          labelFormatter={(_label: any, payload: any) =>
                             (
                               payload as unknown as Array<{
                                 payload?: HistoryChartPoint;
@@ -506,7 +506,7 @@ export function PortfolioPage() {
                             border: '1px solid #40484c',
                             borderRadius: '8px',
                           }}
-                          formatter={(value) => [
+                          formatter={(value: any) => [
                             formatCurrency(Number(value ?? 0)),
                             'Position value',
                           ]}
