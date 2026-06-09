@@ -64,6 +64,7 @@ $navbar-dark-color: rgb(222 227 230);
 $navbar-dark-hover-color: rgb(135 209 235);
 
 $nav-pills-link-active-color: $dark;
+$nav-pills-link-active-bg: $body-color;
 
 $btn-close-color: rgb(222 227 230);
 
@@ -125,7 +126,10 @@ $candle-down-color: rgb(163, 30, 30);
   font-size: 14px;
 }
 
+
+
 .nav-pills .nav-link:not(.active) {
   background-color: $body-bg;   
-  color: $primary;
+  color: $body-color;
 }
+

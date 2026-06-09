@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { act, useEffect, useMemo, useRef, useState } from 'react';
 import type { ChangeEvent } from 'react';
-import { MDBTypography } from 'mdb-react-ui-kit';
+import { MDBIcon, MDBTypography } from 'mdb-react-ui-kit';
 import { useNavigate, useLocation } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import nextIcon from '../assets/next.svg';
@@ -107,6 +107,13 @@ export function GameMenu() {
     remainingTradingDates,
   ]);
 
+    const activePositions = useMemo(() => {
+    return (gameState.stockPositions ?? []).filter(
+      (position) => position.amount > 0,
+    );
+  }, [gameState.stockPositions]);
+  
+  
   useEffect(() => {
     if (maxDaysToAdvance === 0) {
       return;
@@ -160,12 +167,12 @@ export function GameMenu() {
   const isPortfolio = location.pathname.includes('/portfolio');
 
   return (
-    <header className="sticky top-0 z-50 border-bottom bg-body shadow-sm">
+    <header className="sticky top-0 z-50 shadow-sm border-bottom bg-body">
       <div className="container py-3">
-        <div className="d-flex flex-column flex-xl-row align-items-stretch align-items-xl-center justify-content-between gap-3">
+        <div className="gap-3 d-flex flex-column flex-xl-row align-items-stretch align-items-xl-center justify-content-between">
           <button
             type="button"
-            className="d-flex align-items-center gap-4 border-0 bg-transparent p-0 text-start text-reset"
+            className="gap-4 p-0 bg-transparent border-0 d-flex align-items-center text-start text-reset"
             onClick={() => navigate('/')}
           >
             <img
@@ -176,41 +183,61 @@ export function GameMenu() {
               className="rounded-circle object-fit-cover"
             />
             <div>
-              <MDBTypography tag="h1" className="fs-4 fw-bold mb-0">
+              <MDBTypography tag="h1" className="mb-0 fs-4 fw-bold">
                 Chess Bross Trading
               </MDBTypography>
-              <MDBTypography tag="p" className="small text-muted mb-0">
+              <MDBTypography tag="p" className="mb-0 small text-muted">
                 {isGameReady ? 'Trading session' : 'No active game'}
               </MDBTypography>
             </div>
           </button>
 
           {isGameReady && (
-            <div className="d-flex align-items-center justify-content-center gap-4 mx-xl-4" style={{ margin: '0 auto' }}>
+            <div className="gap-4 d-flex justify-content-center mx-xl-4" style={{ margin: '0 auto' }}>
               <button
                 type="button"
-                className={`bg-transparent border-0 p-0 shadow-none fs-6 ${isStocksView ? 'text-white fw-bold' : 'text-muted'}`}
+                className={`bg-transparent border-0 p-0 d-flex flex-row align-items-center gap-1.5 shadow-none ${isStocksView ? 'text-white opacity-100' : 'text-muted opacity-80'}`}
                 onClick={() => navigate(`/game/${gameState.simulationId}/stocks-view`)}
                 style={{ transition: 'color 0.2s' }}
                 onMouseEnter={(e) => { if (!isStocksView) e.currentTarget.classList.replace('text-muted', 'text-white'); }}
                 onMouseLeave={(e) => { if (!isStocksView) e.currentTarget.classList.replace('text-white', 'text-muted'); }}
               >
-                Stock List
+                <div>
+                <MDBTypography tag="p" className="p-0 m-0 text-white fs-5">
+                  Stock List
+                </MDBTypography>
+                </div>
+                <div className={`px-2.5 py-1 border rounded-full flex flex-row items-center gap-2`}>
+                  <MDBIcon fas icon="briefcase" className="text-muted" />
+                 <MDBTypography tag="p" className="m-0 text-white fs-6">
+                  {(gameState.stockPositions ?? []).length}
+                </MDBTypography>
+                </div>
               </button>
               <button
                 type="button"
-                className={`bg-transparent border-0 p-0 shadow-none fs-6 ${isPortfolio ? 'text-white fw-bold' : 'text-muted'}`}
+                className={`bg-transparent border-0 p-0 d-flex flex-row align-items-center gap-1.5 shadow-none ${isPortfolio ? 'text-white opacity-100' : 'text-muted opacity-80'}`}
                 onClick={() => navigate(`/game/${gameState.simulationId}/portfolio`)}
                 style={{ transition: 'color 0.2s' }}
                 onMouseEnter={(e) => { if (!isPortfolio) e.currentTarget.classList.replace('text-muted', 'text-white'); }}
                 onMouseLeave={(e) => { if (!isPortfolio) e.currentTarget.classList.replace('text-white', 'text-muted'); }}
               >
-                Portfolio
+                <div>
+                <MDBTypography tag="p" className="p-0 m-0 text-white fs-5">
+                  Portfolio
+                </MDBTypography>
+                </div>
+                <div className={`px-2.5 py-1 border rounded-full flex flex-row items-center gap-2`}>
+                  <MDBIcon fas icon="briefcase" className="text-muted" />
+                  <MDBTypography tag="p" className="m-0 text-white fs-6">
+                      {activePositions.length}
+                  </MDBTypography>
+                </div>
               </button>
             </div>
           )}
 
-          <div className="d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center gap-4">
+          <div className="gap-4 d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center">
             <div className="flex flex-col min-w-[320px] gap-2">
               {/* Acccount balance */}
               <MDBTypography
@@ -220,9 +247,9 @@ export function GameMenu() {
                 {formatCurrency(accountBalance)}
               </MDBTypography>
 
-              <div className="d-flex flex-wrap align-items-center justify-content-center gap-4 mr-2">
+              <div className="flex-wrap gap-4 mr-2 d-flex align-items-center justify-content-center">
                 <div className="text-center">
-                  <MDBTypography tag="p" className="small text-muted mb-1">
+                  <MDBTypography tag="p" className="mb-1 small text-muted">
                     Available funds
                   </MDBTypography>
                   <MDBTypography
@@ -234,7 +261,7 @@ export function GameMenu() {
                 </div>
 
                 <div className="text-center">
-                  <MDBTypography tag="p" className="small text-muted mb-1">
+                  <MDBTypography tag="p" className="mb-1 small text-muted">
                     Profit / Loss
                   </MDBTypography>
                   <MDBTypography
@@ -251,28 +278,28 @@ export function GameMenu() {
               </div>
             </div>
 
-            <div className="border rounded-3 px-3 py-2">
-              <div className="d-flex flex-column gap-3">
+            <div className="px-3 py-2 border rounded-3">
+              <div className="gap-3 d-flex flex-column">
                 <div className="d-flex align-items-center justify-content-between">
                   <div>
-                    <MDBTypography tag="p" className="small text-muted mb-1">
+                    <MDBTypography tag="p" className="mb-1 small text-muted">
                       Current date
                     </MDBTypography>
-                    <MDBTypography tag="p" className="fw-semibold mb-0">
+                    <MDBTypography tag="p" className="mb-0 fw-semibold">
                       {formatDate(displayedDate)}
                     </MDBTypography>
                   </div>
                   <div className="text-end">
-                    <MDBTypography tag="p" className="small text-muted mb-1">
+                    <MDBTypography tag="p" className="mb-1 small text-muted">
                       Next round
                     </MDBTypography>
-                    <MDBTypography tag="p" className="fw-semibold mb-0">
+                    <MDBTypography tag="p" className="mb-0 fw-semibold">
                       {nextRoundLabel}
                     </MDBTypography>
                   </div>
                 </div>
 
-                <div className="d-flex align-items-center gap-2">
+                <div className="gap-2 d-flex align-items-center">
                   <input
                     id="next-turn-days"
                     type="number"
@@ -281,11 +308,11 @@ export function GameMenu() {
                     step={1}
                     value={daysToAdvance}
                     onChange={handleDaysChange}
-                    className="form-control form-control-sm text-center"
+                    className="text-center form-control form-control-sm"
                     style={{ width: 64 }}
                     disabled={!canAdvance}
                   />
-                  <span className="small text-muted pr-4">days</span>
+                  <span className="pr-4 small text-muted">days</span>
                   <button
                     type="button"
                     className="ms-auto inline-flex min-w-[100px] items-center justify-center gap-2 rounded-md border border-white/40 bg-white/[0.03] px-2 py-1 text-sm font-medium text-gray-100 transition hover:border-white/70 hover:bg-white/10 disabled:border-gray-600 disabled:text-gray-500 disabled:opacity-70"
@@ -295,7 +322,7 @@ export function GameMenu() {
                     {isLoadingData ? (
                       <span
                         aria-hidden="true"
-                        className="spinner-border spinner-border-sm text-white"
+                        className="text-white spinner-border spinner-border-sm"
                         role="status"
                       />
                     ) : (

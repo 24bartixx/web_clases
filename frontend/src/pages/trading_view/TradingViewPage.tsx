@@ -212,7 +212,7 @@ export function TradingViewPage() {
     }
     setActivePeriod(newPeriod);
   };
-
+  
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -884,7 +884,7 @@ export function TradingViewPage() {
                       >
                         <MDBTypography
                           tag="p"
-                          className="m-0 fs-6 fw-semibold lh-1"
+                          className="m-0 fs-6 fw-semibold lh-1 "
                         >
                           Buy
                         </MDBTypography>
@@ -978,7 +978,7 @@ export function TradingViewPage() {
                   />
                   <MDBBtn
                     onClick={buyForm.handleSubmit(onBuySubmit)}
-                    className="p-3 w-100 rounded-3"
+                    className="p-3 bg-white w-100 rounded-3"
                     disabled={
                       !buyForm.formState.isValid ||
                       (gameState.availableFunds ?? 0) <= 0
@@ -1056,7 +1056,7 @@ export function TradingViewPage() {
                   <button
                     type="button"
                     onClick={sellForm.handleSubmit(onSellSubmit)}
-                    className="p-3 btn btn-primary w-100 rounded-3"
+                    className="p-3 bg-white btn btn-primary w-100 rounded-3"
                     disabled={
                       !sellForm.formState.isValid ||
                       !currentPosition ||

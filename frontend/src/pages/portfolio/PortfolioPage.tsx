@@ -556,7 +556,7 @@ export function PortfolioPage() {
           </MDBCol>
         </MDBRow>
 
-        {/* <div className="pt-2 pb-2 mt-2 portfolio-page__table-wrap pe-2 border-top border-secondary">
+        <div className="pt-2 pb-2 mt-2 portfolio-page__table-wrap pe-2 border-top border-secondary">
           <MDBTable responsive hover className="mb-0 align-middle">
             <MDBTableHead className="border-bottom border-secondary">
               <tr>
@@ -575,9 +575,9 @@ export function PortfolioPage() {
                 <th scope="col" className="text-white bg-transparent border-0">
                   Shares <MDBIcon fas icon="sort" />
                 </th>
-                <th scope="col" className="text-white bg-transparent border-0">
+                {/* <th scope="col" className="text-white bg-transparent border-0">
                   Sector <MDBIcon fas icon="sort" />
-                </th>
+                </th> */}
               </tr>
             </MDBTableHead>
             <MDBTableBody>
@@ -649,11 +649,11 @@ export function PortfolioPage() {
                           {position.amount}
                         </MDBTypography>
                       </td>
-                      <td>
+                      {/* <td>
                         <MDBTypography tag="p" className="mb-0 text-white">
                           {position.stock.sector}
                         </MDBTypography>
-                      </td>
+                      </td> */}
                     </tr>
                   );
                 })
@@ -669,7 +669,7 @@ export function PortfolioPage() {
               )}
             </MDBTableBody>
           </MDBTable>
-        </div> */}
+        </div>
       </MDBContainer>
     </div>
   );
