@@ -184,7 +184,7 @@ export function TradingViewPage() {
   }, [gameState.tradingDates, simulationDateOnly]);
 
   const buyForm = useForm<SellOrBuyForm>({
-    mode: 'onChange',
+    mode: 'all',
     defaultValues: {
       amount: NaN,
       total: NaN,
@@ -192,7 +192,7 @@ export function TradingViewPage() {
   });
 
   const sellForm = useForm<SellOrBuyForm>({
-    mode: 'onChange',
+    mode: 'all',
     defaultValues: {
       amount: NaN,
       total: NaN,
@@ -931,10 +931,10 @@ export function TradingViewPage() {
                       required: 'Amount is required',
                       min: { value: 1, message: 'Amount must be positive' },
                       validate: (value) => {
-                        if (
-                          value * currentPrice >
-                          (gameState.availableFunds ?? 0)
-                        ) {
+                        if (Number.isNaN(value)) {
+                          return 'Amount must be a number';
+                        }
+                        if (value * currentPrice > (gameState.availableFunds ?? 0)) {
                           return 'Not enough funds';
                         }
                         return true;
@@ -1012,9 +1012,14 @@ export function TradingViewPage() {
                     rules={{
                       required: 'Amount is required',
                       min: { value: 1, message: 'Amount must be positive' },
-                      max: {
-                        value: currentPosition?.amount ?? 0,
-                        message: "You don't have enough shares to sell",
+                      validate: (value) => {
+                      if (Number.isNaN(value)) {
+                        return 'Amount must be a number';
+                      }
+                      if (value > (currentPosition?.amount ?? 0)) {
+                        return 'Not enough shares to sell';
+                      }
+                      return true;
                       },
                     }}
                     render={({ field }) => (
