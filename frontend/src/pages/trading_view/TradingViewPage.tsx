@@ -142,10 +142,11 @@ export function TradingViewPage() {
   const [stock, setStock] = useState<Stock | null>(null);
   const [stockDetails, setStockDetails] = useState<StockDetails | null>(null);
   const [priceRange, setPriceRange] = useState<Price[] | null>(null);
-  
+
   const currentPosition = useMemo(
-    () => gameState.stockPositions?.find(pos => pos.stock.ticker === cleanTicker),
-    [gameState.stockPositions, cleanTicker]
+    () =>
+      gameState.stockPositions?.find((pos) => pos.stock.ticker === cleanTicker),
+    [gameState.stockPositions, cleanTicker],
   );
   const [oldestFetchedDate, setOldestFetchedDate] = useState<string | null>(
     null,
@@ -512,24 +513,32 @@ export function TradingViewPage() {
     const activeName = document.activeElement?.getAttribute('name');
 
     if (activeName === 'buy-amount') {
-      if (Number(buyAmount) < 0) return;
+      console.log('buy amount changed', buyAmount);
+      if (Number.isNaN(buyAmount) || Number(buyAmount) < 1) {
+        buyForm.setValue('total', NaN);
+        return;
+      }
       const newTotal = Number(buyAmount) * currentPrice;
       if (Number(buyTotal) !== newTotal) {
         buyForm.setValue('total', newTotal);
+        return;
       }
     } else if (activeName === 'buy-total') {
-      if (Number(buyTotal) < 0) return;
+      if (Number.isNaN(buyTotal) || Number(buyTotal) < 1) {
+        buyForm.setValue('amount', NaN);
+        return;
+      }
       const newAmount = Number((Number(buyTotal) / currentPrice).toFixed(6));
       if (Number(buyAmount) !== newAmount) {
         buyForm.setValue('amount', newAmount, { shouldValidate: true });
+        return;
       }
     } else {
-      // not focused — keep user's amount and update total according to new price
-      if (Number(buyAmount) < 0) return;
-      const newTotal = Number(buyAmount) * currentPrice;
-      if (Number(buyTotal) !== newTotal) {
-        buyForm.setValue('total', newTotal);
-      }
+      // if (Number(buyAmount) < 1) return;
+      // const newTotal = Number(buyAmount) * currentPrice;
+      // if (Number(buyTotal) !== newTotal) {
+      //   buyForm.setValue('total', newTotal);
+      // }
     }
   }, [buyAmount, buyTotal, buyForm, currentPrice]);
 
@@ -543,23 +552,30 @@ export function TradingViewPage() {
     const activeName = document.activeElement?.getAttribute('name');
 
     if (activeName === 'sell-amount') {
-      if (Number(sellAmount) < 0) return;
+      if (Number.isNaN(sellAmount) || Number(sellAmount) < 1) {
+        sellForm.setValue('total', NaN);
+        return;
+      }
       const newTotal = Number(sellAmount) * currentPrice;
       if (Number(sellTotal) !== newTotal) {
         sellForm.setValue('total', newTotal);
+        return;
       }
     } else if (activeName === 'sell-total') {
-      if (Number(sellTotal) < 0) return;
+      if (Number.isNaN(sellTotal) || Number(sellTotal) < 1) {
+        sellForm.setValue('amount', NaN);
+        return;
+      }
       const newAmount = Number((Number(sellTotal) / currentPrice).toFixed(6));
       if (Number(sellAmount) !== newAmount) {
         sellForm.setValue('amount', newAmount, { shouldValidate: true });
       }
     } else {
-      if (Number(sellAmount) < 0) return;
-      const newTotal = Number(sellAmount) * currentPrice;
-      if (Number(sellTotal) !== newTotal) {
-        sellForm.setValue('total', newTotal);
-      }
+      // if (Number(sellAmount) < 1) return;
+      // const newTotal = Number(sellAmount) * currentPrice;
+      // if (Number(sellTotal) !== newTotal) {
+      //   sellForm.setValue('total', newTotal);
+      // }
     }
   }, [sellAmount, sellTotal, sellForm, currentPrice]);
 
@@ -615,9 +631,17 @@ export function TradingViewPage() {
   return (
     <div
       className="container px-4 py-4 pb-4 my-3 border shadow-sm rounded-3"
-      style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}
+      style={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: 0,
+      }}
     >
-      <MDBContainer className="gap-3 d-flex flex-column" style={{ flex: 1, overflow: 'auto', minHeight: 0 }}>
+      <MDBContainer
+        className="gap-3 d-flex flex-column"
+        style={{ flex: 1, overflow: 'auto', minHeight: 0 }}
+      >
         <div className="border-bottom">
           <MDBRow className="align-items-center justify-content-between ">
             <MDBCol size="auto" className="mb-3">
@@ -704,12 +728,27 @@ export function TradingViewPage() {
           </MDBRow>
         </div>
 
-        <MDBRow className="justify-content-between g-3" style={{ flex: 1, minHeight: 0 }}>
-          <MDBCol size="12" lg="9" style={{ display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-            <div className="gap-2 d-flex flex-column" style={{ flex: 1, minHeight: 0 }}>
+        <MDBRow
+          className="justify-content-between g-3"
+          style={{ flex: 1, minHeight: 0 }}
+        >
+          <MDBCol
+            size="12"
+            lg="9"
+            style={{ display: 'flex', flexDirection: 'column', minHeight: 0 }}
+          >
+            <div
+              className="gap-2 d-flex flex-column"
+              style={{ flex: 1, minHeight: 0 }}
+            >
               <div
                 className="p-3 border shadow-sm rounded-3"
-                style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  minHeight: 0,
+                }}
               >
                 <TradingChart
                   style={{ flex: 1, minHeight: 0 }}
@@ -791,7 +830,7 @@ export function TradingViewPage() {
                           </MDBTypography>
                         </MDBTabsLink>
                       </MDBTabsItem>
-                       <MDBTabsItem>
+                      <MDBTabsItem>
                         <MDBTabsLink
                           className="px-3 py-2"
                           onClick={() => handlePeriodChange(PeriodKey.Y5)}
@@ -856,7 +895,6 @@ export function TradingViewPage() {
                         className="px-3 py-2"
                         onClick={() => handleTradeSideChange(TradeSideKey.Sell)}
                         active={activeTradeSide === TradeSideKey.Sell}
-                        // disabled={!currentPosition || currentPosition.amount === 0}
                       >
                         <MDBTypography
                           tag="p"
@@ -878,8 +916,12 @@ export function TradingViewPage() {
                   }}
                 >
                   <div className="mt-2 text-center">
-                    <MDBTypography tag="h6" className="m-0 text-muted small lh-1">
-                      You have: {currentPosition?.amount?.toFixed(6) ?? 0} shares
+                    <MDBTypography
+                      tag="h6"
+                      className="m-0 text-muted small lh-1"
+                    >
+                      You have: {currentPosition?.amount?.toFixed(6) ?? 0}{' '}
+                      shares
                     </MDBTypography>
                   </div>
                   <Controller
@@ -887,13 +929,16 @@ export function TradingViewPage() {
                     control={buyForm.control}
                     rules={{
                       required: 'Amount is required',
-                      min: { value: 0.000001, message: 'Amount must be positive' },
-                      validate: value => {
-                        if (value * currentPrice > (gameState.availableFunds ?? 0)) {
-                          return "Not enough funds";
+                      min: { value: 1, message: 'Amount must be positive' },
+                      validate: (value) => {
+                        if (
+                          value * currentPrice >
+                          (gameState.availableFunds ?? 0)
+                        ) {
+                          return 'Not enough funds';
                         }
                         return true;
-                      }
+                      },
                     }}
                     render={({ field }) => (
                       <AmountInput
@@ -902,6 +947,15 @@ export function TradingViewPage() {
                         iconSrc={stockImg}
                         label="You buy"
                         placeholder="0"
+                        onKeyDown={(e) => {
+                          if (e.key === '-' || e.key === 'e')
+                            e.preventDefault();
+                        }}
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          if (val < 1) e.target.value = '';
+                          field.onChange(e);
+                        }}
                       />
                     )}
                   />
@@ -915,13 +969,20 @@ export function TradingViewPage() {
                         iconSrc={moneyImg}
                         label="You spend"
                         placeholder="0.00"
+                        onKeyDown={(e) => {
+                          if (e.key === '-' || e.key === 'e')
+                            e.preventDefault();
+                        }}
                       />
                     )}
                   />
                   <MDBBtn
                     onClick={buyForm.handleSubmit(onBuySubmit)}
                     className="p-3 w-100 rounded-3"
-                    disabled={!buyForm.formState.isValid || (gameState.availableFunds ?? 0) <= 0}
+                    disabled={
+                      !buyForm.formState.isValid ||
+                      (gameState.availableFunds ?? 0) <= 0
+                    }
                   >
                     <MDBTypography tag="h6" className="m-0 fw-semibold lh-1">
                       Buy
@@ -937,8 +998,12 @@ export function TradingViewPage() {
                   }}
                 >
                   <div className="mt-2 text-center">
-                    <MDBTypography tag="h6" className="m-0 text-muted small lh-1">
-                      You have: {currentPosition?.amount?.toFixed(6) ?? 0} shares
+                    <MDBTypography
+                      tag="h6"
+                      className="m-0 text-muted small lh-1"
+                    >
+                      You have: {currentPosition?.amount?.toFixed(6) ?? 0}{' '}
+                      shares
                     </MDBTypography>
                   </div>
                   <Controller
@@ -946,7 +1011,7 @@ export function TradingViewPage() {
                     control={sellForm.control}
                     rules={{
                       required: 'Amount is required',
-                      min: { value: 0.000001, message: 'Amount must be positive' },
+                      min: { value: 1, message: 'Amount must be positive' },
                       max: {
                         value: currentPosition?.amount ?? 0,
                         message: "You don't have enough shares to sell",
@@ -959,6 +1024,15 @@ export function TradingViewPage() {
                         iconSrc={stockImg}
                         label="You sell"
                         placeholder="0"
+                        onKeyDown={(e) => {
+                          if (e.key === '-' || e.key === 'e')
+                            e.preventDefault();
+                        }}
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          if (val < 1) e.target.value = '';
+                          field.onChange(e);
+                        }}
                       />
                     )}
                   />
@@ -972,6 +1046,10 @@ export function TradingViewPage() {
                         iconSrc={moneyImg}
                         label="You receive"
                         placeholder="0.00"
+                        onKeyDown={(e) => {
+                          if (e.key === '-' || e.key === 'e')
+                            e.preventDefault();
+                        }}
                       />
                     )}
                   />
@@ -979,7 +1057,11 @@ export function TradingViewPage() {
                     type="button"
                     onClick={sellForm.handleSubmit(onSellSubmit)}
                     className="p-3 btn btn-primary w-100 rounded-3"
-                    disabled={!sellForm.formState.isValid || !currentPosition || currentPosition.amount === 0}
+                    disabled={
+                      !sellForm.formState.isValid ||
+                      !currentPosition ||
+                      currentPosition.amount === 0
+                    }
                   >
                     <MDBTypography tag="h6" className="m-0 fw-semibold lh-1">
                       Sell
