@@ -4,9 +4,6 @@ import {
   MDBTable,
   MDBTableBody,
   MDBTableHead,
-  MDBTabs,
-  MDBTabsItem,
-  MDBTabsLink,
 } from 'mdb-react-ui-kit';
 import { Stock, StockDetails } from '../../types';
 
