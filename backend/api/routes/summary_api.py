@@ -3,6 +3,8 @@ from datetime import datetime
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
+from core.auth import get_current_user
+from models.user import User
 from db.database import get_db
 from schemas.summary_schema import SummaryCreate
 from services import summary_service
@@ -15,31 +17,35 @@ def get_summaries(
     simulation_id: int | None = Query(default=None),
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=100, ge=1, le=500),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     if simulation_id is not None:
-        return summary_service.get_summaries_by_simulation(db, simulation_id)
-    return summary_service.get_summaries(db, skip=skip, limit=limit)
+        return summary_service.get_summaries_by_simulation(db, simulation_id, current_user.user_id)
+    return summary_service.get_summaries(db, skip=skip, limit=limit, user_id=current_user.user_id)
 
 
 @router.get("/simulation/{simulation_id}")
 def get_summaries_by_simulation(
     simulation_id: int,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    return summary_service.get_summaries_by_simulation(db, simulation_id)
+    return summary_service.get_summaries_by_simulation(db, simulation_id, current_user.user_id)
 
 
 @router.get("/stock/{stock_id}/simulation/{simulation_id}")
 def get_summaries_by_stock_simulation(
     stock_id: int,
     simulation_id: int,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     return summary_service.get_summaries_by_stock_simulation(
         db,
         stock_id,
         simulation_id,
+        current_user.user_id,
     )
 
 
@@ -48,6 +54,7 @@ def get_summaries_by_stock_date_range(
     stock_id: int,
     start_date: datetime = Query(),
     end_date: datetime = Query(),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     return summary_service.get_summaries_by_stock_date_range(
@@ -55,35 +62,40 @@ def get_summaries_by_stock_date_range(
         stock_id,
         start_date,
         end_date,
+        current_user.user_id,
     )
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def create_summary(
     summary_data: SummaryCreate,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    return summary_service.create_summary(db, summary_data)
+    return summary_service.create_summary(db, summary_data, current_user.user_id)
 
 
 @router.get("/{summary_id}")
 def get_summary(
     summary_id: int,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    return summary_service.get_summary(db, summary_id)
+    return summary_service.get_summary(db, summary_id, current_user.user_id)
 
 
 @router.delete("/{summary_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_summary(
     summary_id: int,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    summary_service.delete_summary(db, summary_id)
+    summary_service.delete_summary(db, summary_id, current_user.user_id)
 
 
 @router.delete("/")
 def delete_summaries(
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    return summary_service.delete_summaries(db)
+    return summary_service.delete_summaries(db, current_user.user_id)

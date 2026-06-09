@@ -2,15 +2,22 @@ from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
+from models.simulation import Simulation
 
 from models.simulation_history import SimulationHistory
 from repositories import simulation_history_repository
 from schemas.simulation_history_schema import SimulationHistoryCreate, SimulationHistoryUpdate
 
 
-def get_history_entries(db: Session, skip: int = 0, limit: int = 100):
+def get_history_entries(db: Session, skip: int = 0, limit: int = 100, user_id: int | None = None):
     statement = (
-        select(SimulationHistory)
+        select(SimulationHistory).join(Simulation)
+    )
+    if user_id is not None:
+        statement = statement.where(Simulation.user_id == user_id)
+    
+    statement = (
+        statement
         .order_by(SimulationHistory.created_at.desc())
         .offset(skip)
         .limit(limit)
@@ -18,7 +25,8 @@ def get_history_entries(db: Session, skip: int = 0, limit: int = 100):
     return db.scalars(statement).all()
 
 
-def get_history_by_simulation(db: Session, simulation_id: int):
+def get_history_by_simulation(db: Session, simulation_id: int, user_id: int):
+    _check_simulation_ownership(db, simulation_id, user_id)
     statement = (
         select(SimulationHistory)
         .where(SimulationHistory.simulation_id == simulation_id)
@@ -46,7 +54,8 @@ def get_history_entry(db: Session, history_id: int):
     return history_entry
 
 
-def create_history_entry(db: Session, history_data: SimulationHistoryCreate):
+def create_history_entry(db: Session, history_data: SimulationHistoryCreate, user_id: int):
+    _check_simulation_ownership(db, history_data.simulation_id, user_id)
     history_entry = SimulationHistory(**history_data.model_dump())
     db.add(history_entry)
 
@@ -67,8 +76,9 @@ def update_history_entry(
     db: Session,
     history_id: int,
     history_data: SimulationHistoryUpdate,
+    user_id: int,
 ):
-    history_entry = get_history_entry(db, history_id)
+    history_entry = get_history_entry(db, history_id, user_id)
     history_entry.balance = history_data.balance
     history_entry.profit_loss = history_data.profit_loss
     history_entry.available_funds = history_data.available_funds
@@ -91,8 +101,10 @@ def update_history_entry_from_simulation(
     db: Session,
     history_id: int,
     simulation_id: int,
+    user_id: int,
 ):
-    get_history_entry(db, history_id)
+    _check_simulation_ownership(db, simulation_id, user_id)
+    get_history_entry(db, history_id, user_id)
 
     try:
         history_entry = simulation_history_repository.update_simulation_history_based_on_simulation_id(
@@ -112,8 +124,8 @@ def update_history_entry_from_simulation(
     return history_entry
 
 
-def delete_history_entry(db: Session, history_id: int):
-    history_entry = get_history_entry(db, history_id)
+def delete_history_entry(db: Session, history_id: int, user_id: int):
+    history_entry = get_history_entry(db, history_id, user_id)
     db.delete(history_entry)
 
     try:
@@ -124,3 +136,9 @@ def delete_history_entry(db: Session, history_id: int):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Could not delete simulation history entry because related records exist.",
         ) from exc
+
+
+def _check_simulation_ownership(db: Session, simulation_id: int, user_id: int):
+    statement = select(Simulation).where(Simulation.simulation_id == simulation_id, Simulation.user_id == user_id)
+    if db.scalars(statement).one_or_none() is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Simulation not found")
