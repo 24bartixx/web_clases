@@ -234,7 +234,7 @@ export function PortfolioPage() {
 
   return (
     <div className="container px-4 py-3 pb-4 my-4 border shadow-sm rounded-3 d-flex flex-column portfolio-page">
-      <div className="mt-2 mb-2">
+      {/* <div className="mt-2 mb-2">
         <button
           className="p-0 m-0 text-white bg-transparent border-0 btn me-4"
           onClick={() => navigate(`/game/${activeSimulationId}/stocks-view`)}
@@ -244,7 +244,7 @@ export function PortfolioPage() {
             ←
           </MDBTypography>
         </button>
-      </div>
+      </div> */}
 
       <MDBContainer className="flex-grow-1 d-flex flex-column">
         <MDBRow className="flex-shrink-0 mb-3 g-3">
@@ -490,6 +490,7 @@ export function PortfolioPage() {
                           innerRadius="48%"
                           outerRadius="83%"
                           paddingAngle={2}
+                          nameKey="ticker"
                           dataKey="value"
                           stroke="none"
                         >
@@ -506,9 +507,9 @@ export function PortfolioPage() {
                             border: '1px solid #40484c',
                             borderRadius: '8px',
                           }}
-                          formatter={(value: any) => [
+                          formatter={(value: any, ticker) => [
                             formatCurrency(Number(value ?? 0)),
-                            'Position value',
+                            ticker
                           ]}
                         />
                       </PieChart>
@@ -555,7 +556,7 @@ export function PortfolioPage() {
           </MDBCol>
         </MDBRow>
 
-        <div className="pt-2 pb-2 mt-2 portfolio-page__table-wrap pe-2 border-top border-secondary">
+        {/* <div className="pt-2 pb-2 mt-2 portfolio-page__table-wrap pe-2 border-top border-secondary">
           <MDBTable responsive hover className="mb-0 align-middle">
             <MDBTableHead className="border-bottom border-secondary">
               <tr>
@@ -668,7 +669,7 @@ export function PortfolioPage() {
               )}
             </MDBTableBody>
           </MDBTable>
-        </div>
+        </div> */}
       </MDBContainer>
     </div>
   );

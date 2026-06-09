@@ -1,5 +1,5 @@
 .portfolio-page {
-  min-height: calc(100vh - 130px);
+  /* min-height: calc(100vh - 130px); */
 }
 
 .portfolio-page__metric-card,
@@ -13,7 +13,7 @@
   min-height: 210px;
 }
 
-.portfolio-page__allocation-list {
+.portfolio-page__allocation-list { 
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
