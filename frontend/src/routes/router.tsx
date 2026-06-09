@@ -40,10 +40,6 @@ export const router = createBrowserRouter([
         element: <SummaryPage />,
       },
       {
-        path: '/game/:simulationId/summary',
-        element: <SummaryPage />,
-      },
-      {
         path: '/game/:simulationId',
         element: <GameProcessLayout />,
         children: [
