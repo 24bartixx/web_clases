@@ -1,4 +1,3 @@
-import { S } from 'react-router/dist/development/data-BqZ2x964';
 import { Stock, StockDetails } from '../../../types';
 import { MDBCol, MDBRow, MDBTypography } from 'mdb-react-ui-kit';
 

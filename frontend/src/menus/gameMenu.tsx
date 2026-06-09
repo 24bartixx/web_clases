@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ChangeEvent } from 'react';
 import { MDBTypography } from 'mdb-react-ui-kit';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import nextIcon from '../assets/next.svg';
 import { useGame } from '../contexts/GameContext';
@@ -38,6 +38,7 @@ const formatDate = (dateValue: string | null) => {
 export function GameMenu() {
   const { gameState, advanceTurn, finishGame } = useGame();
   const navigate = useNavigate();
+  const location = useLocation();
   const [daysToAdvance, setDaysToAdvance] = useState(1);
   const isAdvancingRef = useRef(false);
   const [isAdvancingTurn, setIsAdvancingTurn] = useState(false);
@@ -155,6 +156,9 @@ export function GameMenu() {
     setDaysToAdvance(clampedValue);
   };
 
+  const isStocksView = location.pathname.includes('/stocks-view');
+  const isPortfolio = location.pathname.includes('/portfolio');
+
   return (
     <header className="sticky top-0 z-50 border-bottom bg-body shadow-sm">
       <div className="container py-3">
@@ -180,6 +184,31 @@ export function GameMenu() {
               </MDBTypography>
             </div>
           </button>
+
+          {isGameReady && (
+            <div className="d-flex align-items-center justify-content-center gap-4 mx-xl-4" style={{ margin: '0 auto' }}>
+              <button
+                type="button"
+                className={`bg-transparent border-0 p-0 shadow-none fs-6 ${isStocksView ? 'text-white fw-bold' : 'text-muted'}`}
+                onClick={() => navigate(`/game/${gameState.simulationId}/stocks-view`)}
+                style={{ transition: 'color 0.2s' }}
+                onMouseEnter={(e) => { if (!isStocksView) e.currentTarget.classList.replace('text-muted', 'text-white'); }}
+                onMouseLeave={(e) => { if (!isStocksView) e.currentTarget.classList.replace('text-white', 'text-muted'); }}
+              >
+                Stock List
+              </button>
+              <button
+                type="button"
+                className={`bg-transparent border-0 p-0 shadow-none fs-6 ${isPortfolio ? 'text-white fw-bold' : 'text-muted'}`}
+                onClick={() => navigate(`/game/${gameState.simulationId}/portfolio`)}
+                style={{ transition: 'color 0.2s' }}
+                onMouseEnter={(e) => { if (!isPortfolio) e.currentTarget.classList.replace('text-muted', 'text-white'); }}
+                onMouseLeave={(e) => { if (!isPortfolio) e.currentTarget.classList.replace('text-white', 'text-muted'); }}
+              >
+                Portfolio
+              </button>
+            </div>
+          )}
 
           <div className="d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center gap-4">
             <div className="flex flex-col min-w-[320px] gap-2">

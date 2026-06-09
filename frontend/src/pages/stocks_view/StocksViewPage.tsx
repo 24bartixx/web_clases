@@ -4,6 +4,9 @@ import {
   MDBTable,
   MDBTableBody,
   MDBTableHead,
+  MDBTabs,
+  MDBTabsItem,
+  MDBTabsLink,
 } from 'mdb-react-ui-kit';
 import { Stock, StockDetails } from '../../types';
 
@@ -57,7 +60,7 @@ export function StocksViewPage() {
         return (
           <button
             onClick={column.getToggleSortingHandler()}
-            className="bg-transparent border-0 text-white d-flex align-items-center gap-1 fs-5 p-0"
+            className="gap-1 p-0 text-white bg-transparent border-0 d-flex align-items-center fs-5"
           >
             <MDBIcon
               fas
@@ -129,8 +132,8 @@ export function StocksViewPage() {
   }
 
   return (
-    <div className="container px-4 py-3 pb-4 my-4 border rounded-3 shadow-sm">
-      <MDBContainer className="d-flex flex-column gap-3">
+    <div className="container px-4 py-3 pb-4 my-4 border shadow-sm rounded-3">
+      <MDBContainer className="gap-3 d-flex flex-column">
         <MDBTable>
           <MDBTableHead>
             {table
