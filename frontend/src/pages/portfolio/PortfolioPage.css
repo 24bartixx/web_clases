@@ -1,0 +1,46 @@
+.portfolio-page {
+  min-height: calc(100vh - 130px);
+}
+
+.portfolio-page__metric-card,
+.portfolio-page__chart-card {
+  background-color: rgba(27, 32, 35, 0.75) !important;
+  border-color: var(--app-border-muted) !important;
+}
+
+.portfolio-page__chart-area {
+  flex: 1;
+  min-height: 210px;
+}
+
+.portfolio-page__allocation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.portfolio-page__allocation-item {
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.portfolio-page__allocation-dot {
+  display: inline-block;
+  width: 0.6rem;
+  height: 0.6rem;
+}
+
+.portfolio-page__table-wrap {
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.portfolio-page__empty-state {
+  max-width: 420px;
+  background-color: var(--app-surface);
+  border-color: var(--app-border-subtle) !important;
+  box-shadow: var(--app-card-shadow);
+}
