@@ -44,7 +44,6 @@ enum TradeSideKey {
 }
 
 enum PeriodKey {
-  W1 = 'W1',
   M1 = 'M1',
   M3 = 'M3',
   M6 = 'M6',
@@ -54,7 +53,6 @@ enum PeriodKey {
 }
 
 const periods: Record<PeriodKey, TradingChartPeriod> = {
-  [PeriodKey.W1]: { amount: 7, unit: TimeUnit.Day },
   [PeriodKey.M1]: { amount: 1, unit: TimeUnit.Month },
   [PeriodKey.M3]: { amount: 3, unit: TimeUnit.Month },
   [PeriodKey.M6]: { amount: 6, unit: TimeUnit.Month },
@@ -142,7 +140,7 @@ const getOldestPriceDate = (prices: Price[]): string | null =>
 export function TradingViewPage() {
   // prettier-ignore
   const [activeTradeSide, setActiveTradeSide] = useState<TradeSideKey>(TradeSideKey.Buy,);
-  const [activePeriod, setActivePeriod] = useState<PeriodKey>(PeriodKey.M1);
+  const [activePeriod, setActivePeriod] = useState<PeriodKey>(PeriodKey.M3);
   const [isCompanyDetailsOpen, setIsCompanyDetailsOpen] = useState(false);
   const { gameState, makeTransaction } = useGame();
 
@@ -630,11 +628,12 @@ export function TradingViewPage() {
         display: 'flex',
         flexDirection: 'column',
         minHeight: 0,
+        overflow: 'hidden',
       }}
     >
       <MDBContainer
         className="gap-3 d-flex flex-column"
-        style={{ flex: 1, overflow: 'auto', minHeight: 0 }}
+        style={{ flex: 1, overflow: 'hidden', minHeight: 0 }}
       >
         <div className="border-bottom">
           <MDBRow className="align-items-center justify-content-between ">
@@ -776,22 +775,8 @@ export function TradingViewPage() {
               </div>
               <div className="p-1 border shadow-sm rounded-3">
                 <MDBRow className="align-items-center justify-content-between g-3">
-                  <MDBCol size="auto">
+                    <MDBCol size="auto">
                     <MDBTabs pills fill>
-                      <MDBTabsItem>
-                        <MDBTabsLink
-                          className="px-3 py-2"
-                          onClick={() => handlePeriodChange(PeriodKey.W1)}
-                          active={activePeriod === PeriodKey.W1}
-                        >
-                          <MDBTypography
-                            tag="h6"
-                            className="m-0 fw-semibold lh-1"
-                          >
-                            {PeriodKey.W1}
-                          </MDBTypography>
-                        </MDBTabsLink>
-                      </MDBTabsItem>
                       <MDBTabsItem>
                         <MDBTabsLink
                           className="px-3 py-2"

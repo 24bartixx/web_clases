@@ -509,7 +509,7 @@ export function PortfolioPage() {
                           }}
                           formatter={(value: any, ticker) => [
                             formatCurrency(Number(value ?? 0)),
-                            ticker
+                            ticker,
                           ]}
                         />
                       </PieChart>
@@ -663,7 +663,7 @@ export function PortfolioPage() {
                     colSpan={6}
                     className="py-4 text-center bg-transparent border-0 text-muted"
                   >
-                    Your portfolio is empty.
+                    Your portfolio is empty
                   </td>
                 </tr>
               )}

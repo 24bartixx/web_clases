@@ -1,6 +1,6 @@
 import { act, useEffect, useMemo, useRef, useState } from 'react';
 import type { ChangeEvent } from 'react';
-import { MDBIcon, MDBTypography } from 'mdb-react-ui-kit';
+import { MDBTypography } from 'mdb-react-ui-kit';
 import { useNavigate, useLocation } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import nextIcon from '../assets/next.svg';
@@ -107,13 +107,6 @@ export function GameMenu() {
     remainingTradingDates,
   ]);
 
-    const activePositions = useMemo(() => {
-    return (gameState.stockPositions ?? []).filter(
-      (position) => position.amount > 0,
-    );
-  }, [gameState.stockPositions]);
-  
-  
   useEffect(() => {
     if (maxDaysToAdvance === 0) {
       return;
@@ -196,42 +189,30 @@ export function GameMenu() {
             <div className="gap-4 d-flex justify-content-center mx-xl-4" style={{ margin: '0 auto' }}>
               <button
                 type="button"
-                className={`bg-transparent border-0 p-0 d-flex flex-row align-items-center gap-1.5 shadow-none ${isStocksView ? 'text-white opacity-100' : 'text-muted opacity-80'}`}
+                className={`bg-transparent border-0 p-0 d-flex flex-row align-items-center gap-1.5 shadow-none ${isStocksView ? 'text-white opacity-100' : 'text-muted opacity-60'}`}
                 onClick={() => navigate(`/game/${gameState.simulationId}/stocks-view`)}
                 style={{ transition: 'color 0.2s' }}
                 onMouseEnter={(e) => { if (!isStocksView) e.currentTarget.classList.replace('text-muted', 'text-white'); }}
                 onMouseLeave={(e) => { if (!isStocksView) e.currentTarget.classList.replace('text-white', 'text-muted'); }}
               >
                 <div>
-                <MDBTypography tag="p" className="p-0 m-0 text-white fs-5">
+                <MDBTypography tag="p" className={`p-0 m-0 fs-5 ${isStocksView ? 'fw-semibold' : 'fw-normal'}`}>
                   Stock List
-                </MDBTypography>
-                </div>
-                <div className={`px-2.5 py-1 border rounded-full flex flex-row items-center gap-2`}>
-                  <MDBIcon fas icon="briefcase" className="text-muted" />
-                 <MDBTypography tag="p" className="m-0 text-white fs-6">
-                  {(gameState.stockPositions ?? []).length}
                 </MDBTypography>
                 </div>
               </button>
               <button
                 type="button"
-                className={`bg-transparent border-0 p-0 d-flex flex-row align-items-center gap-1.5 shadow-none ${isPortfolio ? 'text-white opacity-100' : 'text-muted opacity-80'}`}
+                className={`bg-transparent border-0 p-0 d-flex flex-row align-items-center gap-1.5 shadow-none ${isPortfolio ? 'text-white opacity-100' : 'text-muted opacity-60'}`}
                 onClick={() => navigate(`/game/${gameState.simulationId}/portfolio`)}
                 style={{ transition: 'color 0.2s' }}
                 onMouseEnter={(e) => { if (!isPortfolio) e.currentTarget.classList.replace('text-muted', 'text-white'); }}
                 onMouseLeave={(e) => { if (!isPortfolio) e.currentTarget.classList.replace('text-white', 'text-muted'); }}
               >
                 <div>
-                <MDBTypography tag="p" className="p-0 m-0 text-white fs-5">
+                <MDBTypography tag="p" className={`p-0 m-0 fs-5 ${isPortfolio ? 'fw-semibold' : 'fw-normal'}`}>
                   Portfolio
                 </MDBTypography>
-                </div>
-                <div className={`px-2.5 py-1 border rounded-full flex flex-row items-center gap-2`}>
-                  <MDBIcon fas icon="briefcase" className="text-muted" />
-                  <MDBTypography tag="p" className="m-0 text-white fs-6">
-                      {activePositions.length}
-                  </MDBTypography>
                 </div>
               </button>
             </div>
