@@ -19,14 +19,9 @@ from models.user import User
 from repositories import user_repository
 from schemas.user_schema import UserCreate, UserRead, UserUpdate
 
-# Importujemy fabrykę strategii z nowego folderu (np. app/services/oauth.py)
 from services.oauth import get_provider
 
 TOKEN_LIFETIME_MINUTES = 60
-
-# ==========================================
-#          FUNKCJE BAZODANOWE (USER)
-# ==========================================
 
 def get_users(db: Session, skip: int = 0, limit: int = 100):
     statement = select(User).order_by(User.user_id).offset(skip).limit(limit)

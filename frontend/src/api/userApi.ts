@@ -8,7 +8,7 @@ export type UserInfo = {
 };
 
 export async function getUserInfo(): Promise<UserInfo> {
-  const response = await auth_fetch(apiUrl('/api/users/info'));
+  const response = await auth_fetch(apiUrl('/api/users/me'));
 
   if (!response.ok) {
     throw new Error(await response.text());

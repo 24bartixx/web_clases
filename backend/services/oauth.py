@@ -114,7 +114,6 @@ class GitHubOAuthProvider(OAuthProvider):
                 primary_email = next((e["email"] for e in emails_list if e.get("primary")), None)
                 profile.email = primary_email or (emails_list[0]["email"] if emails_list else None)
             except httpx.HTTPError:
-                # Logowanie błędu zamiast wyciszania (pass)
                 print("Failed to fetch GitHub emails") 
 
         if not profile.email:
