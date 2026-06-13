@@ -458,6 +458,18 @@ export function TradingViewPage() {
   const currentPrice = currentPosition?.currentPrice ?? 0;
   const priceChange = currentPosition?.priceChange ?? 0;
   const priceChangePercent = currentPosition?.priceChangePercent ?? 0;
+  const ownedShares = currentPosition?.amount ?? 0;
+  const ownedPositionValue = ownedShares * currentPrice;
+  const formattedOwnedShares = ownedShares.toLocaleString(undefined, {
+    maximumFractionDigits: 6,
+  });
+  const formattedOwnedPositionValue = ownedPositionValue.toLocaleString(
+    undefined,
+    {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    },
+  );
 
   const visiblePriceRange = useMemo(() => {
     if (!priceRange || simulationDateOnly === null) {
@@ -680,10 +692,10 @@ export function TradingViewPage() {
               </MDBRow>
             </MDBCol>
 
-            <MDBCol size="auto">
-              <MDBRow className="align-items-center g-2">
+            <MDBCol size="auto" className="text-end">
+              <MDBRow className="align-items-center justify-content-end g-2">
                 <MDBCol size="auto">
-                  <MDBTypography tag="p" className={`fs-5 fw-semibold`}>
+                  <MDBTypography tag="p" className="m-0 fs-5 fw-semibold">
                     {currentPrice.toFixed(2)} {stockDetails.currency}
                   </MDBTypography>
                 </MDBCol>
@@ -691,7 +703,7 @@ export function TradingViewPage() {
                 <MDBCol size="auto">
                   <MDBTypography
                     tag="p"
-                    className={`fs-6 ${priceChange >= 0 ? 'text-price-up' : 'text-price-down'}`}
+                    className={`m-0 fs-6 ${priceChange >= 0 ? 'text-price-up' : 'text-price-down'}`}
                   >
                     {priceChange >= 0 ? '+' : '-'}
                     {Math.abs(priceChange).toFixed(2)}
@@ -700,12 +712,17 @@ export function TradingViewPage() {
                 <MDBCol size="auto">
                   <MDBTypography
                     tag="p"
-                    className={`fs-6 ${priceChange >= 0 ? 'text-price-up' : 'text-price-down'}`}
+                    className={`m-0 fs-6 ${priceChange >= 0 ? 'text-price-up' : 'text-price-down'}`}
                   >
                     ({Math.abs(priceChangePercent).toFixed(2)}%)
                   </MDBTypography>
                 </MDBCol>
               </MDBRow>
+
+              <MDBTypography tag="p" className="m-0 mt-2 small text-muted">
+                Owned: {formattedOwnedShares} shares (
+                {formattedOwnedPositionValue} {stockDetails.currency})
+              </MDBTypography>
             </MDBCol>
           </MDBRow>
         </div>
@@ -916,15 +933,6 @@ export function TradingViewPage() {
                         : 'none',
                   }}
                 >
-                  <div className="mt-2 text-center">
-                    <MDBTypography
-                      tag="h6"
-                      className="m-0 text-muted small lh-1"
-                    >
-                      You have: {currentPosition?.amount?.toFixed(6) ?? 0}{' '}
-                      shares
-                    </MDBTypography>
-                  </div>
                   <Controller
                     name="amount"
                     control={buyForm.control}
@@ -1001,15 +1009,6 @@ export function TradingViewPage() {
                         : 'none',
                   }}
                 >
-                  <div className="mt-2 text-center">
-                    <MDBTypography
-                      tag="h6"
-                      className="m-0 text-muted small lh-1"
-                    >
-                      You have: {currentPosition?.amount?.toFixed(6) ?? 0}{' '}
-                      shares
-                    </MDBTypography>
-                  </div>
                   <Controller
                     name="amount"
                     control={sellForm.control}
