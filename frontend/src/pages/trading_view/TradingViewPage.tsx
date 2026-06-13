@@ -128,6 +128,17 @@ const mergePriceRanges = (currentPrices: Price[], newPrices: Price[]) => {
   });
 };
 
+const getOldestPriceDate = (prices: Price[]): string | null =>
+  prices.reduce<string | null>((oldestDate, price) => {
+    const priceDate = toDateOnly(price.priceDate);
+
+    if (priceDate === null) {
+      return oldestDate;
+    }
+
+    return oldestDate === null ? priceDate : minDateOnly(oldestDate, priceDate);
+  }, null);
+
 export function TradingViewPage() {
   // prettier-ignore
   const [activeTradeSide, setActiveTradeSide] = useState<TradeSideKey>(TradeSideKey.Buy,);
@@ -326,8 +337,75 @@ export function TradingViewPage() {
     [cleanTicker, hasFetchedAllBack, oldestFetchedDate],
   );
 
+  const loadAllPrices = useCallback(async (): Promise<boolean> => {
+    if (
+      !cleanTicker ||
+      priceFinishDateOnly === null ||
+      isFetchingOlderPricesRef.current
+    ) {
+      return false;
+    }
+
+    if (hasFetchedAllBack) {
+      return true;
+    }
+
+    const fetchKey = `${cleanTicker}:all:${priceFinishDateOnly}`;
+
+    if (olderPriceFetchKeyRef.current === fetchKey) {
+      return false;
+    }
+
+    olderPriceFetchKeyRef.current = fetchKey;
+    isFetchingOlderPricesRef.current = true;
+    setIsLoadingOlderPrices(true);
+
+    try {
+      const response = await fetch(
+        apiUrl(
+          `/api/stocks/${cleanTicker}/prices?finish=${priceFinishDateOnly}&interval=1d`,
+        ),
+      );
+
+      if (!response.ok) {
+        throw new Error(`Status: ${response.status}`);
+      }
+
+      const priceRangeData: PriceDto[] = await response.json();
+      const allPrices = priceRangeData.map((priceDto) =>
+        mapPriceDtoToPrice(priceDto),
+      );
+
+      setPriceRange((currentPrices) => {
+        const mergedPrices = mergePriceRanges(currentPrices ?? [], allPrices);
+        setOldestFetchedDate(getOldestPriceDate(mergedPrices));
+
+        return mergedPrices;
+      });
+      setHasFetchedAllBack(true);
+      return true;
+    } catch (err) {
+      olderPriceFetchKeyRef.current = null;
+      console.error(`Failed to load all prices for ${cleanTicker}`, err);
+      return false;
+    } finally {
+      isFetchingOlderPricesRef.current = false;
+      setIsLoadingOlderPrices(false);
+    }
+  }, [cleanTicker, hasFetchedAllBack, priceFinishDateOnly]);
+
   const handlePeriodChange = async (newPeriod: PeriodKey) => {
     if (newPeriod === activePeriod) {
+      return;
+    }
+
+    if (newPeriod === PeriodKey.ALL) {
+      const hasLoadedAllPrices = await loadAllPrices();
+
+      if (hasLoadedAllPrices) {
+        setActivePeriod(newPeriod);
+      }
+
       return;
     }
 
@@ -659,6 +737,7 @@ export function TradingViewPage() {
                   style={{ flex: 1, minHeight: 0 }}
                   priceRange={visiblePriceRange}
                   period={periods[activePeriod]}
+                  isLoading={isLoadingOlderPrices}
                   onVisibleRangeChange={handleChartVisibleRangeChange}
                 />
                 {isLoadingOlderPrices && (
@@ -670,7 +749,7 @@ export function TradingViewPage() {
                       alignItems: 'center',
                       justifyContent: 'center',
                       backgroundColor: 'rgba(0, 0, 0, 0.08)',
-                      pointerEvents: 'none',
+                      pointerEvents: 'auto',
                       zIndex: 1,
                     }}
                   >

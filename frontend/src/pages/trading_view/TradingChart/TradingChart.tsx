@@ -37,6 +37,7 @@ export type TradingChartVisibleRange = {
 export interface TradingChartProps extends HTMLAttributes<HTMLDivElement> {
   priceRange: Price[];
   period?: TradingChartPeriod;
+  isLoading?: boolean;
   onVisibleRangeChange?: (range: TradingChartVisibleRange) => void;
 }
 
@@ -58,8 +59,10 @@ const timeToDateOnly = (time: Time): string | null => {
   return null;
 };
 
+const ALL_HISTORY_MIN_BAR_SPACING = 0.01;
+
 // prettier-ignore
-export const TradingChart = ({priceRange, period = {amount: 0, unit: TimeUnit.All}, onVisibleRangeChange, ...rest}: TradingChartProps) => {
+export const TradingChart = ({priceRange, period = {amount: 0, unit: TimeUnit.All}, isLoading = false, onVisibleRangeChange, ...rest}: TradingChartProps) => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const candleSeriesRef = useRef<any>(null);
@@ -92,6 +95,19 @@ export const TradingChart = ({priceRange, period = {amount: 0, unit: TimeUnit.Al
     onVisibleRangeChangeRef.current = onVisibleRangeChange;
   }, [onVisibleRangeChange]);
 
+  useEffect(() => {
+    const chart = chartRef.current;
+
+    if (!chart) {
+      return;
+    }
+
+    chart.applyOptions({
+      handleScroll: !isLoading,
+      handleScale: !isLoading,
+    });
+  }, [isLoading]);
+
 
   
   const setViewRange = useCallback((period: TradingChartPeriod) => {
@@ -100,11 +116,14 @@ export const TradingChart = ({priceRange, period = {amount: 0, unit: TimeUnit.Al
 
     const { amount, unit } = period;
 
-    const firstTime = candleSeriesData[0].time as UTCTimestamp;
     const lastTime = candleSeriesData[candleSeriesData.length - 1].time as UTCTimestamp;
 
     if (unit === TimeUnit.All) {
-      chart.timeScale().setVisibleRange({ from: firstTime, to: lastTime });
+      chart.timeScale().applyOptions({
+        minBarSpacing: ALL_HISTORY_MIN_BAR_SPACING,
+        rightOffset: 0,
+      });
+      chart.timeScale().fitContent();
       return;
     }
 
@@ -180,7 +199,7 @@ export const TradingChart = ({priceRange, period = {amount: 0, unit: TimeUnit.Al
 				},
 			},
 
-			rightPriceScale: {
+      rightPriceScale: {
         borderColor: getCssVar('--bs-border-color'),
 				textColor: getCssVar('--bs-body-color'),
 				mode: PriceScaleMode.Normal,
@@ -189,6 +208,13 @@ export const TradingChart = ({priceRange, period = {amount: 0, unit: TimeUnit.Al
 				invertScale: false,
 				entireTextOnly: false,
       },
+
+      timeScale: {
+        minBarSpacing: ALL_HISTORY_MIN_BAR_SPACING,
+      },
+
+      handleScroll: true,
+      handleScale: true,
 
 
       
