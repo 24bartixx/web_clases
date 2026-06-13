@@ -13,7 +13,7 @@ import { TimeUnit, TradingChart, TradingChartPeriod } from './TradingChart';
 import stockImg from '../../assets/stock-30.png';
 import moneyImg from '../../assets/money-30.png';
 import { AmountInput } from './AmountInput';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Controller, useForm } from 'react-hook-form';
 import { CompanyDetailsModal } from './stockDetailsModal';
@@ -63,49 +63,52 @@ const periods: Record<PeriodKey, TradingChartPeriod> = {
   [PeriodKey.ALL]: { amount: 0, unit: TimeUnit.All },
 };
 
+const INITIAL_HISTORY_MONTHS = 3;
+const DRAG_FETCH_MULTIPLIER = 3;
+const DAYS_PER_FETCH_MONTH = 31;
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
 interface SellOrBuyForm {
   amount: number;
   total: number;
 }
 
-const getOldestPriceDate = (prices: Price[]): string | null => {
-  if (prices.length === 0) {
-    return null;
-  }
-
-  return prices.reduce<string | null>((oldestDate, price) => {
-    const priceDate = toDateOnly(price.priceDate);
-
-    if (priceDate === null) {
-      return oldestDate;
-    }
-
-    return oldestDate === null || priceDate < oldestDate
-      ? priceDate
-      : oldestDate;
-  }, null);
-};
-
-const getNewestPriceDate = (prices: Price[]): string | null => {
-  if (prices.length === 0) {
-    return null;
-  }
-
-  return prices.reduce<string | null>((newestDate, price) => {
-    const priceDate = toDateOnly(price.priceDate);
-
-    if (priceDate === null) {
-      return newestDate;
-    }
-
-    return newestDate === null || priceDate > newestDate
-      ? priceDate
-      : newestDate;
-  }, null);
-};
-
 const minDateOnly = (left: string, right: string) =>
   left <= right ? left : right;
+
+const getDateOnlyTime = (dateOnly: string): number => {
+  const [year, month, day] = dateOnly.split('-').map(Number);
+  return Date.UTC(year, month - 1, day);
+};
+
+const getVisibleIntervalMonths = (from: string, to: string): number => {
+  const dayDiff = Math.max(
+    1,
+    Math.ceil((getDateOnlyTime(to) - getDateOnlyTime(from)) / MS_PER_DAY),
+  );
+
+  return Math.max(1, Math.ceil(dayDiff / DAYS_PER_FETCH_MONTH));
+};
+
+const getPeriodStartDate = (
+  period: TradingChartPeriod,
+  referenceDate: string,
+): string | null => {
+  if (period.amount <= 0 || period.unit === TimeUnit.All) {
+    return null;
+  }
+
+  switch (period.unit) {
+    case TimeUnit.Day:
+      return addDaysToDateOnly(referenceDate, -period.amount);
+    case TimeUnit.Month:
+      return addMonthsToDateOnly(referenceDate, -period.amount);
+    case TimeUnit.Year:
+      return addMonthsToDateOnly(referenceDate, -period.amount * 12);
+    default:
+      return null;
+  }
+};
 
 const mergePriceRanges = (currentPrices: Price[], newPrices: Price[]) => {
   const pricesByDate = new Map<string, Price>();
@@ -142,6 +145,7 @@ export function TradingViewPage() {
   const [stock, setStock] = useState<Stock | null>(null);
   const [stockDetails, setStockDetails] = useState<StockDetails | null>(null);
   const [priceRange, setPriceRange] = useState<Price[] | null>(null);
+  const [isLoadingOlderPrices, setIsLoadingOlderPrices] = useState(false);
 
   const currentPosition = useMemo(
     () =>
@@ -151,37 +155,18 @@ export function TradingViewPage() {
   const [oldestFetchedDate, setOldestFetchedDate] = useState<string | null>(
     null,
   );
-  const [newestFetchedDate, setNewestFetchedDate] = useState<string | null>(
-    null,
-  );
   const [hasFetchedAllBack, setHasFetchedAllBack] = useState(false);
-  const [hasFetchedAllAhead, setHasFetchedAllAhead] = useState(false);
   const isFetchingOlderPricesRef = useRef(false);
-  const isFetchingFuturePricesRef = useRef(false);
   const olderPriceFetchKeyRef = useRef<string | null>(null);
-  const futurePriceFetchKeyRef = useRef<string | null>(null);
 
   const simulationDate = gameState.currentDate ?? gameState.startDate;
   const simulationDateOnly = toDateOnly(simulationDate);
-  const finishDateOnly = toDateOnly(gameState.finishDate);
   const priceStartDateOnly = simulationDateOnly
-    ? addMonthsToDateOnly(simulationDateOnly, -2)
+    ? addMonthsToDateOnly(simulationDateOnly, -INITIAL_HISTORY_MONTHS)
     : null;
-  const priceFinishDateOnly = useMemo(() => {
-    if (simulationDateOnly === null) {
-      return null;
-    }
-
-    const futureTradingDates = gameState.tradingDates.filter(
-      (tradingDate) => tradingDate > simulationDateOnly,
-    );
-    const targetDate =
-      futureTradingDates[4] ??
-      futureTradingDates[futureTradingDates.length - 1] ??
-      simulationDateOnly;
-
-    return addDaysToDateOnly(targetDate, 1);
-  }, [gameState.tradingDates, simulationDateOnly]);
+  const priceFinishDateOnly = simulationDateOnly
+    ? addDaysToDateOnly(simulationDateOnly, 1)
+    : null;
 
   const buyForm = useForm<SellOrBuyForm>({
     mode: 'all',
@@ -206,13 +191,6 @@ export function TradingViewPage() {
     setActiveTradeSide(newTradeSide);
   };
 
-  const handlePeriodChange = (newPeriod: PeriodKey) => {
-    if (newPeriod === activePeriod) {
-      return;
-    }
-    setActivePeriod(newPeriod);
-  };
-  
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -265,20 +243,13 @@ export function TradingViewPage() {
         const mappedPrices = priceRangeData.map((priceDto) =>
           mapPriceDtoToPrice(priceDto),
         );
-        const newestPriceDate = getNewestPriceDate(mappedPrices);
 
         olderPriceFetchKeyRef.current = null;
-        futurePriceFetchKeyRef.current = null;
         isFetchingOlderPricesRef.current = false;
-        isFetchingFuturePricesRef.current = false;
+
+        setIsLoadingOlderPrices(false);
         setHasFetchedAllBack(mappedPrices.length === 0);
-        setHasFetchedAllAhead(
-          newestPriceDate === null ||
-            finishDateOnly === null ||
-            newestPriceDate >= finishDateOnly,
-        );
-        setOldestFetchedDate(getOldestPriceDate(mappedPrices));
-        setNewestFetchedDate(newestPriceDate);
+        setOldestFetchedDate(priceStartDateOnly);
         setStock(mapStockDtoToStock(stockData));
         setStockDetails(mapStockDetailsDtoToStockDetails(detailsData));
         setPriceRange(mappedPrices);
@@ -292,32 +263,32 @@ export function TradingViewPage() {
     loadData();
   }, [cleanTicker, gameState.simulationId]);
 
-  useEffect(() => {
-    if (
-      !cleanTicker ||
-      oldestFetchedDate === null ||
-      hasFetchedAllBack ||
-      isFetchingOlderPricesRef.current
-    ) {
-      return;
-    }
+  const loadOlderPricesFrom = useCallback(
+    async (targetStartDate: string): Promise<void> => {
+      if (
+        !cleanTicker ||
+        oldestFetchedDate === null ||
+        hasFetchedAllBack ||
+        targetStartDate >= oldestFetchedDate ||
+        isFetchingOlderPricesRef.current
+      ) {
+        return;
+      }
 
-    const fetchKey = `${cleanTicker}:${oldestFetchedDate}`;
+      const fetchKey = `${cleanTicker}:${targetStartDate}:${oldestFetchedDate}`;
 
-    if (olderPriceFetchKeyRef.current === fetchKey) {
-      return;
-    }
+      if (olderPriceFetchKeyRef.current === fetchKey) {
+        return;
+      }
 
-    let isCancelled = false;
-    olderPriceFetchKeyRef.current = fetchKey;
-    isFetchingOlderPricesRef.current = true;
+      olderPriceFetchKeyRef.current = fetchKey;
+      isFetchingOlderPricesRef.current = true;
+      setIsLoadingOlderPrices(true);
 
-    const loadOlderPrices = async () => {
       try {
-        const nextStartDate = addMonthsToDateOnly(oldestFetchedDate, -2);
         const response = await fetch(
           apiUrl(
-            `/api/stocks/${cleanTicker}/prices?start=${nextStartDate}&finish=${oldestFetchedDate}&interval=1d`,
+            `/api/stocks/${cleanTicker}/prices?start=${targetStartDate}&finish=${oldestFetchedDate}&interval=1d`,
           ),
         );
 
@@ -330,12 +301,8 @@ export function TradingViewPage() {
           mapPriceDtoToPrice(priceDto),
         );
 
-        if (isCancelled) {
-          return;
-        }
-
         if (olderPrices.length === 0) {
-          setHasFetchedAllBack(true);
+          setOldestFetchedDate(targetStartDate);
           return;
         }
 
@@ -344,134 +311,71 @@ export function TradingViewPage() {
             currentPrices ?? [],
             olderPrices,
           );
-          const nextOldestDate = getOldestPriceDate(mergedPrices);
-
-          if (nextOldestDate === oldestFetchedDate) {
-            setHasFetchedAllBack(true);
-          } else {
-            setOldestFetchedDate(nextOldestDate);
-          }
+          setOldestFetchedDate(targetStartDate);
 
           return mergedPrices;
         });
       } catch (err) {
+        olderPriceFetchKeyRef.current = null;
         console.error(`Failed to load older prices for ${cleanTicker}`, err);
-
-        if (!isCancelled) {
-          setHasFetchedAllBack(true);
-        }
       } finally {
-        if (!isCancelled) {
-          isFetchingOlderPricesRef.current = false;
-        }
+        isFetchingOlderPricesRef.current = false;
+        setIsLoadingOlderPrices(false);
       }
-    };
+    },
+    [cleanTicker, hasFetchedAllBack, oldestFetchedDate],
+  );
 
-    loadOlderPrices();
-
-    return () => {
-      isCancelled = true;
-    };
-  }, [cleanTicker, hasFetchedAllBack, oldestFetchedDate]);
-
-  useEffect(() => {
-    if (
-      !cleanTicker ||
-      newestFetchedDate === null ||
-      finishDateOnly === null ||
-      hasFetchedAllAhead ||
-      isFetchingFuturePricesRef.current
-    ) {
+  const handlePeriodChange = async (newPeriod: PeriodKey) => {
+    if (newPeriod === activePeriod) {
       return;
     }
 
-    if (newestFetchedDate >= finishDateOnly) {
-      setHasFetchedAllAhead(true);
-      return;
+    const targetStartDate =
+      simulationDateOnly !== null
+        ? getPeriodStartDate(periods[newPeriod], simulationDateOnly)
+        : null;
+
+    if (targetStartDate !== null) {
+      await loadOlderPricesFrom(targetStartDate);
     }
 
-    const finishBoundaryDate = addDaysToDateOnly(finishDateOnly, 1);
-    const nextFinishDate = minDateOnly(
-      addMonthsToDateOnly(newestFetchedDate, 2),
-      finishBoundaryDate,
-    );
-    const fetchKey = `${cleanTicker}:${newestFetchedDate}:${nextFinishDate}`;
+    setActivePeriod(newPeriod);
+  };
 
-    if (futurePriceFetchKeyRef.current === fetchKey) {
-      return;
-    }
+  const handleChartVisibleRangeChange = useCallback(
+    ({
+      from,
+      to,
+      barsBefore,
+    }: {
+      from: string | null;
+      to: string | null;
+      barsBefore: number | null;
+    }) => {
+      const isAtLoadedLeftEdge = barsBefore !== null && barsBefore <= 2;
 
-    let isCancelled = false;
-    futurePriceFetchKeyRef.current = fetchKey;
-    isFetchingFuturePricesRef.current = true;
-
-    const loadFuturePrices = async () => {
-      try {
-        const response = await fetch(
-          apiUrl(
-            `/api/stocks/${cleanTicker}/prices?start=${newestFetchedDate}&finish=${nextFinishDate}&interval=1d`,
-          ),
-        );
-
-        if (!response.ok) {
-          throw new Error(`Status: ${response.status}`);
-        }
-
-        const priceRangeData: PriceDto[] = await response.json();
-        const futurePrices = priceRangeData.map((priceDto) =>
-          mapPriceDtoToPrice(priceDto),
-        );
-
-        if (isCancelled) {
-          return;
-        }
-
-        if (futurePrices.length === 0) {
-          if (nextFinishDate >= finishBoundaryDate) {
-            setHasFetchedAllAhead(true);
-          } else {
-            setNewestFetchedDate(addDaysToDateOnly(nextFinishDate, -1));
-          }
-
-          return;
-        }
-
-        setPriceRange((currentPrices) => {
-          const mergedPrices = mergePriceRanges(
-            currentPrices ?? [],
-            futurePrices,
-          );
-          const nextNewestDate = getNewestPriceDate(mergedPrices);
-
-          if (nextNewestDate === null || nextNewestDate >= finishDateOnly) {
-            setHasFetchedAllAhead(true);
-          } else if (nextNewestDate === newestFetchedDate) {
-            setNewestFetchedDate(addDaysToDateOnly(nextFinishDate, -1));
-          } else {
-            setNewestFetchedDate(nextNewestDate);
-          }
-
-          return mergedPrices;
-        });
-      } catch (err) {
-        console.error(`Failed to load future prices for ${cleanTicker}`, err);
-
-        if (!isCancelled) {
-          setHasFetchedAllAhead(true);
-        }
-      } finally {
-        if (!isCancelled) {
-          isFetchingFuturePricesRef.current = false;
-        }
+      if (
+        from === null ||
+        to === null ||
+        oldestFetchedDate === null ||
+        hasFetchedAllBack ||
+        (!isAtLoadedLeftEdge && from >= oldestFetchedDate)
+      ) {
+        return;
       }
-    };
 
-    loadFuturePrices();
+      const visibleIntervalMonths = getVisibleIntervalMonths(from, to);
+      const fetchMonths = visibleIntervalMonths * DRAG_FETCH_MULTIPLIER;
+      const bufferedStartDate = addMonthsToDateOnly(
+        oldestFetchedDate,
+        -fetchMonths,
+      );
 
-    return () => {
-      isCancelled = true;
-    };
-  }, [cleanTicker, finishDateOnly, hasFetchedAllAhead, newestFetchedDate]);
+      void loadOlderPricesFrom(bufferedStartDate);
+    },
+    [hasFetchedAllBack, loadOlderPricesFrom, oldestFetchedDate],
+  );
 
   const currentPrice = currentPosition?.currentPrice ?? 0;
   const priceChange = currentPosition?.priceChange ?? 0;
@@ -748,13 +652,31 @@ export function TradingViewPage() {
                   display: 'flex',
                   flexDirection: 'column',
                   minHeight: 0,
+                  position: 'relative',
                 }}
               >
                 <TradingChart
                   style={{ flex: 1, minHeight: 0 }}
                   priceRange={visiblePriceRange}
                   period={periods[activePeriod]}
+                  onVisibleRangeChange={handleChartVisibleRangeChange}
                 />
+                {isLoadingOlderPrices && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor: 'rgba(0, 0, 0, 0.08)',
+                      pointerEvents: 'none',
+                      zIndex: 1,
+                    }}
+                  >
+                    <CustomLoading />
+                  </div>
+                )}
               </div>
               <div className="p-1 border shadow-sm rounded-3">
                 <MDBRow className="align-items-center justify-content-between g-3">
@@ -934,7 +856,10 @@ export function TradingViewPage() {
                         if (Number.isNaN(value)) {
                           return 'Amount must be a number';
                         }
-                        if (value * currentPrice > (gameState.availableFunds ?? 0)) {
+                        if (
+                          value * currentPrice >
+                          (gameState.availableFunds ?? 0)
+                        ) {
                           return 'Not enough funds';
                         }
                         return true;
@@ -1013,13 +938,13 @@ export function TradingViewPage() {
                       required: 'Amount is required',
                       min: { value: 1, message: 'Amount must be positive' },
                       validate: (value) => {
-                      if (Number.isNaN(value)) {
-                        return 'Amount must be a number';
-                      }
-                      if (value > (currentPosition?.amount ?? 0)) {
-                        return 'Not enough shares to sell';
-                      }
-                      return true;
+                        if (Number.isNaN(value)) {
+                          return 'Amount must be a number';
+                        }
+                        if (value > (currentPosition?.amount ?? 0)) {
+                          return 'Not enough shares to sell';
+                        }
+                        return true;
                       },
                     }}
                     render={({ field }) => (

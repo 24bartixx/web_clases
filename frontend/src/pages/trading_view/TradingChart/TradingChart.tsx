@@ -9,6 +9,9 @@ import {
   CrosshairMode,
   PriceScaleMode,
   UTCTimestamp,
+  Time,
+  TimeRangeChangeEventHandler,
+  LogicalRangeChangeEventHandler,
 } from 'lightweight-charts';
 import { toTimestamp } from './../../../utils';
 import { Price } from '../../../types';
@@ -25,13 +28,38 @@ export type TradingChartPeriod = {
   unit: TimeUnit;
 };
 
+export type TradingChartVisibleRange = {
+  from: string | null;
+  to: string | null;
+  barsBefore: number | null;
+};
+
 export interface TradingChartProps extends HTMLAttributes<HTMLDivElement> {
   priceRange: Price[];
   period?: TradingChartPeriod;
+  onVisibleRangeChange?: (range: TradingChartVisibleRange) => void;
 }
 
+const timeToDateOnly = (time: Time): string | null => {
+  if (typeof time === 'number') {
+    return new Date(Number(time) * 1000).toISOString().slice(0, 10);
+  }
+
+  if (typeof time === 'string') {
+    return time.slice(0, 10);
+  }
+
+  if ('year' in time) {
+    return new Date(Date.UTC(time.year, time.month - 1, time.day))
+      .toISOString()
+      .slice(0, 10);
+  }
+
+  return null;
+};
+
 // prettier-ignore
-export const TradingChart = ({priceRange, period = {amount: 0, unit: TimeUnit.All}, ...rest}: TradingChartProps) => {
+export const TradingChart = ({priceRange, period = {amount: 0, unit: TimeUnit.All}, onVisibleRangeChange, ...rest}: TradingChartProps) => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const candleSeriesRef = useRef<any>(null);
@@ -39,6 +67,7 @@ export const TradingChart = ({priceRange, period = {amount: 0, unit: TimeUnit.Al
   const lastAppliedPeriodKeyRef = useRef<string | null>(null);
   const hasAppliedInitialRangeRef = useRef(false);
   const prevLastDataTimeRef = useRef<number | null>(null);
+  const onVisibleRangeChangeRef = useRef(onVisibleRangeChange);
    
   const getCssVar = (variable: string) => {
     return getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
@@ -58,6 +87,10 @@ export const TradingChart = ({priceRange, period = {amount: 0, unit: TimeUnit.Al
   value: price.volume,    
   color: price.close >= price.open ? getCssVar('--bs-candle-up-color') : getCssVar('--bs-candle-down-color')
 })), [priceRange]);
+
+  useEffect(() => {
+    onVisibleRangeChangeRef.current = onVisibleRangeChange;
+  }, [onVisibleRangeChange]);
 
 
   
@@ -210,10 +243,63 @@ export const TradingChart = ({priceRange, period = {amount: 0, unit: TimeUnit.Al
 				});
 			}
 		};
+    const notifyVisibleRangeChange = (
+      range: { from: Time; to: Time } | null,
+      barsBefore: number | null,
+    ) => {
+      const visibleRangeHandler = onVisibleRangeChangeRef.current;
+
+      if (!visibleRangeHandler) {
+        return;
+      }
+
+      visibleRangeHandler({
+        from: range ? timeToDateOnly(range.from) : null,
+        to: range ? timeToDateOnly(range.to) : null,
+        barsBefore,
+      });
+    };
+    const getBarsBefore = () => {
+      const logicalRange = chart.timeScale().getVisibleLogicalRange();
+      const barsInfo = logicalRange
+        ? candleSeriesRef.current?.barsInLogicalRange(logicalRange)
+        : null;
+
+      return typeof barsInfo?.barsBefore === 'number'
+        ? barsInfo.barsBefore
+        : null;
+    };
+    const handleVisibleRangeChange: TimeRangeChangeEventHandler<Time> = (range) => {
+      notifyVisibleRangeChange(range, getBarsBefore());
+    };
+    const handleVisibleLogicalRangeChange: LogicalRangeChangeEventHandler = (range) => {
+      const timeRange = chart.timeScale().getVisibleRange();
+      const barsInfo = range
+        ? candleSeriesRef.current?.barsInLogicalRange(range)
+        : null;
+      const barsBefore = typeof barsInfo?.barsBefore === 'number'
+        ? barsInfo.barsBefore
+        : null;
+
+      notifyVisibleRangeChange(timeRange, barsBefore);
+    };
+
+    chart
+      .timeScale()
+      .subscribeVisibleTimeRangeChange(handleVisibleRangeChange);
+    chart
+      .timeScale()
+      .subscribeVisibleLogicalRangeChange(handleVisibleLogicalRangeChange);
     window.addEventListener('resize', handleResize);
 
     return () => {
       window.removeEventListener('resize', handleResize);
+      chart
+        .timeScale()
+        .unsubscribeVisibleTimeRangeChange(handleVisibleRangeChange);
+      chart
+        .timeScale()
+        .unsubscribeVisibleLogicalRangeChange(handleVisibleLogicalRangeChange);
       chart.remove();
       chartRef.current = null;
       candleSeriesRef.current = null;
