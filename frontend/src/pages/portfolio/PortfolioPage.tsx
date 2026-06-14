@@ -590,6 +590,7 @@ export function PortfolioPage() {
                       onClick={() =>
                         navigate(
                           `/game/${activeSimulationId}/trading-view/${position.stock.ticker}`,
+                          { state: { gameMenuSection: 'portfolio' } },
                         )
                       }
                       style={{ cursor: 'pointer' }}

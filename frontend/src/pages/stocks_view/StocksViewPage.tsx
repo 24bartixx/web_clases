@@ -105,7 +105,9 @@ export function StocksViewPage() {
   });
 
   const handleClick = (ticker: string) =>
-    navigate(`/game/${simulationId}/trading-view/${ticker}`);
+    navigate(`/game/${simulationId}/trading-view/${ticker}`, {
+      state: { gameMenuSection: 'stocks-view' },
+    });
 
   if (gameState.status === 'loading') {
     return (

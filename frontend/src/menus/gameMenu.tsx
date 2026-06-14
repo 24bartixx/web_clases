@@ -1,4 +1,4 @@
-import { act, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ChangeEvent } from 'react';
 import { MDBTypography } from 'mdb-react-ui-kit';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -35,6 +35,36 @@ const formatDate = (dateValue: string | null) => {
   return Number.isNaN(date.getTime()) ? '--' : dateFormatter.format(date);
 };
 
+type GameMenuSection = 'stocks-view' | 'portfolio';
+
+interface GameMenuLocationState {
+  gameMenuSection?: GameMenuSection;
+}
+
+const getCurrentMenuSection = (pathname: string): GameMenuSection | null => {
+  if (pathname.includes('/stocks-view')) {
+    return 'stocks-view';
+  }
+
+  if (pathname.includes('/portfolio')) {
+    return 'portfolio';
+  }
+
+  return null;
+};
+
+const isGameMenuLocationState = (
+  state: unknown,
+): state is GameMenuLocationState => {
+  if (typeof state !== 'object' || state === null) {
+    return false;
+  }
+
+  const gameMenuSection = (state as GameMenuLocationState).gameMenuSection;
+
+  return gameMenuSection === 'stocks-view' || gameMenuSection === 'portfolio';
+};
+
 export function GameMenu() {
   const { gameState, advanceTurn, finishGame } = useGame();
   const navigate = useNavigate();
@@ -42,6 +72,8 @@ export function GameMenu() {
   const [daysToAdvance, setDaysToAdvance] = useState(1);
   const isAdvancingRef = useRef(false);
   const [isAdvancingTurn, setIsAdvancingTurn] = useState(false);
+  const [lastActiveMenuSection, setLastActiveMenuSection] =
+    useState<GameMenuSection>('stocks-view');
 
   const availableFunds = gameState.availableFunds;
   const accountBalance = gameState.currentBalance;
@@ -117,6 +149,26 @@ export function GameMenu() {
     );
   }, [maxDaysToAdvance]);
 
+  const currentMenuSection = getCurrentMenuSection(location.pathname);
+  const isTradingView = location.pathname.includes('/trading-view');
+  const locationMenuSection =
+    isTradingView && isGameMenuLocationState(location.state)
+      ? location.state.gameMenuSection ?? null
+      : null;
+
+  useEffect(() => {
+    const nextActiveMenuSection = currentMenuSection ?? locationMenuSection;
+
+    if (nextActiveMenuSection !== null) {
+      setLastActiveMenuSection(nextActiveMenuSection);
+    }
+  }, [currentMenuSection, locationMenuSection]);
+
+  const activeMenuSection =
+    currentMenuSection ??
+    locationMenuSection ??
+    (isTradingView ? lastActiveMenuSection : null);
+
   const handleNextTurn = async () => {
     if (!canAdvance || isAdvancingRef.current || isAdvancingTurn) {
       return;
@@ -156,8 +208,8 @@ export function GameMenu() {
     setDaysToAdvance(clampedValue);
   };
 
-  const isStocksView = location.pathname.includes('/stocks-view');
-  const isPortfolio = location.pathname.includes('/portfolio');
+  const isStocksView = activeMenuSection === 'stocks-view';
+  const isPortfolio = activeMenuSection === 'portfolio';
 
   return (
     <header className="sticky top-0 z-50 shadow-sm border-bottom bg-body">
