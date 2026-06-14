@@ -62,6 +62,9 @@ const periods: Record<PeriodKey, TradingChartPeriod> = {
 };
 
 const INITIAL_HISTORY_MONTHS = 3;
+const INITIAL_FUTURE_DAYS = 7;
+const FUTURE_FETCH_THRESHOLD_DAYS = 3;
+const FUTURE_FETCH_MONTHS = 1;
 const DRAG_FETCH_MULTIPLIER = 3;
 const DAYS_PER_FETCH_MONTH = 31;
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
@@ -74,10 +77,21 @@ interface SellOrBuyForm {
 const minDateOnly = (left: string, right: string) =>
   left <= right ? left : right;
 
+const getCappedFetchFinishDate = (
+  targetFinishDate: string,
+  simulationFinishDate: string | null,
+) =>
+  simulationFinishDate === null
+    ? targetFinishDate
+    : minDateOnly(targetFinishDate, addDaysToDateOnly(simulationFinishDate, 1));
+
 const getDateOnlyTime = (dateOnly: string): number => {
   const [year, month, day] = dateOnly.split('-').map(Number);
   return Date.UTC(year, month - 1, day);
 };
+
+const getDateOnlyDayDiff = (from: string, to: string): number =>
+  Math.floor((getDateOnlyTime(to) - getDateOnlyTime(from)) / MS_PER_DAY);
 
 const getVisibleIntervalMonths = (from: string, to: string): number => {
   const dayDiff = Math.max(
@@ -164,17 +178,29 @@ export function TradingViewPage() {
   const [oldestFetchedDate, setOldestFetchedDate] = useState<string | null>(
     null,
   );
+  const [newestFetchedFinishDate, setNewestFetchedFinishDate] = useState<
+    string | null
+  >(null);
   const [hasFetchedAllBack, setHasFetchedAllBack] = useState(false);
   const isFetchingOlderPricesRef = useRef(false);
   const olderPriceFetchKeyRef = useRef<string | null>(null);
+  const isFetchingFuturePricesRef = useRef(false);
+  const futurePriceFetchKeyRef = useRef<string | null>(null);
 
   const simulationDate = gameState.currentDate ?? gameState.startDate;
   const simulationDateOnly = toDateOnly(simulationDate);
+  const simulationFinishDateOnly = toDateOnly(gameState.finishDate);
   const priceStartDateOnly = simulationDateOnly
     ? addMonthsToDateOnly(simulationDateOnly, -INITIAL_HISTORY_MONTHS)
     : null;
   const priceFinishDateOnly = simulationDateOnly
     ? addDaysToDateOnly(simulationDateOnly, 1)
+    : null;
+  const initialPriceFinishDateOnly = simulationDateOnly
+    ? getCappedFetchFinishDate(
+        addDaysToDateOnly(simulationDateOnly, INITIAL_FUTURE_DAYS + 1),
+        simulationFinishDateOnly,
+      )
     : null;
 
   const buyForm = useForm<SellOrBuyForm>({
@@ -211,7 +237,7 @@ export function TradingViewPage() {
           !simulationDate ||
           !simulationDateOnly ||
           !priceStartDateOnly ||
-          !priceFinishDateOnly
+          !initialPriceFinishDateOnly
         ) {
           throw new Error('Simulation is not loaded');
         }
@@ -222,7 +248,7 @@ export function TradingViewPage() {
             fetch(apiUrl(`/api/stocks/${cleanTicker}/details`)),
             fetch(
               apiUrl(
-                `/api/stocks/${cleanTicker}/prices?start=${priceStartDateOnly}&finish=${priceFinishDateOnly}&interval=1d`,
+                `/api/stocks/${cleanTicker}/prices?start=${priceStartDateOnly}&finish=${initialPriceFinishDateOnly}&interval=1d`,
               ),
             ),
           ]);
@@ -255,10 +281,13 @@ export function TradingViewPage() {
 
         olderPriceFetchKeyRef.current = null;
         isFetchingOlderPricesRef.current = false;
+        futurePriceFetchKeyRef.current = null;
+        isFetchingFuturePricesRef.current = false;
 
         setIsLoadingOlderPrices(false);
         setHasFetchedAllBack(mappedPrices.length === 0);
         setOldestFetchedDate(priceStartDateOnly);
+        setNewestFetchedFinishDate(initialPriceFinishDateOnly);
         setStock(mapStockDtoToStock(stockData));
         setStockDetails(mapStockDetailsDtoToStockDetails(detailsData));
         setPriceRange(mappedPrices);
@@ -334,6 +363,96 @@ export function TradingViewPage() {
     },
     [cleanTicker, hasFetchedAllBack, oldestFetchedDate],
   );
+
+  const loadFuturePricesUntil = useCallback(
+    async (targetFinishDate: string): Promise<void> => {
+      if (
+        !cleanTicker ||
+        newestFetchedFinishDate === null ||
+        targetFinishDate <= newestFetchedFinishDate ||
+        isFetchingFuturePricesRef.current
+      ) {
+        return;
+      }
+
+      const fetchKey = `${cleanTicker}:${newestFetchedFinishDate}:${targetFinishDate}`;
+
+      if (futurePriceFetchKeyRef.current === fetchKey) {
+        return;
+      }
+
+      futurePriceFetchKeyRef.current = fetchKey;
+      isFetchingFuturePricesRef.current = true;
+
+      try {
+        const response = await fetch(
+          apiUrl(
+            `/api/stocks/${cleanTicker}/prices?start=${newestFetchedFinishDate}&finish=${targetFinishDate}&interval=1d`,
+          ),
+        );
+
+        if (!response.ok) {
+          throw new Error(`Status: ${response.status}`);
+        }
+
+        const priceRangeData: PriceDto[] = await response.json();
+        const futurePrices = priceRangeData.map((priceDto) =>
+          mapPriceDtoToPrice(priceDto),
+        );
+
+        setPriceRange((currentPrices) =>
+          mergePriceRanges(currentPrices ?? [], futurePrices),
+        );
+        setNewestFetchedFinishDate(targetFinishDate);
+      } catch (err) {
+        futurePriceFetchKeyRef.current = null;
+        console.error(`Failed to load future prices for ${cleanTicker}`, err);
+      } finally {
+        isFetchingFuturePricesRef.current = false;
+      }
+    },
+    [cleanTicker, newestFetchedFinishDate],
+  );
+
+  useEffect(() => {
+    if (simulationDateOnly === null || newestFetchedFinishDate === null) {
+      return;
+    }
+
+    const fetchedThroughDate = addDaysToDateOnly(newestFetchedFinishDate, -1);
+    const futureDaysLeft = getDateOnlyDayDiff(
+      simulationDateOnly,
+      fetchedThroughDate,
+    );
+
+    const targetFinishDate =
+      futureDaysLeft < 0
+        ? getCappedFetchFinishDate(
+            addDaysToDateOnly(simulationDateOnly, INITIAL_FUTURE_DAYS + 1),
+            simulationFinishDateOnly,
+          )
+        : getCappedFetchFinishDate(
+            addMonthsToDateOnly(
+              newestFetchedFinishDate,
+              FUTURE_FETCH_MONTHS,
+            ),
+            simulationFinishDateOnly,
+          );
+
+    if (
+      futureDaysLeft > FUTURE_FETCH_THRESHOLD_DAYS ||
+      targetFinishDate <= newestFetchedFinishDate
+    ) {
+      return;
+    }
+
+    void loadFuturePricesUntil(targetFinishDate);
+  }, [
+    loadFuturePricesUntil,
+    newestFetchedFinishDate,
+    simulationDateOnly,
+    simulationFinishDateOnly,
+  ]);
 
   const loadAllPrices = useCallback(async (): Promise<boolean> => {
     if (

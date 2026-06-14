@@ -186,33 +186,70 @@ export function GameMenu() {
           </button>
 
           {isGameReady && (
-            <div className="gap-4 d-flex justify-content-center mx-xl-4" style={{ margin: '0 auto' }}>
+            <div
+              className="gap-4 d-flex justify-content-center mx-xl-4"
+              style={{ margin: '0 auto' }}
+            >
               <button
                 type="button"
                 className={`bg-transparent border-0 p-0 d-flex flex-row align-items-center gap-1.5 shadow-none ${isStocksView ? 'text-white opacity-100' : 'text-muted opacity-60'}`}
-                onClick={() => navigate(`/game/${gameState.simulationId}/stocks-view`)}
+                onClick={() =>
+                  navigate(`/game/${gameState.simulationId}/stocks-view`)
+                }
                 style={{ transition: 'color 0.2s' }}
-                onMouseEnter={(e) => { if (!isStocksView) e.currentTarget.classList.replace('text-muted', 'text-white'); }}
-                onMouseLeave={(e) => { if (!isStocksView) e.currentTarget.classList.replace('text-white', 'text-muted'); }}
+                onMouseEnter={(e) => {
+                  if (!isStocksView)
+                    e.currentTarget.classList.replace(
+                      'text-muted',
+                      'text-white',
+                    );
+                }}
+                onMouseLeave={(e) => {
+                  if (!isStocksView)
+                    e.currentTarget.classList.replace(
+                      'text-white',
+                      'text-muted',
+                    );
+                }}
               >
                 <div>
-                <MDBTypography tag="p" className={`p-0 m-0 fs-5 ${isStocksView ? 'fw-semibold' : 'fw-normal'}`}>
-                  Stock List
-                </MDBTypography>
+                  <MDBTypography
+                    tag="p"
+                    className={`p-0 m-0 fs-5 ${isStocksView ? 'fw-semibold' : 'fw-normal'}`}
+                  >
+                    Stock List
+                  </MDBTypography>
                 </div>
               </button>
               <button
                 type="button"
                 className={`bg-transparent border-0 p-0 d-flex flex-row align-items-center gap-1.5 shadow-none ${isPortfolio ? 'text-white opacity-100' : 'text-muted opacity-60'}`}
-                onClick={() => navigate(`/game/${gameState.simulationId}/portfolio`)}
+                onClick={() =>
+                  navigate(`/game/${gameState.simulationId}/portfolio`)
+                }
                 style={{ transition: 'color 0.2s' }}
-                onMouseEnter={(e) => { if (!isPortfolio) e.currentTarget.classList.replace('text-muted', 'text-white'); }}
-                onMouseLeave={(e) => { if (!isPortfolio) e.currentTarget.classList.replace('text-white', 'text-muted'); }}
+                onMouseEnter={(e) => {
+                  if (!isPortfolio)
+                    e.currentTarget.classList.replace(
+                      'text-muted',
+                      'text-white',
+                    );
+                }}
+                onMouseLeave={(e) => {
+                  if (!isPortfolio)
+                    e.currentTarget.classList.replace(
+                      'text-white',
+                      'text-muted',
+                    );
+                }}
               >
                 <div>
-                <MDBTypography tag="p" className={`p-0 m-0 fs-5 ${isPortfolio ? 'fw-semibold' : 'fw-normal'}`}>
-                  Portfolio
-                </MDBTypography>
+                  <MDBTypography
+                    tag="p"
+                    className={`p-0 m-0 fs-5 ${isPortfolio ? 'fw-semibold' : 'fw-normal'}`}
+                  >
+                    Portfolio
+                  </MDBTypography>
                 </div>
               </button>
             </div>
@@ -296,7 +333,7 @@ export function GameMenu() {
                   <span className="pr-4 small text-muted">days</span>
                   <button
                     type="button"
-                    className="ms-auto inline-flex min-w-[100px] items-center justify-center gap-2 rounded-md border border-white/40 bg-white/[0.03] px-2 py-1 text-sm font-medium text-gray-100 transition hover:border-white/70 hover:bg-white/10 disabled:border-gray-600 disabled:text-gray-500 disabled:opacity-70"
+                    className="ms-auto inline-flex h-[30px] min-w-[100px] items-center justify-center gap-2 rounded-md border border-white/40 bg-white/[0.03] px-2 py-0 text-sm font-medium text-gray-100 transition hover:border-white/70 hover:bg-white/10 disabled:border-gray-600 disabled:text-gray-500 disabled:opacity-70"
                     onClick={handleNextTurn}
                     disabled={!canAdvance || isLoadingData}
                   >
