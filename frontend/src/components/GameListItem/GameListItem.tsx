@@ -46,8 +46,10 @@ const Metric = ({
   value: string;
   valueClassName?: string;
 }) => (
-  <div className="h-100 rounded-3 border border-secondary border-opacity-25 bg-dark bg-opacity-25 p-3">
-    <div className="text-muted small mb-1">{label}</div>
+  <div className="p-3 bg-opacity-25 border border-opacity-25 h-100 rounded-3 border-secondary" style={{
+        backgroundColor: 'var(--bs-input-bg)',
+      }} >
+    <div className="mb-1 text-muted small">{label}</div>
     <div className={`fw-bold ${valueClassName}`}>{value}</div>
   </div>
 );
@@ -70,22 +72,25 @@ export function GameListItem({ onDelete, simulation }: GameListItemProps) {
   return (
     <MDBListGroupItem
       role="button"
-      className="position-relative mb-4 rounded-3 border border-secondary border-opacity-50 bg-dark bg-opacity-50 p-4 text-body shadow-sm"
+      className="p-4 mb-4 shadow-sm position-relative rounded-3 border border-white/20 text-body"
       onClick={handleClick}
     >
       <div className="mb-3">
         <div className="pe-5">
-          <h3 className="h5 fw-bold mb-3">{simulation.simulationName}</h3>
-          <div className="d-flex flex-wrap align-items-center gap-3 text-muted small">
+          <h3 className="mb-3 h5 fw-bold">{simulation.simulationName}</h3>
+          <div className="flex-wrap gap-3 d-flex align-items-center text-muted small">
             <span
-              className="rounded-pill border border-secondary border-opacity-25 px-3 py-1"
+              className="px-3 py-1 border border-opacity-25 rounded-pill border-secondary"
               style={{ backgroundColor: 'rgba(255, 255, 255, 0.02)' }}
             >
               Range: {formatDate(simulation.startDate)} -{' '}
               {formatDate(simulation.finishDate)}
             </span>
-            <span className="d-inline-flex align-items-center gap-2">
-              <span className="fw-bold">Current date:</span>
+            <span className="gap-2 px-3 py-1 border border-opacity-25 d-inline-flex align-items-center rounded-pill border-secondary"
+              style={{ backgroundColor: 'rgba(255, 255, 255, 0.02)' }}
+            >
+            {/* // className="gap-2 d-inline-flex align-items-center" */}
+              <span>Current date:</span>
               <MDBIcon far icon="calendar" />
               <span className="text-body">
                 {formatDate(simulation.currentDate)}
@@ -95,14 +100,14 @@ export function GameListItem({ onDelete, simulation }: GameListItemProps) {
         </div>
       </div>
       <div
-        className="position-absolute d-flex align-items-center gap-3"
+        className="gap-3 position-absolute d-flex align-items-center"
         style={{
           right: '1.5rem',
           top: '1.5rem',
         }}
       >
         <span
-          className="rounded-pill px-3 py-1 small fw-bold"
+          className="px-3 py-1 rounded-pill small fw-bold"
           style={{
             backgroundColor: isFinished
               ? 'rgb(34, 94, 62)'
@@ -116,7 +121,7 @@ export function GameListItem({ onDelete, simulation }: GameListItemProps) {
         <ConfirmButton
           type="button"
           color="link"
-          className="game-list-item__delete-button d-inline-flex align-items-center justify-content-center rounded-circle p-0 shadow-0 text-muted"
+          className="p-0 game-list-item__delete-button d-inline-flex align-items-center justify-content-center rounded-circle shadow-0 text-muted"
           ariaLabel={`Delete ${simulation.simulationName}`}
           title="Delete game"
           modalTitle="Delete game"

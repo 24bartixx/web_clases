@@ -47,10 +47,10 @@ export const StockItemView = ({
           </MDBCol>
           <MDBCol>
             <div className="d-flex flex-nowrap align-items-end gap-2">
-              <MDBTypography tag="p" className="fs-5 text-white m-0 lh-1">
+              <MDBTypography tag="p" className="fs-5 fw-bold text-white m-0 lh-1">
                 {ticker}
               </MDBTypography>
-              <MDBTypography tag="p" className="text-white-50 m-0 lh-1">
+              <MDBTypography tag="p" className="fs-6 fw-normal text-white-50 m-0 lh-1">
                 {companyName}
               </MDBTypography>
             </div>
@@ -58,33 +58,35 @@ export const StockItemView = ({
         </MDBRow>
       </th>
       <td className="text-white align-middle">
-        <MDBTypography tag="p" className={`fs-6 m-0 lh-0`}>
+        <MDBTypography tag="p" className="fs-6 fw-medium m-0 lh-1">
           {price.toFixed(2)} {currency}
         </MDBTypography>
       </td>
-      <td className="text-white align-middle ">
+      <td className="text-white align-middle">
         <MDBTypography
           tag="p"
-          className={`fs-6 m-0 lh-0 ${changePricePercent >= 0 ? 'text-price-up' : 'text-price-down'}`}
+          className={`fs-6 fw-semibold m-0 lh-1 ${
+            changePricePercent >= 0 ? 'text-price-up' : 'text-price-down'
+          }`}
         >
           {changePricePercent.toFixed(2)}%
         </MDBTypography>
       </td>
-      <td className="text-white align-middle ">
-        <MDBTypography tag="p" className="fs-6 m-0 lh-1">
+      <td className="text-white align-middle">
+        <MDBTypography tag="p" className="fs-6 fw-medium m-0 lh-1">
           {new Intl.NumberFormat('en-US', {
             notation: 'compact',
             compactDisplay: 'short',
           }).format(volume)}
         </MDBTypography>
       </td>
-      <td className="text-white align-middle ">
-        <MDBTypography tag="p" className={`fs-6 m-0 lh-0`}>
+      <td className="text-white align-middle">
+        <MDBTypography tag="p" className="fs-6 fw-normal m-0 lh-1">
           {industry}
         </MDBTypography>
       </td>
-      <td className="text-white align-middle ">
-        <MDBTypography tag="p" className={`fs-6 m-0 lh-0`}>
+      <td className="text-white align-middle">
+        <MDBTypography tag="p" className="fs-6 fw-normal m-0 lh-1">
           {sector}
         </MDBTypography>
       </td>

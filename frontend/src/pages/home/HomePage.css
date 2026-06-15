@@ -14,6 +14,8 @@
 .home-hero__logout-btn {
   border-color: rgba(255, 255, 255, 0.18) !important;
   color: var(--app-text-primary) !important;
+  border: 1px solid var(--app-button-primary-bg) !important;
+  border-radius: 999px !important;
 }
 
 .home-hero__logout-btn:hover,
@@ -103,7 +105,7 @@
 
 .home-hero__title {
   color: var(--app-text-primary);
-  font-size: 4rem;
+  font-size: 2.5rem;
   font-weight: 700;
   line-height: 1.05;
   margin-bottom: 0;
@@ -128,7 +130,7 @@
   font-weight: 700 !important;
   justify-content: center;
   min-height: 3.25rem;
-  min-width: 16rem;
+  min-width: 12rem;
   padding: 0 1.5rem !important;
   box-shadow: none !important;
   text-transform: uppercase;

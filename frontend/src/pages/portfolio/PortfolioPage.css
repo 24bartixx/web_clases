@@ -18,13 +18,19 @@
   flex-direction: column;
   gap: 0.35rem;
 }
-
 .portfolio-page__allocation-item {
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 0.5rem;
-  padding: 0.35rem 0.5rem;
-  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 0.375rem;
+  padding: 0.25rem 0.5rem; 
+  background: rgba(255, 255, 255, 0.01);
 }
+
+.portfolio-page__allocation-dot {
+  display: inline-block;
+  width: 0.5rem; 
+  height: 0.5rem;
+}
+
 
 .portfolio-page__allocation-dot {
   display: inline-block;

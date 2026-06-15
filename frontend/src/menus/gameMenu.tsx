@@ -153,7 +153,7 @@ export function GameMenu() {
   const isTradingView = location.pathname.includes('/trading-view');
   const locationMenuSection =
     isTradingView && isGameMenuLocationState(location.state)
-      ? location.state.gameMenuSection ?? null
+      ? (location.state.gameMenuSection ?? null)
       : null;
 
   useEffect(() => {
@@ -238,114 +238,82 @@ export function GameMenu() {
           </button>
 
           {isGameReady && (
-            <div
-              className="gap-4 d-flex justify-content-center mx-xl-4"
-              style={{ margin: '0 auto' }}
-            >
+            <nav className="flex items-center gap-8 sm:pl-4 mx-auto">
               <button
                 type="button"
-                className={`bg-transparent border-0 p-0 d-flex flex-row align-items-center gap-1.5 shadow-none ${isStocksView ? 'text-white opacity-100' : 'text-muted opacity-60'}`}
+                className={`bg-transparent border-none p-0 flex flex-col text-left transition-colors duration-200 ${
+                  isStocksView
+                    ? 'text-white'
+                    : 'text-white/50 hover:text-white/80'
+                }`}
                 onClick={() =>
                   navigate(`/game/${gameState.simulationId}/stocks-view`)
                 }
-                style={{ transition: 'color 0.2s' }}
-                onMouseEnter={(e) => {
-                  if (!isStocksView)
-                    e.currentTarget.classList.replace(
-                      'text-muted',
-                      'text-white',
-                    );
-                }}
-                onMouseLeave={(e) => {
-                  if (!isStocksView)
-                    e.currentTarget.classList.replace(
-                      'text-white',
-                      'text-muted',
-                    );
-                }}
               >
-                <div>
-                  <MDBTypography
-                    tag="p"
-                    className={`p-0 m-0 fs-5 ${isStocksView ? 'fw-semibold' : 'fw-normal'}`}
-                  >
-                    Stock List
-                  </MDBTypography>
-                </div>
+                <span
+                  className={`text-[1.1rem] leading-tight ${isStocksView ? 'font-bold' : 'font-medium'}`}
+                >
+                  Stocks
+                </span>
               </button>
+
               <button
                 type="button"
-                className={`bg-transparent border-0 p-0 d-flex flex-row align-items-center gap-1.5 shadow-none ${isPortfolio ? 'text-white opacity-100' : 'text-muted opacity-60'}`}
+                className={`bg-transparent border-none p-0 text-[1.1rem] transition-colors duration-200 ${
+                  isPortfolio
+                    ? 'text-white font-bold'
+                    : 'text-white/50 font-medium hover:text-white/80'
+                }`}
                 onClick={() =>
                   navigate(`/game/${gameState.simulationId}/portfolio`)
                 }
-                style={{ transition: 'color 0.2s' }}
-                onMouseEnter={(e) => {
-                  if (!isPortfolio)
-                    e.currentTarget.classList.replace(
-                      'text-muted',
-                      'text-white',
-                    );
-                }}
-                onMouseLeave={(e) => {
-                  if (!isPortfolio)
-                    e.currentTarget.classList.replace(
-                      'text-white',
-                      'text-muted',
-                    );
-                }}
               >
-                <div>
-                  <MDBTypography
-                    tag="p"
-                    className={`p-0 m-0 fs-5 ${isPortfolio ? 'fw-semibold' : 'fw-normal'}`}
-                  >
-                    Portfolio
-                  </MDBTypography>
-                </div>
+                Portfolio
               </button>
-            </div>
+            </nav>
           )}
 
           <div className="gap-4 d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center">
-            <div className="flex flex-col min-w-[320px] gap-2">
+            <div className="flex flex-row sm:flex-row min-w-[320px] flex-1 justify-center gap-3">
               {/* Acccount balance */}
-              <MDBTypography
-                tag="p"
-                className="mb-0 text-center text-[1.4rem] font-normal leading-[1.1] text-white"
-              >
-                {formatCurrency(accountBalance)}
-              </MDBTypography>
-
-              <div className="flex-wrap gap-4 mr-2 d-flex align-items-center justify-content-center">
-                <div className="text-center">
-                  <MDBTypography tag="p" className="mb-1 small text-muted">
-                    Available funds
-                  </MDBTypography>
-                  <MDBTypography
-                    tag="p"
-                    className="mb-0 text-[1.05rem] font-normal leading-tight"
-                  >
-                    {formatCurrency(availableFunds)}
-                  </MDBTypography>
-                </div>
-
-                <div className="text-center">
-                  <MDBTypography tag="p" className="mb-1 small text-muted">
-                    Profit / Loss
-                  </MDBTypography>
-                  <MDBTypography
-                    tag="p"
-                    className={`mb-0 text-[1.05rem] font-normal leading-tight ${profitLossClass}`}
-                  >
-                    {profitLoss === null
-                      ? '--'
-                      : `${profitLoss >= 0 ? '+' : '-'}${formatCurrency(Math.abs(profitLoss))}`}
-                    {profitLossPercent !== null &&
-                      ` (${profitLossPercent >= 0 ? '+' : '-'}${Math.abs(profitLossPercent).toFixed(2)}%)`}
-                  </MDBTypography>
-                </div>
+              <div className="flex flex-col items-center sm:items-end justify-center w-full sm:w-auto border-r-2 border-white pr-3">
+                <span className="text-[0.7rem] text-white/40 uppercase tracking-wider mb-1.5 font-medium">
+                  Balance
+                </span>
+                <span className="text-xl font-bold text-white leading-none">
+                  {formatCurrency(accountBalance)}
+                </span>
               </div>
+
+              {/* <div className="flex-wrap gap-4 mr-2 d-flex align-items-center justify-content-center"> */}
+              <div className="flex flex-col items-center sm:items-end justify-center w-full sm:w-auto">
+                <span className="text-[0.7rem] text-white/40 uppercase tracking-wider mb-1.5 font-medium">
+                  Available
+                </span>
+                <span className="text-xl font-semibold text-white/90 leading-none">
+                  {formatCurrency(availableFunds)}
+                </span>
+              </div>
+
+              <div className="flex flex-col items-center sm:items-end text-center sm:text-right col-span-2 sm:col-span-1 w-full sm:w-auto mt-2 sm:mt-0">
+                <span className="text-[0.7rem] text-white/50 uppercase tracking-[0.1em] mb-1">
+                  P / L
+                </span>
+                <span
+                  className={`text-[1.05rem] font-semibold leading-tight ${profitLossClass}`}
+                >
+                  {profitLoss === null
+                    ? '--'
+                    : `${profitLoss >= 0 ? '+' : '-'}${formatCurrency(Math.abs(profitLoss))}`}
+                </span>
+                <span
+                  className={`text-sm font-medium leading-tight ${profitLossClass}`}
+                >
+                  {profitLossPercent !== null &&
+                    `(${profitLossPercent >= 0 ? '+' : '-'}${Math.abs(profitLossPercent).toFixed(2)}%)`}
+                </span>
+              </div>
+              {/* </div> */}
             </div>
 
             <div className="px-3 py-2 border rounded-3">

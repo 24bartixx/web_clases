@@ -90,10 +90,10 @@ export function HomePage() {
                 className="home-hero__logout-btn"
                 onClick={handleLogout}
               >
-                <MDBIcon fas icon="right-from-bracket" className="me-2" />
                 Log out
               </MDBBtn>
             </div>
+            <div className="flex flex-row justify-between items-start">
             <div className="home-hero__title-row">
               <div className="home-hero__avatar">
                 <img
@@ -107,16 +107,17 @@ export function HomePage() {
                 Hello, {userInfo?.first_name || 'Chess Bro'}!
               </h1>
             </div>
-            <p className="home-hero__subtitle">Start a new simulation</p>
+            {/* <p className="home-hero__subtitle">Start a new simulation</p> */}
             <MDBBtn
               rounded
               className="home-hero__button"
-              size="lg"
+              size="sm"
               onClick={() => navigate('/game-params')}
             >
               <MDBIcon fas icon="plus" className="me-3" />
               New game
             </MDBBtn>
+            </div>
           </div>
         </MDBCol>
       </MDBRow>
@@ -124,7 +125,7 @@ export function HomePage() {
       <MDBRow className="g-0 mx-0">
         <MDBCol className="px-0">
           <div className="home-page-section">
-            <h1 className="mb-3">Games</h1>
+            <h2 className="mb-3">Games</h2>
             {areSimulationsLoading ? (
               <div className="d-flex justify-content-center py-5">
                 <CustomLoading />

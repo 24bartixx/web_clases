@@ -747,7 +747,7 @@ export function TradingViewPage() {
         display: 'flex',
         flexDirection: 'column',
         minHeight: 0,
-        overflow: 'hidden',
+        // overflow: 'hidden',
       }}
     >
       <MDBContainer
@@ -760,12 +760,12 @@ export function TradingViewPage() {
               <MDBRow className="align-items-center g-2">
                 <MDBCol size="auto">
                   <div className="d-flex align-items-center">
-                    <button
+                    {/* <button
                       className="p-0 m-0 border-0 btn me-4"
                       onClick={() => navigate(-1)}
                       aria-label="Go back"
                     >
-                      <MDBTypography tag="h2" className="m-0 fw-semibold">
+                      <MDBTypography tag="h4" className="m-0 fw-semibold">
                         ←
                       </MDBTypography>
                     </button>
@@ -774,20 +774,20 @@ export function TradingViewPage() {
                       aria-hidden="true"
                       className="vr me-3 align-self-stretch"
                       style={{ opacity: 0.08 }}
-                    />
+                    /> */}
 
                     <div className="d-flex flex-column">
                       <button
                         className="p-0 m-0 border-0 shadow-none btn text-start"
                         onClick={() => setIsCompanyDetailsOpen(true)}
                       >
-                        <MDBTypography tag="h2" className="m-0 fw-bold">
+                        <MDBTypography tag="h3" className="m-0 fw-bold">
                           {stock.ticker}
                         </MDBTypography>
                       </button>
 
                       <MDBTypography
-                        tag="h5"
+                        tag="h6"
                         className="m-0 mt-1 shadow-none opacity-50"
                         style={{ maxWidth: '100%', overflowWrap: 'anywhere' }}
                       >
@@ -810,7 +810,7 @@ export function TradingViewPage() {
               </MDBRow>
             </MDBCol>
 
-            <MDBCol size="auto" className="text-end">
+            <MDBCol size="auto" className="text-end mb-2">
               <MDBRow className="align-items-center justify-content-end g-2">
                 <MDBCol size="auto">
                   <MDBTypography tag="p" className="m-0 fs-5 fw-semibold">

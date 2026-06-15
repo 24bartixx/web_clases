@@ -188,6 +188,7 @@ export function SummaryPage() {
               Finish the simulation first to see the final summary page.
             </p>
             <MDBBtn
+            
               onClick={() => navigate(`/game/${parsedSimulationId}/stocks-view`)}
               className="rounded-pill px-4"
             >
@@ -225,7 +226,7 @@ export function SummaryPage() {
             </div>
             <div>
               <p className="summary-page__eyebrow mb-2">Simulation finished</p>
-              <h1 className="mb-2">Game summary</h1>
+              <h2 className="mb-2">Game summary</h2>
               <p className="text-muted mb-0">
                 Final results for simulation #{parsedSimulationId}
               </p>

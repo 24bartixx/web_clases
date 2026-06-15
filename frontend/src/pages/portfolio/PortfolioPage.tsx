@@ -234,40 +234,23 @@ export function PortfolioPage() {
 
   return (
     <div className="container px-4 py-3 pb-4 my-4 border shadow-sm rounded-3 d-flex flex-column portfolio-page">
-      {/* <div className="mt-2 mb-2">
-        <button
-          className="p-0 m-0 text-white bg-transparent border-0 btn me-4"
-          onClick={() => navigate(`/game/${activeSimulationId}/stocks-view`)}
-          aria-label="Go back"
-        >
-          <MDBTypography tag="h2" className="m-0 fw-semibold">
-            ←
-          </MDBTypography>
-        </button>
-      </div> */}
-
       <MDBContainer className="flex-grow-1 d-flex flex-column">
+        
         <MDBRow className="flex-shrink-0 mb-3 g-3">
           <MDBCol md="3" sm="6">
             <MDBCard className="border shadow-sm portfolio-page__metric-card h-100 rounded-3">
               <MDBCardBody className="p-3">
-                <div className="mb-2 d-flex justify-content-between align-items-center">
-                  <span className="text-muted small">Total Value</span>
-                  <MDBIcon fas icon="dollar-sign" className="text-muted" />
+                <div className="mb-1.5 d-flex justify-content-between align-items-center">
+                  <span className="text-white/40 text-[0.7rem] uppercase tracking-wider font-medium">Total Value</span>
+                  <MDBIcon fas icon="dollar-sign" className="text-white/30 text-xs" />
                 </div>
-                <MDBTypography tag="h3" className="mb-1 text-white fw-bold">
+                <div className="text-xl font-bold text-white leading-none mb-1.5">
                   {formatCurrency(totalValue)}
-                </MDBTypography>
-                <span
-                  className={`small ${
-                    totalGain >= 0 ? 'text-price-up' : 'text-price-down'
-                  }`}
-                >
+                </div>
+                <span className={`text-xs font-medium ${totalGain >= 0 ? 'text-price-up' : 'text-price-down'}`}>
                   <MDBIcon
                     fas
-                    icon={
-                      totalGain >= 0 ? 'arrow-trend-up' : 'arrow-trend-down'
-                    }
+                    icon={totalGain >= 0 ? 'arrow-trend-up' : 'arrow-trend-down'}
                     className="me-1"
                   />
                   {formatPercent(totalGainPercent)} all time
@@ -279,35 +262,22 @@ export function PortfolioPage() {
           <MDBCol md="3" sm="6">
             <MDBCard className="border shadow-sm portfolio-page__metric-card h-100 rounded-3">
               <MDBCardBody className="p-3">
-                <div className="mb-2 d-flex justify-content-between align-items-center">
-                  <span className="text-muted small">Total Gain</span>
+                <div className="mb-1.5 d-flex justify-content-between align-items-center">
+                  <span className="text-white/40 text-[0.7rem] uppercase tracking-wider font-medium">Total Gain</span>
                   <MDBIcon
                     fas
                     icon="chart-line"
-                    className={
-                      totalGain >= 0 ? 'text-price-up' : 'text-price-down'
-                    }
+                    className={`text-xs ${totalGain >= 0 ? 'text-price-up' : 'text-price-down'}`}
                   />
                 </div>
-                <MDBTypography
-                  tag="h3"
-                  className={`fw-bold mb-1 ${
-                    totalGain >= 0 ? 'text-price-up' : 'text-price-down'
-                  }`}
-                >
+                <div className={`text-xl font-bold leading-none mb-1.5 ${totalGain >= 0 ? 'text-price-up' : 'text-price-down'}`}>
                   {totalGain >= 0 ? '+' : '-'}
                   {formatCurrency(Math.abs(totalGain))}
-                </MDBTypography>
-                <span
-                  className={`small ${
-                    totalGain >= 0 ? 'text-price-up' : 'text-price-down'
-                  }`}
-                >
+                </div>
+                <span className={`text-xs font-medium ${totalGain >= 0 ? 'text-price-up' : 'text-price-down'}`}>
                   <MDBIcon
                     fas
-                    icon={
-                      totalGain >= 0 ? 'arrow-trend-up' : 'arrow-trend-down'
-                    }
+                    icon={totalGain >= 0 ? 'arrow-trend-up' : 'arrow-trend-down'}
                     className="me-1"
                   />
                   {formatPercent(totalGainPercent)} all time
@@ -319,35 +289,22 @@ export function PortfolioPage() {
           <MDBCol md="3" sm="6">
             <MDBCard className="border shadow-sm portfolio-page__metric-card h-100 rounded-3">
               <MDBCardBody className="p-3">
-                <div className="mb-2 d-flex justify-content-between align-items-center">
-                  <span className="text-muted small">Day Change</span>
+                <div className="mb-1.5 d-flex justify-content-between align-items-center">
+                  <span className="text-white/40 text-[0.7rem] uppercase tracking-wider font-medium">Day Change</span>
                   <MDBIcon
                     fas
                     icon="calendar-day"
-                    className={
-                      dayChange >= 0 ? 'text-price-up' : 'text-price-down'
-                    }
+                    className={`text-xs ${dayChange >= 0 ? 'text-price-up' : 'text-price-down'}`}
                   />
                 </div>
-                <MDBTypography
-                  tag="h3"
-                  className={`fw-bold mb-1 ${
-                    dayChange >= 0 ? 'text-price-up' : 'text-price-down'
-                  }`}
-                >
+                <div className={`text-xl font-bold leading-none mb-1.5 ${dayChange >= 0 ? 'text-price-up' : 'text-price-down'}`}>
                   {dayChange >= 0 ? '+' : '-'}
                   {formatCurrency(Math.abs(dayChange))}
-                </MDBTypography>
-                <span
-                  className={`small ${
-                    dayChange >= 0 ? 'text-price-up' : 'text-price-down'
-                  }`}
-                >
+                </div>
+                <span className={`text-xs font-medium ${dayChange >= 0 ? 'text-price-up' : 'text-price-down'}`}>
                   <MDBIcon
                     fas
-                    icon={
-                      dayChange >= 0 ? 'arrow-trend-up' : 'arrow-trend-down'
-                    }
+                    icon={dayChange >= 0 ? 'arrow-trend-up' : 'arrow-trend-down'}
                     className="me-1"
                   />
                   {formatPercent(dayChangePercent)} today
@@ -359,26 +316,27 @@ export function PortfolioPage() {
           <MDBCol md="3" sm="6">
             <MDBCard className="border shadow-sm portfolio-page__metric-card h-100 rounded-3">
               <MDBCardBody className="p-3">
-                <div className="mb-2 d-flex justify-content-between align-items-center">
-                  <span className="text-muted small">Holdings</span>
-                  <MDBIcon fas icon="briefcase" className="text-muted" />
+                <div className="mb-1.5 d-flex justify-content-between align-items-center">
+                  <span className="text-white/40 text-[0.7rem] uppercase tracking-wider font-medium">Holdings</span>
+                  <MDBIcon fas icon="briefcase" className="text-white/30 text-xs" />
                 </div>
-                <MDBTypography tag="h3" className="mb-1 text-white fw-bold">
+                <div className="text-xl font-bold text-white leading-none mb-1.5">
                   {activePositions.length}
-                </MDBTypography>
-                <span className="small text-muted">stocks in portfolio</span>
+                </div>
+                <span className="text-xs text-white/40 font-medium">stocks in portfolio</span>
               </MDBCardBody>
             </MDBCard>
           </MDBCol>
         </MDBRow>
 
+        {/* ГРАФИКИ */}
         <MDBRow className="flex-shrink-0 mb-3 g-3">
           <MDBCol lg="8">
             <MDBCard className="border shadow-sm portfolio-page__chart-card h-100 rounded-3">
-              <MDBCardBody className="d-flex flex-column">
-                <MDBTypography tag="h6" className="mb-4 text-muted">
+              <MDBCardBody className="d-flex flex-column p-3">
+                <div className="text-xs font-semibold uppercase tracking-wider text-white/40 mb-3">
                   Portfolio Performance
-                </MDBTypography>
+                </div>
                 <div className="portfolio-page__chart-area">
                   {historyData.length > 0 ? (
                     <ResponsiveContainer width="100%" height="100%">
@@ -391,27 +349,15 @@ export function PortfolioPage() {
                             x2="0"
                             y2="1"
                           >
-                            <stop
-                              offset="0%"
-                              stopColor="#87d1eb"
-                              stopOpacity={0.35}
-                            />
-                            <stop
-                              offset="100%"
-                              stopColor="#87d1eb"
-                              stopOpacity={0.03}
-                            />
+                            <stop offset="0%" stopColor="#87d1eb" stopOpacity={0.35} />
+                            <stop offset="100%" stopColor="#87d1eb" stopOpacity={0.03} />
                           </linearGradient>
                         </defs>
-                        <CartesianGrid
-                          strokeDasharray="3 3"
-                          stroke="#40484c"
-                          vertical={false}
-                        />
+                        <CartesianGrid strokeDasharray="3 3" stroke="#40484c" vertical={false} />
                         <XAxis
                           dataKey="shortDateLabel"
                           stroke="#899296"
-                          tick={{ fill: '#899296', fontSize: 12 }}
+                          tick={{ fill: '#899296', fontSize: 11 }}
                           axisLine={false}
                           tickLine={false}
                           minTickGap={30}
@@ -420,12 +366,10 @@ export function PortfolioPage() {
                         <YAxis
                           domain={['auto', 'auto']}
                           stroke="#899296"
-                          tick={{ fill: '#899296', fontSize: 12 }}
+                          tick={{ fill: '#899296', fontSize: 11 }}
                           axisLine={false}
                           tickLine={false}
-                          tickFormatter={(value: number) =>
-                            `$${Number(value).toLocaleString()}`
-                          }
+                          tickFormatter={(value: number) => `$${Number(value).toLocaleString()}`}
                         />
                         <Tooltip
                           contentStyle={{
@@ -433,18 +377,15 @@ export function PortfolioPage() {
                             border: '1px solid #40484c',
                             borderRadius: '8px',
                           }}
-                          itemStyle={{ color: '#dee3e6' }}
-                          labelStyle={{ color: '#b3cad4' }}
+                          itemStyle={{ color: '#dee3e6', fontSize: 12 }}
+                          labelStyle={{ color: '#b3cad4', fontSize: 11 }}
                           formatter={(value: any) => [
                             formatCurrency(Number(value ?? 0)),
                             'Balance',
                           ]}
                           labelFormatter={(_label: any, payload: any) =>
-                            (
-                              payload as unknown as Array<{
-                                payload?: HistoryChartPoint;
-                              }>
-                            )?.[0]?.payload?.fullDateLabel ?? String(_label)
+                            (payload as unknown as Array<{ payload?: HistoryChartPoint }>)
+                              ?.[0]?.payload?.fullDateLabel ?? String(_label)
                           }
                         />
                         <Area
@@ -457,14 +398,14 @@ export function PortfolioPage() {
                           type="monotone"
                           dataKey="value"
                           stroke="#87d1eb"
-                          strokeWidth={2.4}
+                          strokeWidth={2}
                           dot={false}
-                          activeDot={{ r: 5 }}
+                          activeDot={{ r: 4 }}
                         />
                       </LineChart>
                     </ResponsiveContainer>
                   ) : (
-                    <div className="d-flex h-100 justify-content-center align-items-center text-muted">
+                    <div className="d-flex h-100 justify-content-center align-items-center text-white/30 text-sm">
                       No history data
                     </div>
                   )}
@@ -475,10 +416,10 @@ export function PortfolioPage() {
 
           <MDBCol lg="4">
             <MDBCard className="border shadow-sm portfolio-page__chart-card h-100 rounded-3">
-              <MDBCardBody className="d-flex flex-column">
-                <MDBTypography tag="h6" className="mb-4 text-muted">
+              <MDBCardBody className="d-flex flex-column p-3">
+                <div className="text-xs font-semibold uppercase tracking-wider text-white/40 mb-3">
                   Allocation
-                </MDBTypography>
+                </div>
                 <div className="portfolio-page__chart-area position-relative">
                   {allocationData.length > 0 ? (
                     <ResponsiveContainer width="100%" height="100%">
@@ -487,18 +428,15 @@ export function PortfolioPage() {
                           data={allocationData}
                           cx="50%"
                           cy="46%"
-                          innerRadius="48%"
-                          outerRadius="83%"
+                          innerRadius="50%"
+                          outerRadius="80%"
                           paddingAngle={2}
                           nameKey="ticker"
                           dataKey="value"
                           stroke="none"
                         >
                           {allocationData.map((_, index) => (
-                            <Cell
-                              key={`cell-${index}`}
-                              fill={COLORS[index % COLORS.length]}
-                            />
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                           ))}
                         </Pie>
                         <Tooltip
@@ -507,6 +445,7 @@ export function PortfolioPage() {
                             border: '1px solid #40484c',
                             borderRadius: '8px',
                           }}
+                          itemStyle={{ fontSize: 12 }}
                           formatter={(value: any, ticker) => [
                             formatCurrency(Number(value ?? 0)),
                             ticker,
@@ -515,7 +454,7 @@ export function PortfolioPage() {
                       </PieChart>
                     </ResponsiveContainer>
                   ) : (
-                    <div className="d-flex h-100 justify-content-center align-items-center text-muted">
+                    <div className="d-flex h-100 justify-content-center align-items-center text-white/30 text-sm">
                       No holdings
                     </div>
                   )}
@@ -525,9 +464,7 @@ export function PortfolioPage() {
                   <div className="mt-3 portfolio-page__allocation-list">
                     {allocationData.slice(0, 5).map((item, index) => {
                       const sharePercent =
-                        totalAllocationValue > 0
-                          ? (item.value / totalAllocationValue) * 100
-                          : 0;
+                        totalAllocationValue > 0 ? (item.value / totalAllocationValue) * 100 : 0;
 
                       return (
                         <div
@@ -537,13 +474,11 @@ export function PortfolioPage() {
                           <div className="gap-2 d-flex align-items-center">
                             <span
                               className="portfolio-page__allocation-dot rounded-circle"
-                              style={{
-                                backgroundColor: COLORS[index % COLORS.length],
-                              }}
+                              style={{ backgroundColor: COLORS[index % COLORS.length] }}
                             />
-                            <span className="small">{item.ticker}</span>
+                            <span className="text-xs text-white/80 font-medium">{item.ticker}</span>
                           </div>
-                          <span className="small text-muted">
+                          <span className="text-xs text-white/40 font-mono">
                             {percentFormatter.format(sharePercent)}%
                           </span>
                         </div>
@@ -556,28 +491,25 @@ export function PortfolioPage() {
           </MDBCol>
         </MDBRow>
 
-        <div className="pt-2 pb-2 mt-2 portfolio-page__table-wrap pe-2 border-top border-secondary">
+        <div className="pt-2 pb-2 mt-2 portfolio-page__table-wrap pe-2 border-top border-white/10">
           <MDBTable responsive hover className="mb-0 align-middle">
-            <MDBTableHead className="border-bottom border-secondary">
+            <MDBTableHead className="border-b border-white/10">
               <tr>
-                <th scope="col" className="text-white bg-transparent border-0">
-                  Companies <MDBIcon fas icon="sort" />
+                <th scope="col" className="text-white bg-transparent border-0 text-xs uppercase tracking-wider font-semibold py-2">
+                  Companies <MDBIcon fas icon="sort" className="ms-1 text-white/20" />
                 </th>
-                <th scope="col" className="text-white bg-transparent border-0">
-                  Change % <MDBIcon fas icon="sort" />
+                <th scope="col" className="text-white bg-transparent border-0 text-xs uppercase tracking-wider font-semibold py-2">
+                  Change % <MDBIcon fas icon="sort" className="ms-1 text-white/20" />
                 </th>
-                <th scope="col" className="text-white bg-transparent border-0">
-                  Price <MDBIcon fas icon="sort" />
+                <th scope="col" className="text-white bg-transparent border-0 text-xs uppercase tracking-wider font-semibold py-2">
+                  Price <MDBIcon fas icon="sort" className="ms-1 text-white/20" />
                 </th>
-                <th scope="col" className="text-white bg-transparent border-0">
-                  Value <MDBIcon fas icon="sort" />
+                <th scope="col" className="text-white bg-transparent border-0 text-xs uppercase tracking-wider font-semibold py-2">
+                  Value <MDBIcon fas icon="sort" className="ms-1 text-white/20" />
                 </th>
-                <th scope="col" className="text-white bg-transparent border-0">
-                  Shares <MDBIcon fas icon="sort" />
+                <th scope="col" className="text-white bg-transparent border-0 text-xs uppercase tracking-wider font-semibold py-2">
+                  Shares <MDBIcon fas icon="sort" className="ms-1 text-white/20" />
                 </th>
-                {/* <th scope="col" className="text-white bg-transparent border-0">
-                  Sector <MDBIcon fas icon="sort" />
-                </th> */}
               </tr>
             </MDBTableHead>
             <MDBTableBody>
@@ -594,12 +526,13 @@ export function PortfolioPage() {
                         )
                       }
                       style={{ cursor: 'pointer' }}
+                      className="border-b border-white/[0.04] transition-colors hover:bg-white/[0.02]"
                     >
-                      <td>
+                      <td className="py-2.5">
                         <div className="d-flex align-items-center">
                           <div
-                            className="p-1 overflow-hidden bg-white rounded-circle me-3"
-                            style={{ width: '40px', height: '40px' }}
+                            className="p-1 overflow-hidden bg-white rounded-circle me-2.5 d-flex align-items-center justify-content-center"
+                            style={{ width: '32px', height: '32px' }}
                           >
                             <img
                               src={`https://img.logo.dev/ticker/${position.stock.ticker}?token=${process.env.REACT_APP_LOGO_STOCK_TOKEN}`}
@@ -608,62 +541,38 @@ export function PortfolioPage() {
                             />
                           </div>
                           <div>
-                            <MDBTypography
-                              tag="p"
-                              className="mb-0 text-white fw-bold"
-                            >
+                            <div className="text-sm font-semibold text-white leading-tight">
                               {position.stock.ticker}
-                            </MDBTypography>
-                            <MDBTypography
-                              tag="p"
-                              className="mb-0 text-muted small"
-                            >
+                            </div>
+                            <div className="text-xs text-white/40 leading-none">
                               {position.stock.companyName}
-                            </MDBTypography>
+                            </div>
                           </div>
                         </div>
                       </td>
-                      <td>
-                        <MDBTypography
-                          tag="p"
-                          className={`mb-0 ${
-                            position.priceChangePercent >= 0
-                              ? 'text-price-up'
-                              : 'text-price-down'
-                          }`}
-                        >
+                      <td className="py-2.5">
+                        <span className={`text-sm font-semibold ${
+                          position.priceChangePercent >= 0 ? 'text-price-up' : 'text-price-down'
+                        }`}>
+                          {position.priceChangePercent >= 0 ? '+' : ''}
                           {position.priceChangePercent.toFixed(2)}%
-                        </MDBTypography>
+                        </span>
                       </td>
-                      <td>
-                        <MDBTypography tag="p" className="mb-0 text-white">
-                          {formatCurrency(position.currentPrice)}
-                        </MDBTypography>
+                      <td className="py-2.5 text-sm text-white font-medium">
+                        {formatCurrency(position.currentPrice)}
                       </td>
-                      <td>
-                        <MDBTypography tag="p" className="mb-0 text-white">
-                          {formatCurrency(value)}
-                        </MDBTypography>
+                      <td className="py-2.5 text-sm text-white font-semibold">
+                        {formatCurrency(value)}
                       </td>
-                      <td>
-                        <MDBTypography tag="p" className="mb-0 text-white">
-                          {position.amount}
-                        </MDBTypography>
+                      <td className="py-2.5 text-sm text-white font-mono">
+                        {position.amount}
                       </td>
-                      {/* <td>
-                        <MDBTypography tag="p" className="mb-0 text-white">
-                          {position.stock.sector}
-                        </MDBTypography>
-                      </td> */}
                     </tr>
                   );
                 })
               ) : (
                 <tr>
-                  <td
-                    colSpan={6}
-                    className="py-4 text-center bg-transparent border-0 text-muted"
-                  >
+                  <td colSpan={5} className="py-5 text-center bg-transparent border-0 text-white text-sm">
                     Your portfolio is empty
                   </td>
                 </tr>

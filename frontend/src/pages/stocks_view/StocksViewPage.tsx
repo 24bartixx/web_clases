@@ -52,28 +52,31 @@ export function StocksViewPage() {
 
   const columns = useMemo(() => {
     const createSortableHeader = (title: string) => {
-      return ({ column }: { column: any }) => {
-        const isSorted = column.getIsSorted();
-        return (
-          <button
-            onClick={column.getToggleSortingHandler()}
-            className="gap-1 p-0 text-white bg-transparent border-0 d-flex align-items-center fs-5"
-          >
-            <MDBIcon
-              fas
-              icon={
-                isSorted === 'asc'
-                  ? 'caret-up'
-                  : isSorted === 'desc'
-                    ? 'caret-down'
-                    : 'sort'
-              }
-            />
-            {title}
-          </button>
-        );
-      };
-    };
+  const headerStyle = { fontSize: 'clamp(0.85rem, 3vw, 1.1rem)' };
+
+  return ({ column }: { column: any }) => {
+    const isSorted = column.getIsSorted();
+    return (
+      <button
+        onClick={column.getToggleSortingHandler()}
+        className="gap-2 p-0 text-white bg-transparent border-0 d-flex align-items-center fw-semibold"
+        style={headerStyle}
+      >
+        <MDBIcon
+          fas
+          icon={
+            isSorted === 'asc'
+              ? 'caret-up'
+              : isSorted === 'desc'
+                ? 'caret-down'
+                : 'sort'
+          }
+        />
+        {title}
+      </button>
+    );
+  };
+};
 
     return [
       columnHelper.accessor('companyName', {
@@ -132,7 +135,7 @@ export function StocksViewPage() {
 
   return (
     <div className="container px-4 py-3 pb-4 my-4 border shadow-sm rounded-3">
-      <MDBContainer className="gap-3 d-flex flex-column">
+      <MDBContainer className="">
         <MDBTable>
           <MDBTableHead>
             {table

@@ -1,4 +1,4 @@
-import { MDBInput, MDBTypography, MDBRow, MDBCol } from 'mdb-react-ui-kit';
+import { MDBRow, MDBCol } from 'mdb-react-ui-kit';
 import { InputHTMLAttributes } from 'react';
 
 export interface AmountInputProps extends Omit<
@@ -22,13 +22,12 @@ export const AmountInput = ({
       }}
     >
       <div className="d-flex flex-column gap-2">
-        <MDBTypography
-          tag="p"
-          className="m-0 lh-1 opacity-50"
-          style={{ fontSize: '16px' }}
+        <span 
+          className="m-0 text-xs font-medium text-white/40 uppercase tracking-wider leading-none"
         >
           {label}
-        </MDBTypography>
+        </span>
+        
         <MDBRow
           className="align-items-center g-2 flex-nowrap"
           style={{ width: '100%' }}
@@ -37,7 +36,7 @@ export const AmountInput = ({
             <MDBCol size="auto" className="d-flex align-items-center">
               <img
                 src={iconSrc}
-                style={{ width: '20px', height: '20px', display: 'block' }}
+                style={{ width: '18px', height: '18px', display: 'block', opacity: 0.7 }}
                 alt="icon"
               />
             </MDBCol>
@@ -50,7 +49,6 @@ export const AmountInput = ({
                 border: 'none',
                 boxShadow: 'none',
                 outline: 'none',
-                fontSize: '20px',
                 backgroundColor: 'transparent', 
                 color: 'var(--bs-white)',
                 width: '100%',
