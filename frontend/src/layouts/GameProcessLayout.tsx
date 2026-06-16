@@ -15,6 +15,7 @@ export function GameProcessLayout() {
   const isValidSimulationId = Number.isInteger(parsedSimulationId);
   const isLoadedSimulation = gameState.simulationId === parsedSimulationId;
   const isTradingView = location.pathname.includes('/trading-view');
+  const isStocksView = location.pathname.includes('/stocks-view');
 
   useEffect(() => {
     if (
@@ -46,7 +47,10 @@ export function GameProcessLayout() {
           className="flex-grow-1 d-flex flex-column"
           style={{ minHeight: 0 }}
         >
-          <MDBContainer className="flex-grow-1 d-flex justify-content-center align-items-center">
+          <MDBContainer className="flex-grow-1 d-flex flex-column justify-content-center align-items-center gap-4">
+            {isStocksView && (
+              <h2 className="mb-0 fs-4 fw-semibold">Loading Your game....</h2>
+            )}
             <CustomLoading />
           </MDBContainer>
         </main>
@@ -63,10 +67,7 @@ export function GameProcessLayout() {
       className={`${isTradingView ? 'game-process-layout--trading' : 'min-vh-100'} d-flex flex-column`}
     >
       <GameMenu />
-      <main
-        className="flex-grow-1 d-flex flex-column"
-        style={{ minHeight: 0 }}
-      >
+      <main className="flex-grow-1 d-flex flex-column" style={{ minHeight: 0 }}>
         <Outlet />
       </main>
     </div>

@@ -114,7 +114,8 @@ export function StocksViewPage() {
 
   if (gameState.status === 'loading') {
     return (
-      <div className="flex-grow-1 d-flex justify-content-center align-items-center">
+      <div className="flex-grow-1 d-flex flex-column justify-content-center align-items-center gap-5">
+        <h2 className="mb-0 fs-4 fw-semibold">Loading Your game....</h2>
         <CustomLoading />
       </div>
     );
