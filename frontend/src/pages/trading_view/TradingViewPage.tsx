@@ -207,16 +207,16 @@ export function TradingViewPage() {
   const buyForm = useForm<SellOrBuyForm>({
     mode: 'all',
     defaultValues: {
-      amount: NaN,
-      total: NaN,
+      amount: '' as any,
+      total: '' as any,
     },
   });
 
   const sellForm = useForm<SellOrBuyForm>({
     mode: 'all',
     defaultValues: {
-      amount: NaN,
-      total: NaN,
+      amount: '' as any,
+      total: '' as any,
     },
   });
 
@@ -622,8 +622,9 @@ export function TradingViewPage() {
     const activeName = document.activeElement?.getAttribute('name');
 
     if (activeName === 'buy-amount') {
+      console.log('buy amount changed', buyAmount);
       if (Number.isNaN(buyAmount) || Number(buyAmount) < 1) {
-        buyForm.setValue('total', NaN);
+        buyForm.setValue('total', '' as any);
         return;
       }
       const newTotal = Number(buyAmount) * currentPrice;
@@ -633,7 +634,7 @@ export function TradingViewPage() {
       }
     } else if (activeName === 'buy-total') {
       if (Number.isNaN(buyTotal) || Number(buyTotal) < 1) {
-        buyForm.setValue('amount', NaN);
+        buyForm.setValue('amount', '' as any);
         return;
       }
       const newAmount = Number((Number(buyTotal) / currentPrice).toFixed(6));
@@ -661,7 +662,7 @@ export function TradingViewPage() {
 
     if (activeName === 'sell-amount') {
       if (Number.isNaN(sellAmount) || Number(sellAmount) < 1) {
-        sellForm.setValue('total', NaN);
+        sellForm.setValue('total', '' as any);
         return;
       }
       const newTotal = Number(sellAmount) * currentPrice;
@@ -671,7 +672,7 @@ export function TradingViewPage() {
       }
     } else if (activeName === 'sell-total') {
       if (Number.isNaN(sellTotal) || Number(sellTotal) < 1) {
-        sellForm.setValue('amount', NaN);
+        sellForm.setValue('amount', '' as any);
         return;
       }
       const newAmount = Number((Number(sellTotal) / currentPrice).toFixed(6));
