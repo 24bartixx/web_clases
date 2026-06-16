@@ -622,7 +622,6 @@ export function TradingViewPage() {
     const activeName = document.activeElement?.getAttribute('name');
 
     if (activeName === 'buy-amount') {
-      console.log('buy amount changed', buyAmount);
       if (Number.isNaN(buyAmount) || Number(buyAmount) < 1) {
         buyForm.setValue('total', NaN);
         return;
@@ -980,7 +979,7 @@ export function TradingViewPage() {
                       </MDBTabsItem>
                     </MDBTabs>
                   </MDBCol>
-                  <MDBCol fill size="auto" className="d-flex">
+                  <MDBCol size="auto" className="d-flex">
                     <MDBTypography
                       tag="h6"
                       className="m-0 fw-semibold lh-1"
