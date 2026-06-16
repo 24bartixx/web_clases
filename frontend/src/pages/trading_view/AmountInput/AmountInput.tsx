@@ -12,8 +12,12 @@ export interface AmountInputProps extends Omit<
 export const AmountInput = ({
   label = '',
   iconSrc,
+  value,
   ...rest
 }: AmountInputProps) => {
+  const inputValue =
+    typeof value === 'number' && Number.isNaN(value) ? '' : value;
+
   return (
     <div
       className="rounded-3 p-3"
@@ -44,6 +48,7 @@ export const AmountInput = ({
           <MDBCol className="flex-grow-1">
             <input
               {...rest}
+              value={inputValue}
               type="number"
               style={{
                 border: 'none',

@@ -37,6 +37,7 @@ import {
 } from '../../utils';
 import { useGame } from '../../contexts/GameContext';
 import { CustomLoading } from '../../components/Common/CustomLoading';
+import './TradingViewPage.css';
 import { auth_fetch } from '../../utils/auth_fetch';
 
 enum TradeSideKey {
@@ -718,7 +719,10 @@ export function TradingViewPage() {
 
   if (loading) {
     return (
-      <div className="flex-grow-1 d-flex justify-content-center align-items-center">
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ minHeight: '100dvh' }}
+      >
         <CustomLoading />
       </div>
     );
@@ -739,18 +743,17 @@ export function TradingViewPage() {
 
   return (
     <div
-      className="container px-4 py-4 pb-4 my-3 border shadow-sm rounded-3"
+      className="container px-4 py-4 pb-4 my-3 border shadow-sm rounded-3 trading-view-page"
       style={{
         flex: 1,
         display: 'flex',
         flexDirection: 'column',
-        minHeight: 0,
         // overflow: 'hidden',
       }}
     >
       <MDBContainer
-        className="gap-3 d-flex flex-column"
-        style={{ flex: 1, overflow: 'hidden', minHeight: 0 }}
+        className="gap-3 d-flex flex-column trading-view-page__content"
+        style={{ flex: 1, overflow: 'visible' }}
       >
         <div className="border-bottom">
           <MDBRow className="align-items-center justify-content-between ">
@@ -849,7 +852,7 @@ export function TradingViewPage() {
         >
           <MDBCol
             size="12"
-            lg="9"
+            className="trading-view-page__chart-col"
             style={{ display: 'flex', flexDirection: 'column', minHeight: 0 }}
           >
             <div
@@ -862,7 +865,7 @@ export function TradingViewPage() {
                   flex: 1,
                   display: 'flex',
                   flexDirection: 'column',
-                  minHeight: 0,
+                  minHeight: 'clamp(280px, 45dvh, 420px)',
                   position: 'relative',
                 }}
               >
@@ -893,7 +896,7 @@ export function TradingViewPage() {
               <div className="p-1 border shadow-sm rounded-3">
                 <MDBRow className="align-items-center justify-content-between g-3">
                   <MDBCol size="auto">
-                    <MDBTabs pills fill>
+                    <MDBTabs pills className="nav-fill">
                       <MDBTabsItem>
                         <MDBTabsLink
                           className="px-3 py-2"
@@ -991,11 +994,11 @@ export function TradingViewPage() {
             </div>
           </MDBCol>
 
-          <MDBCol size="12" lg="3">
+          <MDBCol size="12" className="trading-view-page__trade-col">
             <div className="p-3 border shadow-sm h-100 rounded-3">
               <div className="h-auto gap-3 d-flex flex-column justify-content-start">
                 <div className="pb-3 border-bottom">
-                  <MDBTabs pills fill>
+                  <MDBTabs pills className="nav-fill">
                     <MDBTabsItem>
                       <MDBTabsLink
                         className="px-3 py-2"

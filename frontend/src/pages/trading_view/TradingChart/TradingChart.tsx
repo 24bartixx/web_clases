@@ -155,8 +155,9 @@ export const TradingChart = ({priceRange, period = {amount: 0, unit: TimeUnit.Al
 
     
     const chart = createChart(chartContainerRef.current, {
-      width: chartContainerRef.current.clientWidth,
-      height: chartContainerRef.current.clientHeight,
+      autoSize: true,
+      width: chartContainerRef.current.clientWidth || 300,
+      height: chartContainerRef.current.clientHeight || 300,
 			layout: { 
         background: { 
           type: ColorType.Solid,
@@ -260,15 +261,6 @@ export const TradingChart = ({priceRange, period = {amount: 0, unit: TimeUnit.Al
 		});
     volumeSeriesRef.current = volumeSeries;
 
-    const handleResize = () => {
-			if (chartContainerRef.current) {
-				const { clientWidth, clientHeight } = chartContainerRef.current;
-				chart.applyOptions({ 
-					width: clientWidth, 
-					height: clientHeight 
-				});
-			}
-		};
     const notifyVisibleRangeChange = (
       range: { from: Time; to: Time } | null,
       barsBefore: number | null,
@@ -316,10 +308,8 @@ export const TradingChart = ({priceRange, period = {amount: 0, unit: TimeUnit.Al
     chart
       .timeScale()
       .subscribeVisibleLogicalRangeChange(handleVisibleLogicalRangeChange);
-    window.addEventListener('resize', handleResize);
 
     return () => {
-      window.removeEventListener('resize', handleResize);
       chart
         .timeScale()
         .unsubscribeVisibleTimeRangeChange(handleVisibleRangeChange);

@@ -1,0 +1,45 @@
+.game-process-layout--trading.d-flex.flex-column {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.game-process-layout--trading.d-flex.flex-column > main {
+  flex: 0 0 auto !important;
+  min-height: auto !important;
+  overflow: visible;
+}
+
+.trading-view-page,
+.trading-view-page__content {
+  min-height: min-content;
+}
+
+.trading-view-page__chart-col,
+.trading-view-page__trade-col {
+  width: 100%;
+  max-width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .trading-view-page__chart-col {
+    flex: 0 0 75%;
+    max-width: 75%;
+  }
+
+  .trading-view-page__trade-col {
+    flex: 0 0 25%;
+    max-width: 25%;
+  }
+}
+
+@media (max-width: 991.98px), (max-height: 760px) {
+  .game-process-layout--trading.d-flex.flex-column {
+    position: static;
+    min-height: 100vh;
+    min-height: 100dvh;
+    height: auto;
+    overflow-x: hidden;
+    overflow-y: visible;
+    overscroll-behavior: auto;
+  }
+}

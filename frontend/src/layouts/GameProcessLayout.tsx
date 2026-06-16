@@ -65,10 +65,7 @@ export function GameProcessLayout() {
       <GameMenu />
       <main
         className="flex-grow-1 d-flex flex-column"
-        style={{
-          minHeight: 0,
-          overflow: isTradingView ? 'hidden' : undefined,
-        }}
+        style={{ minHeight: 0 }}
       >
         <Outlet />
       </main>
