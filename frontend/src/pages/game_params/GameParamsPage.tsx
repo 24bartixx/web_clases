@@ -21,6 +21,8 @@ interface GameParams {
   selectedStockIds: number[];
 }
 
+const DEFAULT_STARTING_BUDGET = 1_000;
+
 export function GameParamsPage() {
   const navigate = useNavigate();
 
@@ -31,7 +33,7 @@ export function GameParamsPage() {
 
   const [gameParams, setGameParams] = useState<GameParams>({
     simulationName: '',
-    budget: 1000_000,
+    budget: DEFAULT_STARTING_BUDGET,
     startDate: new Date(2024, 0, 1),
     endDate: new Date(2026, 0, 1),
     selectedStockIds: [],

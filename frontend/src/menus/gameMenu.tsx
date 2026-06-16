@@ -274,46 +274,45 @@ export function GameMenu() {
           )}
 
           <div className="gap-4 d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center">
-            <div className="flex flex-row sm:flex-row min-w-[320px] flex-1 justify-center gap-3">
-              {/* Acccount balance */}
-              <div className="flex flex-col items-center sm:items-end justify-center w-full sm:w-auto border-r-2 border-white pr-3">
-                <span className="text-[0.7rem] text-white/40 uppercase tracking-wider mb-1.5 font-medium">
+            <div className="grid min-w-[320px] flex-1 grid-cols-2 items-end justify-center gap-y-3 sm:max-w-[32rem] sm:justify-self-end">
+              <div className="px-4 text-center">
+                <span className="mb-1 block text-[0.65rem] font-medium uppercase tracking-[0.16em] text-white/40">
                   Balance
                 </span>
-                <span className="text-xl font-bold text-white leading-none">
+                <span className="block text-[1.05rem] font-semibold leading-none text-white tabular-nums">
                   {formatCurrency(accountBalance)}
                 </span>
               </div>
 
-              {/* <div className="flex-wrap gap-4 mr-2 d-flex align-items-center justify-content-center"> */}
-              <div className="flex flex-col items-center sm:items-end justify-center w-full sm:w-auto">
-                <span className="text-[0.7rem] text-white/40 uppercase tracking-wider mb-1.5 font-medium">
+              <div className="border-l border-white/15 px-4 text-center">
+                <span className="mb-1 block text-[0.65rem] font-medium uppercase tracking-[0.16em] text-white/40">
                   Available
                 </span>
-                <span className="text-xl font-semibold text-white/90 leading-none">
+                <span className="block text-[1.05rem] font-semibold leading-none text-white/85 tabular-nums">
                   {formatCurrency(availableFunds)}
                 </span>
               </div>
 
-              <div className="flex flex-col items-center sm:items-end text-center sm:text-right col-span-2 sm:col-span-1 w-full sm:w-auto mt-2 sm:mt-0">
-                <span className="text-[0.7rem] text-white/50 uppercase tracking-[0.1em] mb-1">
-                  P / L
+              <div className="col-span-2 px-4 text-center">
+                <span className="mb-1 block text-[0.65rem] font-medium uppercase tracking-[0.16em] text-white/40">
+                  Profit / Loss
                 </span>
-                <span
-                  className={`text-[1.05rem] font-semibold leading-tight ${profitLossClass}`}
+                <div
+                  className={`flex items-baseline justify-center gap-2 leading-none ${profitLossClass}`}
                 >
-                  {profitLoss === null
-                    ? '--'
-                    : `${profitLoss >= 0 ? '+' : '-'}${formatCurrency(Math.abs(profitLoss))}`}
-                </span>
-                <span
-                  className={`text-sm font-medium leading-tight ${profitLossClass}`}
-                >
-                  {profitLossPercent !== null &&
-                    `(${profitLossPercent >= 0 ? '+' : '-'}${Math.abs(profitLossPercent).toFixed(2)}%)`}
-                </span>
+                  <span className="text-[1.05rem] font-semibold tabular-nums">
+                    {profitLoss === null
+                      ? '--'
+                      : `${profitLoss >= 0 ? '+' : '-'}${formatCurrency(Math.abs(profitLoss))}`}
+                  </span>
+                  {profitLossPercent !== null && (
+                    <span className="text-[0.78rem] font-semibold tabular-nums">
+                      ({profitLossPercent >= 0 ? '+' : '-'}
+                      {Math.abs(profitLossPercent).toFixed(2)}%)
+                    </span>
+                  )}
+                </div>
               </div>
-              {/* </div> */}
             </div>
 
             <div className="px-3 py-2 border rounded-3">
