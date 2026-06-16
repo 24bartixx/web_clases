@@ -16,6 +16,7 @@ import type { SimulationPreview } from '../../types/Simulation';
 import { CustomLoading } from '../../components/Common/CustomLoading';
 import logo from '../../assets/logo.png';
 import { apiUrl } from '../../utils/apiUrl';
+import { auth_fetch } from '../../utils/auth_fetch';
 import './HomePage.css';
 
 export function HomePage() {
@@ -71,7 +72,7 @@ export function HomePage() {
 
   const handleLogout = async () => {
     try {
-      await fetch(apiUrl('/api/auth/logout'), { method: 'POST' });
+      await auth_fetch(apiUrl('/api/auth/logout'), { method: 'POST' });
     } catch (error) {
       console.error('Logout failed:', error);
     } finally {

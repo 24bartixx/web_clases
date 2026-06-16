@@ -1,6 +1,7 @@
 import { apiUrl } from '../utils/apiUrl';
 import { mapStockDtoToStock } from '../types';
 import type { Stock, StockDto } from '../types';
+import { auth_fetch } from '../utils/auth_fetch';
 
 type GetStocksParams = {
   skip?: number;
@@ -16,7 +17,7 @@ export async function getStocks({
     limit: String(limit),
   });
 
-  const response = await fetch(apiUrl(`/api/stocks/?${params.toString()}`));
+  const response = await auth_fetch(apiUrl(`/api/stocks/?${params.toString()}`));
 
   if (!response.ok) {
     throw new Error(await response.text());

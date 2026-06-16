@@ -37,6 +37,7 @@ import {
 } from '../../utils';
 import { useGame } from '../../contexts/GameContext';
 import { CustomLoading } from '../../components/Common/CustomLoading';
+import { auth_fetch } from '../../utils/auth_fetch';
 
 enum TradeSideKey {
   Buy = 'buy',
@@ -244,9 +245,9 @@ export function TradingViewPage() {
 
         const [stockResponse, detailsResponse, priceResponse] =
           await Promise.all([
-            fetch(apiUrl(`/api/stocks/${cleanTicker}`)),
-            fetch(apiUrl(`/api/stocks/${cleanTicker}/details`)),
-            fetch(
+            auth_fetch(apiUrl(`/api/stocks/${cleanTicker}`)),
+            auth_fetch(apiUrl(`/api/stocks/${cleanTicker}/details`)),
+            auth_fetch(
               apiUrl(
                 `/api/stocks/${cleanTicker}/prices?start=${priceStartDateOnly}&finish=${initialPriceFinishDateOnly}&interval=1d`,
               ),
@@ -324,7 +325,7 @@ export function TradingViewPage() {
       setIsLoadingOlderPrices(true);
 
       try {
-        const response = await fetch(
+        const response = await auth_fetch(
           apiUrl(
             `/api/stocks/${cleanTicker}/prices?start=${targetStartDate}&finish=${oldestFetchedDate}&interval=1d`,
           ),
@@ -385,7 +386,7 @@ export function TradingViewPage() {
       isFetchingFuturePricesRef.current = true;
 
       try {
-        const response = await fetch(
+        const response = await auth_fetch(
           apiUrl(
             `/api/stocks/${cleanTicker}/prices?start=${newestFetchedFinishDate}&finish=${targetFinishDate}&interval=1d`,
           ),
@@ -432,10 +433,7 @@ export function TradingViewPage() {
             simulationFinishDateOnly,
           )
         : getCappedFetchFinishDate(
-            addMonthsToDateOnly(
-              newestFetchedFinishDate,
-              FUTURE_FETCH_MONTHS,
-            ),
+            addMonthsToDateOnly(newestFetchedFinishDate, FUTURE_FETCH_MONTHS),
             simulationFinishDateOnly,
           );
 
@@ -478,7 +476,7 @@ export function TradingViewPage() {
     setIsLoadingOlderPrices(true);
 
     try {
-      const response = await fetch(
+      const response = await auth_fetch(
         apiUrl(
           `/api/stocks/${cleanTicker}/prices?finish=${priceFinishDateOnly}&interval=1d`,
         ),
@@ -894,7 +892,7 @@ export function TradingViewPage() {
               </div>
               <div className="p-1 border shadow-sm rounded-3">
                 <MDBRow className="align-items-center justify-content-between g-3">
-                    <MDBCol size="auto">
+                  <MDBCol size="auto">
                     <MDBTabs pills fill>
                       <MDBTabsItem>
                         <MDBTabsLink
