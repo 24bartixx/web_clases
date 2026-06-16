@@ -44,8 +44,12 @@ def get_history_by_user(db: Session, user_id: int, skip: int = 0, limit: int = 1
     )
 
 
-def get_history_entry(db: Session, history_id: int):
-    history_entry = db.get(SimulationHistory, history_id)
+def get_history_entry(db: Session, history_id: int, user_id: int):
+    statement = select(SimulationHistory).join(Simulation).where(
+        SimulationHistory.history_id == history_id,
+        Simulation.user_id == user_id
+    )
+    history_entry = db.scalars(statement).one_or_none()
     if history_entry is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

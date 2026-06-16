@@ -37,7 +37,6 @@ export function CompanyMultiSelect({
   return (
     <div>
       <MDBDropdown className="mt-2 w-100">
-        {/* Replace the default <button> with a <div> and remove button styling. */}
         <MDBDropdownToggle
           tag="div"
           className="w-100 bg-transparent shadow-none p-0 border-0 hide-dropdown-caret"

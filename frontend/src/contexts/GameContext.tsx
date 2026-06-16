@@ -14,6 +14,7 @@ import {
 } from '../api/simulationApi';
 import { apiUrl } from '../config/api';
 import type { PriceDto } from '../types';
+import { auth_fetch } from '../utils/auth_fetch';
 
 interface GameContextType {
   gameState: GameState;
@@ -82,7 +83,7 @@ const getTargetTradingDate = (gameState: GameState, daysToAdvance: number) => {
 
 const fetchOpenPriceForDate = async (ticker: string, date: string) => {
   const finishDate = addDaysToDateOnly(date, 1);
-  const response = await fetch(
+  const response = await auth_fetch(
     apiUrl(
       `/stocks/${ticker}/prices?start=${date}&finish=${finishDate}&interval=1d`,
     ),

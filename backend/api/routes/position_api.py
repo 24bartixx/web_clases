@@ -1,6 +1,8 @@
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, Query, status, HTTPException
 from sqlalchemy.orm import Session
 
+from core.auth import get_current_user
+from models.user import User
 from db.database import get_db
 from schemas.position_schema import PositionUpdate, PostitionCreate
 from services import position_service
@@ -13,19 +15,21 @@ def get_positions(
     simulation_id: int | None = Query(default=None),
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=100, ge=1, le=500),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     if simulation_id is not None:
-        return position_service.get_positions_by_simulation(db, simulation_id)
-    return position_service.get_positions(db, skip=skip, limit=limit)
+        return position_service.get_positions_by_simulation(db, simulation_id, current_user.user_id)
+    return position_service.get_positions(db, skip=skip, limit=limit, user_id=current_user.user_id)
 
 
 @router.get("/simulation/{simulation_id}")
 def get_positions_by_simulation(
     simulation_id: int,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    return position_service.get_positions_by_simulation(db, simulation_id)
+    return position_service.get_positions_by_simulation(db, simulation_id, current_user.user_id)
 
 
 @router.get("/stock/{stock_id}/simulation/{simulation_id}")

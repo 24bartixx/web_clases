@@ -19,14 +19,9 @@ from models.user import User
 from repositories import user_repository
 from schemas.user_schema import UserCreate, UserRead, UserUpdate
 
-# Importujemy fabrykę strategii z nowego folderu (np. app/services/oauth.py)
 from services.oauth import get_provider
 
 TOKEN_LIFETIME_MINUTES = 60
-
-# ==========================================
-#          FUNKCJE BAZODANOWE (USER)
-# ==========================================
 
 def get_users(db: Session, skip: int = 0, limit: int = 100):
     statement = select(User).order_by(User.user_id).offset(skip).limit(limit)
@@ -173,6 +168,7 @@ async def login_oauth_user(
             ) from exc
 
         access_token = token_data.get("access_token")
+        print(f"Access Token: {access_token}") 
         if not access_token:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, 
@@ -184,7 +180,7 @@ async def login_oauth_user(
         except Exception as exc:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, 
-                detail="Profile validation failed."
+                detail=f"Pydantic Error: {str(exc)}"
             ) from exc
 
     # Users po tym samym emailu lub oauth_id są traktowani jako ten sam użytkownik

@@ -57,3 +57,8 @@ async def login_user_callback(
 
     user_read.bearer_token = None
     return user_read
+
+@router.post("/logout")
+def logout_user(response: Response):
+    response.delete_cookie(key="access_token", path="/")
+    return {"message": "Logged out successfully"}

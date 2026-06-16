@@ -14,7 +14,7 @@ from schemas.stock_schema import (
     StockScrapeRequest,
 )
 from services import stock_service
-from core.auth import get_current_admin
+from core.auth import get_current_admin, get_current_user
 
 router = APIRouter()
 scraping_lock = Lock()
@@ -25,6 +25,7 @@ def get_stocks(
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=100, ge=1, le=500),
     db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
 ):
     return stock_service.get_stocks(db, skip=skip, limit=limit)
 
@@ -33,6 +34,7 @@ def get_stocks(
 def get_stock_by_id(
     stock_id: int,
     db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
 ):
     return stock_service.get_stock_by_id(db, stock_id)
 
@@ -41,6 +43,7 @@ def get_stock_by_id(
 def get_stock(
     ticker: str,
     db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
 ):
     return stock_service.get_stock(db, ticker)
 
@@ -52,6 +55,8 @@ def get_stock_prices(
     finish: date | None = Query(default=None),
     interval: str = Query(default="1d"),
     db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
+
 ):
     return stock_service.get_stock_prices(
         db,
@@ -66,6 +71,7 @@ def get_stock_prices(
 def get_stock_details(
     ticker: str,
     db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
 ):
     return stock_service.get_stock_details(db, ticker)
 
@@ -74,6 +80,7 @@ def get_stock_details(
 def scrap_stock_data(
     background_tasks: BackgroundTasks,
     scrape_data: StockScrapeRequest | None = None,
+    _: User = Depends(get_current_admin),
 ):
     if not scraping_lock.acquire(blocking=False):
         raise HTTPException(
@@ -97,6 +104,6 @@ def _run_stock_scraping(limit: int | None = None):
 @router.delete("/")
 def delete_stocks(
     db: Session = Depends(get_db),
-    current_admin: User = Depends(get_current_admin),
+    _: User = Depends(get_current_admin),
 ):
     return stock_service.delete_stocks(db)
