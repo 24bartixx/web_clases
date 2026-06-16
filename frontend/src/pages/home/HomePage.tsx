@@ -28,9 +28,6 @@ export function HomePage() {
   >([]);
   const [areSimulationsLoading, setAreSimulationsLoading] = useState(true);
 
-  const defaultAvatar =
-    'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png';
-
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
@@ -104,7 +101,7 @@ export function HomePage() {
               <div className="home-hero__title-row">
                 <div className="home-hero__avatar">
                   <img
-                    src={userInfo?.picture || defaultAvatar}
+                    src={userInfo?.picture || logo}
                     className="img-fluid rounded-circle"
                     alt="User Avatar"
                     referrerPolicy="no-referrer"

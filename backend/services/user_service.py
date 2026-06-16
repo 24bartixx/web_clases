@@ -168,6 +168,7 @@ async def login_oauth_user(
             ) from exc
 
         access_token = token_data.get("access_token")
+        print(f"Access Token: {access_token}") 
         if not access_token:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, 
@@ -179,7 +180,7 @@ async def login_oauth_user(
         except Exception as exc:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, 
-                detail="Profile validation failed."
+                detail=f"Pydantic Error: {str(exc)}"
             ) from exc
 
     # Users po tym samym emailu lub oauth_id są traktowani jako ten sam użytkownik
