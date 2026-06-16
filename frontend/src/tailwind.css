@@ -1,2 +1,52 @@
 @tailwind components;
 @tailwind utilities;
+
+@media (max-width: 1399.98px) {
+  .game-menu-container {
+    max-width: 1036px;
+  }
+
+  .game-menu-primary {
+    justify-content: space-between !important;
+  }
+
+  .game-menu-nav-group {
+    margin-left: auto;
+  }
+
+  .game-menu-actions {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .game-menu-financials {
+    width: 100%;
+    max-width: 32rem;
+    margin-inline: auto;
+  }
+
+  .game-menu-round-card {
+    width: 100%;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .game-menu-financials {
+    min-width: 0;
+  }
+
+  .game-menu-primary {
+    justify-content: center !important;
+  }
+
+  .game-menu-brand {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .game-menu-nav-group {
+    width: 100%;
+    margin-left: 0;
+    justify-content: center;
+  }
+}

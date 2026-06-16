@@ -213,12 +213,12 @@ export function GameMenu() {
 
   return (
     <header className="sticky top-0 z-50 shadow-sm border-bottom bg-body">
-      <div className="container py-3">
-        <div className="gap-3 d-flex flex-column flex-xxl-row align-items-stretch align-items-xxl-center justify-content-between">
-          <div className="d-flex flex-wrap align-items-center justify-content-between justify-content-sm-start gap-4 gap-xl-5">
+      <div className="container game-menu-container py-3">
+        <div className="game-menu-layout gap-3 d-flex flex-column flex-xxl-row align-items-stretch align-items-xxl-center justify-content-between">
+          <div className="game-menu-primary d-flex flex-wrap align-items-center justify-content-between justify-content-sm-start gap-4 gap-xl-5">
             <button
               type="button"
-              className="gap-4 p-0 bg-transparent border-0 d-flex flex-shrink-0 align-items-center text-start text-reset"
+              className="game-menu-brand gap-4 p-0 bg-transparent border-0 d-flex flex-shrink-0 align-items-center text-start text-reset"
               onClick={() => navigate('/')}
             >
               <img
@@ -239,7 +239,7 @@ export function GameMenu() {
             </button>
 
             {isGameReady && (
-              <div className="flex items-center gap-5 sm:pl-2">
+              <div className="game-menu-nav-group flex items-center gap-5 sm:pl-2">
                 <span
                   aria-hidden="true"
                   className="hidden h-8 w-px bg-white/15 sm:block"
@@ -285,8 +285,8 @@ export function GameMenu() {
             )}
           </div>
 
-          <div className="gap-4 d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center ms-xxl-auto">
-            <div className="grid min-w-[320px] flex-1 grid-cols-2 items-end justify-center gap-y-3 sm:max-w-[32rem] sm:justify-self-end">
+          <div className="game-menu-actions gap-4 d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center ms-xxl-auto">
+            <div className="game-menu-financials grid min-w-[320px] flex-1 grid-cols-2 items-end justify-center gap-y-3 sm:max-w-[32rem] sm:justify-self-end">
               <div className="px-4 text-center">
                 <span className="mb-1 block text-[0.65rem] font-medium uppercase tracking-[0.16em] text-white/40">
                   Balance
@@ -327,7 +327,7 @@ export function GameMenu() {
               </div>
             </div>
 
-            <div className="px-3 py-2 border rounded-3">
+            <div className="game-menu-round-card px-3 py-2 border rounded-3">
               <div className="gap-3 d-flex flex-column">
                 <div className="d-flex align-items-center justify-content-between">
                   <div>
