@@ -1095,7 +1095,7 @@ export function TradingViewPage() {
                   />
                   <MDBBtn
                     onClick={buyForm.handleSubmit(onBuySubmit)}
-                    className="p-3 bg-white w-100 rounded-3"
+                    className="trading-view-page__trade-action p-3 bg-white w-100 rounded-3"
                     disabled={
                       !buyForm.formState.isValid ||
                       (gameState.availableFunds ?? 0) <= 0
@@ -1169,7 +1169,7 @@ export function TradingViewPage() {
                   <button
                     type="button"
                     onClick={sellForm.handleSubmit(onSellSubmit)}
-                    className="p-3 bg-white btn btn-primary w-100 rounded-3"
+                    className="trading-view-page__trade-action p-3 bg-white btn btn-primary w-100 rounded-3"
                     disabled={
                       !sellForm.formState.isValid ||
                       !currentPosition ||
