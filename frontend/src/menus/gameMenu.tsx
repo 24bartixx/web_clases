@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { ChangeEvent } from 'react';
+import type { CSSProperties, ChangeEvent } from 'react';
 import { MDBTypography } from 'mdb-react-ui-kit';
 import { useNavigate, useLocation } from 'react-router-dom';
 import logo from '../assets/logo.png';
@@ -69,9 +69,12 @@ export function GameMenu() {
   const { gameState, advanceTurn, finishGame } = useGame();
   const navigate = useNavigate();
   const location = useLocation();
+  const headerRef = useRef<HTMLElement>(null);
   const [daysToAdvance, setDaysToAdvance] = useState(1);
   const isAdvancingRef = useRef(false);
   const [isAdvancingTurn, setIsAdvancingTurn] = useState(false);
+  const [menuOffset, setMenuOffset] = useState(0);
+  const [isMenuRevealing, setIsMenuRevealing] = useState(false);
   const [lastActiveMenuSection, setLastActiveMenuSection] =
     useState<GameMenuSection>('stocks-view');
 
@@ -164,6 +167,102 @@ export function GameMenu() {
     }
   }, [currentMenuSection, locationMenuSection]);
 
+  useEffect(() => {
+    const headerElement = headerRef.current;
+
+    if (headerElement === null) {
+      return;
+    }
+
+    const getScrollParent = (element: HTMLElement) => {
+      let parentElement = element.parentElement;
+
+      while (parentElement !== null) {
+        const { overflowY } = window.getComputedStyle(parentElement);
+
+        if (
+          (overflowY === 'auto' ||
+            overflowY === 'scroll' ||
+            overflowY === 'overlay') &&
+          parentElement.scrollHeight > parentElement.clientHeight
+        ) {
+          return parentElement;
+        }
+
+        parentElement = parentElement.parentElement;
+      }
+
+      return window;
+    };
+
+    const isWindowScrollParent = (
+      scrollParentToCheck: HTMLElement | Window,
+    ): scrollParentToCheck is Window => scrollParentToCheck === window;
+    const scrollParent = getScrollParent(headerElement);
+    const getScrollTop = () =>
+      isWindowScrollParent(scrollParent)
+        ? window.scrollY
+        : scrollParent.scrollTop;
+    let lastScrollTop = getScrollTop();
+    let animationFrameId: number | null = null;
+    const scrollDeltaThreshold = 2;
+    const topRevealThreshold = 12;
+
+    const revealMenu = () => {
+      setIsMenuRevealing(true);
+      setMenuOffset(0);
+    };
+
+    const updateMenuVisibility = () => {
+      animationFrameId = null;
+
+      const currentScrollTop = getScrollTop();
+      const scrollDelta = currentScrollTop - lastScrollTop;
+
+      if (currentScrollTop <= topRevealThreshold) {
+        revealMenu();
+        lastScrollTop = currentScrollTop;
+        return;
+      }
+
+      if (Math.abs(scrollDelta) < scrollDeltaThreshold) {
+        return;
+      }
+
+      if (scrollDelta > 0) {
+        const headerHeight = headerElement.offsetHeight;
+
+        setIsMenuRevealing(false);
+        setMenuOffset((currentMenuOffset) =>
+          Math.min(headerHeight, currentMenuOffset + scrollDelta),
+        );
+      } else {
+        revealMenu();
+      }
+
+      lastScrollTop = currentScrollTop;
+    };
+
+    const handleScroll = () => {
+      if (animationFrameId !== null) {
+        return;
+      }
+
+      animationFrameId = window.requestAnimationFrame(updateMenuVisibility);
+    };
+
+    scrollParent.addEventListener('scroll', handleScroll, { passive: true });
+    revealMenu();
+
+    return () => {
+      scrollParent.removeEventListener('scroll', handleScroll);
+
+      if (animationFrameId !== null) {
+        window.cancelAnimationFrame(animationFrameId);
+      }
+    };
+  }, [location.pathname]);
+
   const activeMenuSection =
     currentMenuSection ??
     locationMenuSection ??
@@ -210,9 +309,20 @@ export function GameMenu() {
 
   const isStocksView = activeMenuSection === 'stocks-view';
   const isPortfolio = activeMenuSection === 'portfolio';
+  const menuStyle = {
+    '--game-menu-offset': `-${menuOffset}px`,
+  } as CSSProperties;
 
   return (
-    <header className="sticky top-0 z-50 shadow-sm border-bottom bg-body">
+    <header
+      ref={headerRef}
+      style={menuStyle}
+      className={`game-menu-header sticky top-0 z-50 border-bottom bg-body ${
+        isMenuRevealing ? 'game-menu-header--revealing shadow-sm' : ''
+      } ${
+        menuOffset > 0 ? 'game-menu-header--offset' : ''
+      }`}
+    >
       <div className="container game-menu-container py-3">
         <div className="game-menu-layout gap-3 d-flex flex-column flex-xxl-row align-items-stretch align-items-xxl-center justify-content-between">
           <div className="game-menu-primary d-flex flex-wrap align-items-center justify-content-between justify-content-sm-start gap-4 gap-xl-5">

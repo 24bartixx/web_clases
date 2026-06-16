@@ -1,3 +1,26 @@
+.game-menu-header {
+  --game-menu-offset: 0px;
+  transform: translateY(var(--game-menu-offset));
+  transition: box-shadow 0.22s ease;
+  will-change: transform;
+}
+
+.game-menu-header--revealing {
+  transition:
+    transform 0.67s ease-out,
+    box-shadow 0.22s ease;
+}
+
+.game-menu-header--offset {
+  box-shadow: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-menu-header {
+    transition: none;
+  }
+}
+
 .game-process-layout--trading {
   position: fixed;
   inset: 0;
