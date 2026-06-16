@@ -214,66 +214,78 @@ export function GameMenu() {
   return (
     <header className="sticky top-0 z-50 shadow-sm border-bottom bg-body">
       <div className="container py-3">
-        <div className="gap-3 d-flex flex-column flex-xl-row align-items-stretch align-items-xl-center justify-content-between">
-          <button
-            type="button"
-            className="gap-4 p-0 bg-transparent border-0 d-flex align-items-center text-start text-reset"
-            onClick={() => navigate('/')}
-          >
-            <img
-              src={logo}
-              alt="Chess Bross Trading logo"
-              width={48}
-              height={48}
-              className="rounded-circle object-fit-cover"
-            />
-            <div>
-              <MDBTypography tag="h1" className="mb-0 fs-4 fw-bold">
-                Chess Bross Trading
-              </MDBTypography>
-              <MDBTypography tag="p" className="mb-0 small text-muted">
-                {isGameReady ? 'Trading session' : 'No active game'}
-              </MDBTypography>
-            </div>
-          </button>
+        <div className="gap-3 d-flex flex-column flex-xxl-row align-items-stretch align-items-xxl-center justify-content-between">
+          <div className="d-flex flex-wrap align-items-center justify-content-between justify-content-sm-start gap-4 gap-xl-5">
+            <button
+              type="button"
+              className="gap-4 p-0 bg-transparent border-0 d-flex flex-shrink-0 align-items-center text-start text-reset"
+              onClick={() => navigate('/')}
+            >
+              <img
+                src={logo}
+                alt="Chess Bross Trading logo"
+                width={48}
+                height={48}
+                className="rounded-circle object-fit-cover"
+              />
+              <div>
+                <MDBTypography tag="h1" className="mb-0 fs-4 fw-bold">
+                  Chess Bross Trading
+                </MDBTypography>
+                <MDBTypography tag="p" className="mb-0 small text-muted">
+                  {isGameReady ? 'Trading session' : 'No active game'}
+                </MDBTypography>
+              </div>
+            </button>
 
-          {isGameReady && (
-            <nav className="flex items-center gap-8 sm:pl-4 mx-auto">
-              <button
-                type="button"
-                className={`bg-transparent border-none p-0 flex flex-col text-left transition-colors duration-200 ${
-                  isStocksView
-                    ? 'text-white'
-                    : 'text-white/50 hover:text-white/80'
-                }`}
-                onClick={() =>
-                  navigate(`/game/${gameState.simulationId}/stocks-view`)
-                }
-              >
+            {isGameReady && (
+              <div className="flex items-center gap-5 sm:pl-2">
                 <span
-                  className={`text-[1.1rem] leading-tight ${isStocksView ? 'font-bold' : 'font-medium'}`}
-                >
-                  Stocks
-                </span>
-              </button>
+                  aria-hidden="true"
+                  className="hidden h-8 w-px bg-white/15 sm:block"
+                />
+                <nav className="flex items-center gap-8">
+                  <button
+                    type="button"
+                    className={`bg-transparent border-none p-0 flex flex-col text-left transition-colors duration-200 ${
+                      isStocksView
+                        ? 'text-white'
+                        : 'text-white/50 hover:text-white/80'
+                    }`}
+                    onClick={() =>
+                      navigate(`/game/${gameState.simulationId}/stocks-view`)
+                    }
+                  >
+                    <span
+                      className={`text-[1.1rem] leading-tight ${isStocksView ? 'font-bold' : 'font-medium'}`}
+                    >
+                      Stocks
+                    </span>
+                  </button>
 
-              <button
-                type="button"
-                className={`bg-transparent border-none p-0 text-[1.1rem] transition-colors duration-200 ${
-                  isPortfolio
-                    ? 'text-white font-bold'
-                    : 'text-white/50 font-medium hover:text-white/80'
-                }`}
-                onClick={() =>
-                  navigate(`/game/${gameState.simulationId}/portfolio`)
-                }
-              >
-                Portfolio
-              </button>
-            </nav>
-          )}
+                  <button
+                    type="button"
+                    className={`bg-transparent border-none p-0 text-[1.1rem] transition-colors duration-200 ${
+                      isPortfolio
+                        ? 'text-white font-bold'
+                        : 'text-white/50 font-medium hover:text-white/80'
+                    }`}
+                    onClick={() =>
+                      navigate(`/game/${gameState.simulationId}/portfolio`)
+                    }
+                  >
+                    Portfolio
+                  </button>
+                </nav>
+                <span
+                  aria-hidden="true"
+                  className="hidden h-8 w-px bg-white/15 sm:block"
+                />
+              </div>
+            )}
+          </div>
 
-          <div className="gap-4 d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center">
+          <div className="gap-4 d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center ms-xxl-auto">
             <div className="grid min-w-[320px] flex-1 grid-cols-2 items-end justify-center gap-y-3 sm:max-w-[32rem] sm:justify-self-end">
               <div className="px-4 text-center">
                 <span className="mb-1 block text-[0.65rem] font-medium uppercase tracking-[0.16em] text-white/40">
