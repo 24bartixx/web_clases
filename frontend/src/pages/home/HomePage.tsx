@@ -15,6 +15,7 @@ import type { UserInfo } from '../../api/userApi';
 import type { SimulationPreview } from '../../types/Simulation';
 import { CustomLoading } from '../../components/Common/CustomLoading';
 import logo from '../../assets/logo.png';
+import { apiUrl } from '../../utils/apiUrl';
 import './HomePage.css';
 
 export function HomePage() {
@@ -68,9 +69,14 @@ export function HomePage() {
     }
   };
 
-  const handleLogout = () => {
-    // TODO: add backend logout endpoint to clear the httpOnly auth cookie.
-    navigate('/login');
+  const handleLogout = async () => {
+    try {
+      await fetch(apiUrl('/api/auth/logout'), { method: 'POST' });
+    } catch (error) {
+      console.error('Logout failed:', error);
+    } finally {
+      navigate('/login');
+    }
   };
 
   return (
@@ -94,29 +100,29 @@ export function HomePage() {
               </MDBBtn>
             </div>
             <div className="flex flex-row justify-between items-start">
-            <div className="home-hero__title-row">
-              <div className="home-hero__avatar">
-                <img
-                  src={userInfo?.picture || defaultAvatar}
-                  className="img-fluid rounded-circle"
-                  alt="User Avatar"
-                  referrerPolicy="no-referrer"
-                />
+              <div className="home-hero__title-row">
+                <div className="home-hero__avatar">
+                  <img
+                    src={userInfo?.picture || defaultAvatar}
+                    className="img-fluid rounded-circle"
+                    alt="User Avatar"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
+                <h1 className="home-hero__title">
+                  Hello, {userInfo?.first_name || 'Chess Bro'}!
+                </h1>
               </div>
-              <h1 className="home-hero__title">
-                Hello, {userInfo?.first_name || 'Chess Bro'}!
-              </h1>
-            </div>
-            {/* <p className="home-hero__subtitle">Start a new simulation</p> */}
-            <MDBBtn
-              rounded
-              className="home-hero__button"
-              size="sm"
-              onClick={() => navigate('/game-params')}
-            >
-              <MDBIcon fas icon="plus" className="me-3" />
-              New game
-            </MDBBtn>
+              {/* <p className="home-hero__subtitle">Start a new simulation</p> */}
+              <MDBBtn
+                rounded
+                className="home-hero__button"
+                size="sm"
+                onClick={() => navigate('/game-params')}
+              >
+                <MDBIcon fas icon="plus" className="me-3" />
+                New game
+              </MDBBtn>
             </div>
           </div>
         </MDBCol>

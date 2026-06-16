@@ -3,19 +3,28 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from models.simulation import Simulation
 from models.position import Position
 from repositories import position_repository
 from schemas.position_schema import PositionUpdate, PostitionCreate
 
 
-def get_positions(db: Session, skip: int = 0, limit: int = 100):
-    statement = select(Position).order_by(Position.position_id).offset(skip).limit(limit)
+def get_positions(db: Session, skip: int = 0, limit: int = 100, user_id: int | None = None):
+    statement = select(Position).join(Simulation)
+    if user_id is not None:
+        statement = statement.where(Simulation.user_id == user_id)
+    statement = statement.order_by(Position.position_id).offset(skip).limit(limit)
     return db.scalars(statement).all()
 
 
-def get_positions_by_simulation(db: Session, simulation_id: int):
+def get_positions_by_simulation(db: Session, simulation_id: int, user_id: int):
+    _check_simulation_ownership(db, simulation_id, user_id)
     return position_repository.get_positions_by_simulation_id(db, simulation_id)
 
+def _check_simulation_ownership(db: Session, simulation_id: int, user_id: int):
+    statement = select(Simulation).where(Simulation.simulation_id == simulation_id, Simulation.user_id == user_id)
+    if db.scalars(statement).one_or_none() is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Simulation not found")
 
 def get_position_by_stock_simulation(db: Session, stock_id: int, simulation_id: int):
     position = position_repository.get_position_by_stock_simulation_id(
